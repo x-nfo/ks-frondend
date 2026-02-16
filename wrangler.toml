@@ -1,0 +1,4 @@
+name = "karimasyari-frontend"
+compatibility_date = "2024-11-12"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./build/client"

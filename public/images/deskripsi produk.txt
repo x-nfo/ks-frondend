@@ -1,0 +1,42 @@
+netstat -ano | findstr :3000
+taskkill /PID 11564 /F
+taskkill /PID 11564 /F
+
+Marcellus
+Plus Jakarta Suns
+
+Saliha Series
+=============
+Rp. 699.000
+Saliha - for women who dress with faith and dignitiy. More than modest war, it's a reminder of beauty in righteousness. Designed in airy crinkle fabric
+
+
+Hayya Series
+==============
+Rp 749.000
+Inspired by Hayya - an invitation to move forward this abaya brings together feminity and strength. Modest yet empowering, in every detail.
+
+Katta Series
+============
+Rp 785.000
+Katta speaks in lines and strokes - a story woven into fabric. Minimal yet expressive, designed in textured striped material for a graceful everyday wear.
+
+Safa Series
+===========
+RP 699.000
+Inspired by Safa - the sacred hill of purity this abaya embodies simplicity and grace. Crafted from plain denim, it reflects strength in modesty and softness in spirit.
+
+Marwah Series
+==============
+RP 699.000
+Inspired by Marwah - the sacred hill of Sa`i this abaya reflects softness and faith. Crafted in denim with subtle patternt. it brings color and elegance to modest wear.
+
+Khimar
+=========
+Rp 349000
+Grace in motion. The Side Khimar brings effortless modesty in six timeless shades, perfect for both daily wear and special moments.
+
+Khimar Bandana
+================
+Rp 349000
+The Khimar Bandana offers a chic and modest twist for your daily wear. Available in four easy-to-style colors.

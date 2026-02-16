@@ -1,0 +1,16 @@
+.DS_Store
+.env
+/node_modules/
+
+# React Router
+/.react-router/
+/build/
+
+*.log
+cookies.txt
+tsc_output*.txt
+typecheck_output*.txt
+query_*.json
+mutation_*.json
+API.txt
+public/images/API.txt

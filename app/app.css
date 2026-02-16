@@ -1,0 +1,162 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: "Marcellus", serif;
+
+  --color-karima-base: #f0ebe5;
+  --color-karima-brand: #4a201e;
+  --color-karima-accent: #8c544f;
+  --color-karima-ink: #261f1d;
+  --color-karima-gold: #c5a059;
+
+  --color-primary-50: #fdf2f2;
+  --color-primary-100: #fde8e8;
+  --color-primary-200: #fbd5d5;
+  --color-primary-300: #f8b4b4;
+  --color-primary-400: #f98080;
+  --color-primary-500: #f05252;
+  --color-primary-600: #e02424;
+  --color-primary-700: #c81e1e;
+  --color-primary-800: #9b1c1c;
+  --color-primary-900: #771d1d;
+  --color-primary-950: #4a201e;
+
+  --animate-fade-in: fadeIn 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  --animate-slide-up: slideUp 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  --animate-slide-down: slideDown 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  --animate-dropIn: dropIn 0.2s ease-out;
+  --animate-marquee: marquee 60s linear infinite;
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    0% {
+      opacity: 0;
+      transform: translateY(100px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideDown {
+    0% {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes dropIn {
+    0% {
+      transform: translateY(-100px);
+    }
+
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  --animate-marquee: marquee 60s linear infinite;
+
+  --text-xxs: 0.625rem;
+  --text-micro: 0.5625rem;
+  --text-nano: 0.5rem;
+}
+
+
+
+html,
+body {
+  @apply bg-white text-karima-ink antialiased selection:bg-karima-brand selection:text-white;
+  scroll-behavior: smooth;
+}
+
+
+
+.font-serif {
+  font-variant-numeric: oldstyle-nums;
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1.4s ease-out, transform 1.4s ease-out;
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* View Transitions */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+::view-transition-old(root) {
+  animation: 250ms ease-in both fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 400ms ease-out both fade-in;
+}
+
+/* Custom Image Expand Transition */
+::view-transition-group(image-expand) {
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 100;
+}
+
+::view-transition-old(image-expand),
+::view-transition-new(image-expand) {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* Class-based transitions */
+.transitioning img:first-of-type {
+  view-transition-name: image-expand;
+}
+
+.transitioning h3,
+.transitioning h4 {
+  view-transition-name: product-title;
+}

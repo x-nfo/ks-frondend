@@ -11,11 +11,14 @@ export async function loader({ params }: LoaderFunctionArgs) {
         throw new Response("Not Found", { status: 404 });
     }
 
-    return { entry };
+    return { slug };
 }
 
 export default function BlogPostDetail() {
-    const { entry } = useLoaderData<typeof loader>();
+    const { slug } = useLoaderData<typeof loader>();
+    const entry = blogPosts.find(p => p.slug === slug);
+
+    if (!entry) return null; // Should be handled by loader 404
 
     return (
         <article className="min-h-screen pt-40 md:pt-52 pb-24 bg-white relative">

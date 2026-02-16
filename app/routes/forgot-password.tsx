@@ -30,7 +30,7 @@ export async function action({ request }: Route.ActionArgs) {
 
     try {
         const result = await requestPasswordReset(email, { request });
-        if (result?.__typename === 'Success') {
+        if ((result as any)?.__typename === 'Success') {
             return data({ success: true });
         } else {
             console.error("Forgot password mutation result:", result);

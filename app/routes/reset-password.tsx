@@ -38,8 +38,8 @@ export async function action({ request }: Route.ActionArgs) {
         const result = await resetPassword(token, password, { request });
         console.log("Password reset result:", result);
 
-        if (result?.__typename === 'CurrentUser') {
-            return data({ success: true, headers: result._headers });
+        if ((result as any)?.__typename === 'CurrentUser') {
+            return data({ success: true, headers: (result as any)._headers });
         } else {
             const errorMsg = (result && 'message' in result) ? result.message : `An error occurred (${result?.__typename || 'Unknown'}).`;
             return data(submission.reply({ formErrors: [errorMsg] }), { status: 400 });

@@ -3,7 +3,8 @@ import { ArrowLeft, Clock, ArrowUpRight } from "lucide-react";
 import { blogPosts, type BlogPost } from "../data/blog-posts";
 
 export async function loader() {
-    const articles = blogPosts.sort(
+    // Exclude 'content' to make data serializable
+    const articles = blogPosts.map(({ content, ...rest }) => rest).sort(
         (a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf()
     );
     return { articles };
@@ -87,7 +88,7 @@ export default function BlogIndex() {
                 {/* Articles Grid */}
                 {remainingArticles.length > 0 && (
                     <div className="grid md:grid-cols-2 gap-x-12 gap-y-20">
-                        {remainingArticles.map((article: BlogPost) => (
+                        {remainingArticles.map((article) => (
                             <Link
                                 key={article.slug}
                                 to={`/blog/${article.slug}`}

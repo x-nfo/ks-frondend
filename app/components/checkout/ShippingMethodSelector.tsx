@@ -48,7 +48,7 @@ export function ShippingMethodSelector({
                 Shipping Method
             </h3>
 
-            <RadioGroup value={shippingMethodId ?? null} onChange={onChange} className="space-y-4">
+            <RadioGroup value={shippingMethodId ?? undefined} onChange={onChange} className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {eligibleShippingMethods.map((shippingMethod) => (
                         <Radio

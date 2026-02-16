@@ -135,7 +135,7 @@ export function RajaOngkirShippingSelector({
                 </div>
             </div>
 
-            <RadioGroup value={selectedOption} onChange={onChange} className="space-y-3">
+            <RadioGroup value={selectedOption ?? undefined} onChange={onChange} className="space-y-3">
                 {shippingOptions.map((option) => (
                     <Radio
                         key={option.id}

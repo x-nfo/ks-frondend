@@ -1,8 +1,9 @@
 import { sdk } from "../../utils/graphqlWrapper";
+import type { QueryOptions } from "../../utils/graphqlWrapper";
 import { gql } from "graphql-request";
 
-export async function getHomepageData(request: Request) {
-  return sdk.getActiveHomepageData({}, { request });
+export async function getHomepageData(options?: QueryOptions) {
+  return sdk.getActiveHomepageData({}, options);
 }
 
 const GET_ACTIVE_HOMEPAGE_DATA = gql`

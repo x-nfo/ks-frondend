@@ -38,18 +38,21 @@ export const links = () => [
   },
 ];
 export async function loader({ request, context }: LoaderFunctionArgs) {
+  const kv = context.cloudflare?.env?.KV_CACHE;
+  const options = { request, kv };
+
   // @ts-ignore - Cloudflare env is in context
   const envVars = context.cloudflare?.env || process.env;
   const apiUrl = envVars.VENDURE_API_URL || DEMO_API_URL;
 
   setApiUrl(apiUrl);
 
-  const collections = await getCollections(request, { take: 20 });
+  const collections = await getCollections({ take: 20 }, options);
   const topLevelCollections = collections?.filter(
     (collection: any) => collection.parent?.name === "__root_collection__"
   ) || [];
-  const activeCustomer = await getActiveCustomer({ request });
-  const channel = await activeChannel({ request });
+  const activeCustomer = await getActiveCustomer(options);
+  const channel = await activeChannel(options);
 
   return {
     activeCustomer,

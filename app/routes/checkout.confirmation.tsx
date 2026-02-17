@@ -7,12 +7,14 @@ import { PaymentInstructions } from '~/components/checkout/midtrans/PaymentInstr
 import type { MidtransPaymentData } from '~/components/checkout/midtrans/types';
 
 
-export async function loader({ params, request }: Route.LoaderArgs) {
+export async function loader({ params, request, context }: Route.LoaderArgs) {
+    const kv = context.cloudflare?.env?.KV_CACHE;
+    const options = { request, kv };
     const orderCode = (params as any).orderCode;
     if (!orderCode) throw new Error("Order code missing");
 
     try {
-        const order = await getOrderByCode(orderCode, { request });
+        const order = await getOrderByCode(orderCode, options);
 
         // Try to fetch specific Midtrans data using the custom query if it's not in the order already
         let paymentMetadata: MidtransPaymentData | null = null;
@@ -46,7 +48,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
                 });
 
                 if (res.ok) {
-                    const json = await res.json();
+                    const json = (await res.json()) as any;
                     const metadataString = json.data?.midtransPaymentData;
                     if (metadataString) {
                         try {

@@ -10,14 +10,16 @@ import { ProductCard } from "../components/products/ProductCard";
 import { APP_META_TITLE } from "../constants";
 import { FilterSidebar, type Filters } from "../components/collections/FilterSidebar";
 
-export async function loader({ params, request }: Route.LoaderArgs) {
+export async function loader({ params, request, context }: Route.LoaderArgs) {
     const { slug } = params;
+    const kv = context.cloudflare.env.KV_CACHE;
+    const options = { request, kv };
 
     if (!slug) {
         throw new Response("Not Found", { status: 404 });
     }
 
-    const collection = await getCollection(slug, request);
+    const collection = await getCollection(slug, options);
 
     if (!collection?.id || !collection?.name) {
         throw new Response("Not Found", { status: 404 });
@@ -33,7 +35,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
                 take: 100,
             },
         },
-        { request }
+        options
     );
 
     return {

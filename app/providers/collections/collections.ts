@@ -1,18 +1,19 @@
 import { gql } from "graphql-request";
 import { sdk } from "../../utils/graphqlWrapper";
+import type { QueryOptions } from "../../utils/graphqlWrapper";
 import type { CollectionListOptions } from "../../generated/graphql";
 
 export function getCollections(
-  request: Request,
-  options?: CollectionListOptions
+  options?: CollectionListOptions,
+  queryOptions?: QueryOptions
 ) {
   return sdk
-    .collections({ options }, { request })
+    .collections({ options }, queryOptions)
     .then((result) => result.collections?.items);
 }
 
-export function getCollection(slug: string, request: Request) {
-  return sdk.collection({ slug }, { request }).then((result) => result.collection);
+export function getCollection(slug: string, queryOptions?: QueryOptions) {
+  return sdk.collection({ slug }, queryOptions).then((result) => result.collection);
 }
 
 const collectionsQuery = gql`

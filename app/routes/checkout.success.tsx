@@ -4,12 +4,14 @@ import type { Route } from './+types/checkout.success';
 import { CheckCircleIcon, ShoppingBagIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 
-export async function loader({ params, request }: Route.LoaderArgs) {
+export async function loader({ params, request, context }: Route.LoaderArgs) {
+    const kv = context.cloudflare?.env?.KV_CACHE;
+    const options = { request, kv };
     const orderCode = (params as any).orderCode;
     if (!orderCode) throw new Error("Order code missing");
 
     try {
-        const order = await getOrderByCode(orderCode, { request });
+        const order = await getOrderByCode(orderCode, options);
 
         const midtransPayment = order?.payments?.find(p => p.method.includes('midtrans'));
         const isSettled = midtransPayment?.state === 'Settled' || midtransPayment?.state === 'PartiallySettled';

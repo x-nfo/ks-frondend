@@ -12,9 +12,12 @@ import { Banner } from "../components/banner/Banner";
 import { useState } from "react";
 import { subscribeToNewsletter } from "../providers/newsletter/newsletter";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const allCollections = await getCollections(request, { take: 100 });
-  const homepageData = await getHomepageData(request);
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const kv = context.cloudflare.env.KV_CACHE;
+  const options = { request, kv };
+
+  const allCollections = await getCollections({ take: 100 }, options);
+  const homepageData = await getHomepageData(options);
   const {
     activeHeroBanners,
     activePromoBanners,
@@ -24,19 +27,12 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const heroBanner = activeHeroBanners.length > 0 ? activeHeroBanners[0] : null;
 
-  // Resolve featured collections
-  // allCollections is likely the array itself based on previous usage context, or it has `items` property.
-  // Checking typical valid response from getCollections... usually it returns { items: [], totalItems: ... } or just []
-  // If getCollections returns { items: ... }, then .items is correct.
-  // However, error said "Property 'items' does not exist on type ...[]". This means allCollections IS the array.
   const collectionsArray = Array.isArray(allCollections) ? allCollections : (allCollections as any).items || [];
 
   const featuredCollections = activeFeaturedCollections
     .map((afc: any) => collectionsArray.find((c: any) => c.id === afc.collectionId))
     .filter(Boolean);
 
-  // Get products for the first featured collection (or just general featured if needed)
-  // For now, let's fetch products from the first featured collection if available, or just latest
   let featuredProducts: any[] = [];
   if (featuredCollections.length > 0) {
     const featuredCollectionId = featuredCollections[0].id;
@@ -46,14 +42,13 @@ export async function loader({ request }: Route.LoaderArgs) {
           collectionId: featuredCollectionId,
           take: 6,
           groupByProduct: true,
-          sort: { name: SortOrder.Asc } // Changed title to name, and used SortOrder enum
+          sort: { name: SortOrder.Asc }
         }
       },
-      { request }
+      options
     );
     featuredProducts = searchResult.search.items;
   } else {
-    // Fallback: just get some products
     const searchResult = await search(
       {
         input: {
@@ -62,20 +57,19 @@ export async function loader({ request }: Route.LoaderArgs) {
           sort: { name: SortOrder.Desc }
         }
       },
-      { request }
+      options
     );
     featuredProducts = searchResult.search.items;
   }
 
-  // Get Facet Values for Color Lookup
   const facetValuesResult = await searchFacetValues(
     {
       input: {
         groupByProduct: true,
-        take: 100 // manageable number for facets
+        take: 100
       }
     },
-    { request }
+    options
   );
 
   const facetLookup = facetValuesResult.search.facetValues.reduce((acc: any, curr: any) => {
@@ -88,7 +82,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     heroBanner,
     activePromoBanners,
     featuredCollections,
-    activePopup: activePopup || null, // Ensure distinct null if undefined
+    activePopup: activePopup || null,
     featuredProducts,
     facetLookup
   };

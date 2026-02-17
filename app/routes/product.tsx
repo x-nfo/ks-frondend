@@ -38,8 +38,10 @@ export const meta = ({ data }: Route.MetaArgs) => {
     ];
 };
 
-export async function loader({ params, request }: Route.LoaderArgs) {
-    const { product } = await getProductBySlug(params.slug, { request });
+export async function loader({ params, request, context }: Route.LoaderArgs) {
+    const kv = context.cloudflare.env.KV_CACHE;
+    const options = { request, kv };
+    const { product } = await getProductBySlug(params.slug, options);
     if (!product) {
         throw data("Not Found", {
             status: 404,
@@ -51,7 +53,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     let wishlistItemsMap: Record<string, string> = {};
     let isLoggedIn = false;
     try {
-        const wishlist = await getActiveCustomerWishlist({ request });
+        const wishlist = await getActiveCustomerWishlist(options);
         if (wishlist?.activeCustomerWishlist) {
             wishlist.activeCustomerWishlist.forEach((item: any) => {
                 wishlistItemsMap[item.productVariant.id] = item.id;
@@ -65,7 +67,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     let activeCustomer: any = null;
     if (isLoggedIn) {
         try {
-            const customer = await getActiveCustomer({ request });
+            const customer = await getActiveCustomer(options);
             activeCustomer = customer?.activeCustomer;
         } catch {
             // Not logged in
@@ -77,7 +79,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
         try {
             const orders = await getActiveCustomerOrderList(
                 { take: 100 },
-                { request }
+                options
             );
 
             if (orders?.activeCustomer?.orders?.items) {
@@ -92,7 +94,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
     let reviews: any[] = [];
     try {
-        const reviewsData = await getProductReviews(product.id, { request });
+        const reviewsData = await getProductReviews(product.id, options);
         reviews = reviewsData?.items || [];
     } catch (e) {
         console.error("Failed to fetch reviews:", e);
@@ -107,9 +109,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
                 input: {
                     collectionSlug,
                     take: 10,
-                    groupByProduct: true
                 }
-            }, { request });
+            }, options);
 
             relatedProducts = searchResult.search.items.filter((item: any) => item.productId !== product.id);
         } catch (e) {

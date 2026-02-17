@@ -5,3 +5,9 @@ pages_build_output_dir = "./build/client"
 
 [vars]
 VENDURE_API_URL = "https://api.karimasyari.com/shop-api"
+VENDURE_TOKEN_NAME = "vendure-auth-token"
+
+[[kv_namespaces]]
+binding = "KV_CACHE"
+id = "77f2d4e7d5814523a5e8888888888888" # Placeholder ID, usually set in Cloudflare Dashboard
+preview_id = "KV_CACHE_PREVIEW"

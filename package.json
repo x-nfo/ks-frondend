@@ -5,9 +5,9 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "start": "wrangler pages dev ./build/client",
-    "preview": "npm run build && wrangler pages dev ./build/client",
-    "deploy": "npm run build && wrangler pages deploy ./build/client",
+    "start": "wrangler pages dev",
+    "preview": "npm run build && wrangler pages dev",
+    "deploy": "npm run build && wrangler pages deploy",
     "typecheck": "react-router typegen && tsc",
     "generate": "graphql-codegen --config codegen.ts"
   },

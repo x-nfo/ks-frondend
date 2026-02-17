@@ -9,5 +9,5 @@ VENDURE_TOKEN_NAME = "vendure-auth-token"
 
 [[kv_namespaces]]
 binding = "KV_CACHE"
-id = "77f2d4e7d5814523a5e8888888888888" # Placeholder ID, usually set in Cloudflare Dashboard
+id = "8d883fa195054f46964e8399341b30cb"
 preview_id = "KV_CACHE_PREVIEW"

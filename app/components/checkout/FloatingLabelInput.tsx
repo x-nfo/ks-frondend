@@ -29,13 +29,18 @@ export function FloatingLabelInput({
 
     // We need to ensure we handle the `value` prop correctly if it's controlled.
 
+    // Determine if this is a controlled or uncontrolled input.
+    // Never pass both value and defaultValue to avoid React's uncontrolled→controlled warning.
+    const inputValueProps = value !== undefined
+        ? { value }
+        : { defaultValue };
+
     return (
         <div className={clsx("relative", className)}>
             <input
                 {...props}
                 id={id}
-                value={value}
-                defaultValue={defaultValue}
+                {...inputValueProps}
                 placeholder=" "
                 className={clsx(
                     "block px-4 pb-2.5 pt-5 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 peer",

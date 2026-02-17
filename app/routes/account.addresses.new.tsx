@@ -23,8 +23,9 @@ import { useForm, getFormProps } from '@conform-to/react';
 import { parseWithZod } from '@conform-to/zod';
 import { z } from 'zod';
 
-export async function loader({ request }: Route.LoaderArgs) {
-    const { availableCountries } = (await getAvailableCountries({ request })) as any;
+export async function loader({ request, context }: Route.LoaderArgs) {
+    const apiUrl = (context?.cloudflare?.env as any)?.VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
+    const { availableCountries } = (await getAvailableCountries({ request, apiUrl })) as any;
     return { availableCountries };
 }
 

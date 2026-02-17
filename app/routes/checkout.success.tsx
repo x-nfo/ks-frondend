@@ -6,7 +6,8 @@ import { CheckCircleIcon, ShoppingBagIcon, InformationCircleIcon } from '@heroic
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
     const kv = context.cloudflare?.env?.KV_CACHE;
-    const options = { request, kv };
+    const apiUrl = (context.cloudflare?.env as any)?.VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
+    const options = { request, kv, apiUrl };
     const orderCode = (params as any).orderCode;
     if (!orderCode) throw new Error("Order code missing");
 

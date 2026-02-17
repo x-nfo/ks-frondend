@@ -22,7 +22,8 @@ const orderPaginationSchema = paginationValidationSchema(
     allowedPaginationLimits,
 );
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, context }: Route.LoaderArgs) {
+    const apiUrl = (context?.cloudflare?.env as any)?.VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
     const url = new URL(request.url);
     const limit = parseInt(url.searchParams.get('limit') ?? paginationLimitMinimumDefault.toString());
     const page = parseInt(url.searchParams.get('page') ?? '1');
@@ -40,7 +41,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         filter: { active: { eq: false } },
     };
 
-    const res = await getActiveCustomerOrderList(orderListOptions, { request });
+    const res = await getActiveCustomerOrderList(orderListOptions, { request, apiUrl });
     if (!res?.activeCustomer) {
         return redirect('/sign-in');
     }

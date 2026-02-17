@@ -34,8 +34,10 @@ import type { MidtransPaymentData } from '~/components/checkout/midtrans/types';
 
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
-export async function loader({ request }: Route.LoaderArgs) {
-    const activeOrder = await getActiveOrder({ request });
+export async function loader({ request, context }: Route.LoaderArgs) {
+    const apiUrl = (context?.cloudflare?.env as any)?.VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
+    const opts = { request, apiUrl };
+    const activeOrder = await getActiveOrder(opts);
 
     // FIX: If activeOrder is null, it might be because the order was just placed/authorized
     // and is no longer "active". We should check if there's a recent order for this customer
@@ -46,7 +48,7 @@ export async function loader({ request }: Route.LoaderArgs) {
             const orderList = await getActiveCustomerOrderList({
                 take: 1,
                 sort: { updatedAt: SortOrder.Desc }
-            }, { request });
+            }, opts);
 
             const latestOrder = orderList?.activeCustomer?.orders?.items?.[0];
             if (latestOrder && latestOrder.orderPlacedAt) {
@@ -85,10 +87,10 @@ export async function loader({ request }: Route.LoaderArgs) {
         }
     }
 
-    const { availableCountries } = await getAvailableCountries({ request });
-    const { eligibleShippingMethods } = await getEligibleShippingMethods({ request });
-    const { eligiblePaymentMethods } = await getEligiblePaymentMethods({ request });
-    const addressesData = await getActiveCustomerAddresses({ request });
+    const { availableCountries } = await getAvailableCountries(opts);
+    const { eligibleShippingMethods } = await getEligibleShippingMethods(opts);
+    const { eligiblePaymentMethods } = await getEligiblePaymentMethods(opts);
+    const addressesData = await getActiveCustomerAddresses(opts);
     const addresses = addressesData?.activeCustomer?.addresses ?? [];
     const session = await getSession(request.headers.get("Cookie"));
     const error = session.get('activeOrderError');

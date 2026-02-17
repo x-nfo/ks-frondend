@@ -14,7 +14,8 @@ import { subscribeToNewsletter } from "../providers/newsletter/newsletter";
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const kv = context.cloudflare.env.KV_CACHE;
-  const options = { request, kv };
+  const apiUrl = (context.cloudflare.env as any).VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
+  const options = { request, kv, apiUrl };
 
   const allCollections = await getCollections({ take: 100 }, options);
   const homepageData = await getHomepageData(options);

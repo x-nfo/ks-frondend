@@ -11,8 +11,9 @@ import {
 import { getActiveCustomerAddresses } from '~/providers/customer/customer';
 
 
-export async function loader({ request }: Route.LoaderArgs) {
-    const res = await getActiveCustomerAddresses({ request });
+export async function loader({ request, context }: Route.LoaderArgs) {
+    const apiUrl = (context?.cloudflare?.env as any)?.VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
+    const res = await getActiveCustomerAddresses({ request, apiUrl });
     if (!res?.activeCustomer) {
         return { activeCustomerAddresses: { addresses: [] } };
     }

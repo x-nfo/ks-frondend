@@ -39,8 +39,9 @@ const changeEmailSchema = z.object({
     password: z.string().min(1, { message: 'Password is required' }),
 });
 
-export async function loader({ request }: Route.LoaderArgs) {
-    const customerData = await getActiveCustomerDetails({ request });
+export async function loader({ request, context }: Route.LoaderArgs) {
+    const apiUrl = (context?.cloudflare?.env as any)?.VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
+    const customerData = await getActiveCustomerDetails({ request, apiUrl });
     if (!customerData?.activeCustomer) {
         return redirect('/sign-in');
     }

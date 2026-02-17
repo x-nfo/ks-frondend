@@ -13,7 +13,9 @@ type LoaderReturnType = {
 
 export async function loader({
     request,
+    context,
 }: Route.LoaderArgs): Promise<LoaderReturnType> {
+    const apiUrl = (context?.cloudflare?.env as any)?.VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
     const url = new URL(request.url);
     const token = url.searchParams.get('token');
     if (!token) {
@@ -24,7 +26,7 @@ export async function loader({
     }
 
     try {
-        const result = await verifyCustomerAccount({ request }, token);
+        const result = await verifyCustomerAccount({ request, apiUrl }, token);
         if (result.__typename !== 'CurrentUser' && 'message' in result) {
             return { success: false, error: (result as any).message };
         }

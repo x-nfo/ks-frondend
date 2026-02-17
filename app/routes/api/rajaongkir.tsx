@@ -6,7 +6,9 @@ import {
     getRajaOngkirCouriers,
 } from '~/providers/checkout/checkout';
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, context }: Route.LoaderArgs) {
+    const apiUrl = (context?.cloudflare?.env as any)?.VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
+    const opts = { request, apiUrl };
     const url = new URL(request.url);
     const action = url.searchParams.get('action');
 
@@ -23,7 +25,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
                 const { rajaOngkirSearchDestinations } = await searchRajaOngkirDestinations(
                     search,
-                    { request },
+                    opts,
                     limit,
                     offset,
                 );
@@ -42,14 +44,14 @@ export async function loader({ request }: Route.LoaderArgs) {
                 const { rajaOngkirCalculateShipping } = await calculateRajaOngkirShipping(
                     destinationId,
                     weight,
-                    { request },
+                    opts,
                 );
 
                 return data({ shippingOptions: rajaOngkirCalculateShipping });
             }
 
             case 'getCouriers': {
-                const { rajaOngkirAvailableCouriers } = await getRajaOngkirCouriers({ request });
+                const { rajaOngkirAvailableCouriers } = await getRajaOngkirCouriers(opts);
                 return data({ couriers: rajaOngkirAvailableCouriers });
             }
 

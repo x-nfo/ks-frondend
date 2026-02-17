@@ -13,7 +13,8 @@ import { FilterSidebar, type Filters } from "../components/collections/FilterSid
 export async function loader({ params, request, context }: Route.LoaderArgs) {
     const { slug } = params;
     const kv = context.cloudflare.env.KV_CACHE;
-    const options = { request, kv };
+    const apiUrl = (context.cloudflare.env as any).VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
+    const options = { request, kv, apiUrl };
 
     if (!slug) {
         throw new Response("Not Found", { status: 404 });

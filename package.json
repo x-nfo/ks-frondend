@@ -29,6 +29,7 @@
     "zod-form-data": "^3.0.1"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260217.0",
     "@graphql-codegen/cli": "^6.1.1",
     "@graphql-codegen/typescript": "^5.0.7",
     "@graphql-codegen/typescript-generic-sdk": "^4.1.0",

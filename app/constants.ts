@@ -9,9 +9,7 @@ export let API_URL =
         || DEMO_API_URL;
 
 export function getApiUrl() {
-    if (typeof process !== "undefined" && process.env.VENDURE_API_URL) return process.env.VENDURE_API_URL;
-    if (typeof window !== "undefined" && (window as any).ENV?.VENDURE_API_URL) return (window as any).ENV.VENDURE_API_URL;
-    return DEMO_API_URL;
+    return API_URL;
 }
 
 export function setApiUrl(apiUrl: string) {

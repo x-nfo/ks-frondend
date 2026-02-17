@@ -19,11 +19,8 @@ import { useActiveOrder } from "./utils/use-active-order";
 import { getCollections } from "./providers/collections/collections"; // Assuming this is ported or referenced correctly
 import { activeChannel } from "./providers/channel/channel";
 import { getActiveCustomer } from "./providers/customer/customer";
+import { setApiUrl, DEMO_API_URL } from "./constants";
 import "./app.css";
-
-// We need to define getCollections in providers/collections if not already
-// I'll assume I need to create it if it wasn't done in the batch
-
 export const links = () => [
   { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
   { rel: "apple-touch-icon", sizes: "180x180", href: "/images/favicon/apple-touch-icon.png" },
@@ -40,8 +37,13 @@ export const links = () => [
     href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600&family=Marcellus&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap",
   },
 ];
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  // @ts-ignore - Cloudflare env is in context
+  const envVars = context.cloudflare?.env || process.env;
+  const apiUrl = envVars.VENDURE_API_URL || DEMO_API_URL;
 
-export async function loader({ request }: LoaderFunctionArgs) {
+  setApiUrl(apiUrl);
+
   const collections = await getCollections(request, { take: 20 });
   const topLevelCollections = collections?.filter(
     (collection: any) => collection.parent?.name === "__root_collection__"
@@ -54,7 +56,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     activeChannel: channel,
     collections: topLevelCollections,
     env: {
-      VENDURE_API_URL: process.env.VENDURE_API_URL,
+      VENDURE_API_URL: apiUrl,
     },
   };
 }
@@ -131,6 +133,9 @@ export default function App() {
   } = useActiveOrder();
 
   useEffect(() => {
+    if (env?.VENDURE_API_URL) {
+      setApiUrl(env.VENDURE_API_URL);
+    }
     refresh();
   }, [loaderData]);
 

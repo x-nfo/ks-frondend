@@ -33,18 +33,28 @@ export type CartLoaderData = {
     error?: ErrorResult;
 };
 
-export async function loader({ request }: Route.LoaderArgs) {
+function getEnvApiUrl(context: any): string {
+    return (context?.cloudflare?.env as any)?.VENDURE_API_URL
+        || process.env.VENDURE_API_URL
+        || 'http://localhost:3000/shop-api';
+}
+
+export async function loader({ request, context }: Route.LoaderArgs) {
+    const apiUrl = getEnvApiUrl(context);
     return {
-        activeOrder: await getActiveOrder({ request }),
+        activeOrder: await getActiveOrder({ request, apiUrl }),
     };
 }
 
-export async function action({ request, params }: Route.ActionArgs) {
+export async function action({ request, params, context }: Route.ActionArgs) {
+    const apiUrl = getEnvApiUrl(context);
     const body = await request.formData();
     const formAction = body.get("action");
     let activeOrder: ExtendedOrderDetailFragment | undefined = undefined;
     let error: ErrorResult | undefined = undefined;
     let mutationHeaders: Headers | undefined = undefined;
+
+    const opts = { request, apiUrl };
 
     switch (formAction) {
         case "setCheckoutShipping":
@@ -65,7 +75,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                         streetLine1: body.get('streetLine1')?.toString() || '',
                         streetLine2: body.get('streetLine2')?.toString() || '',
                     },
-                    { request }
+                    opts
                 );
                 mutationHeaders = result._headers;
                 if (result.setOrderShippingAddress.__typename === "Order") {
@@ -78,7 +88,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         case "setRajaOngkirDestination": {
             const destinationId = body.get('rajaOngkirDestinationId')?.toString();
             if (destinationId) {
-                const currentOrder = await getActiveOrder({ request });
+                const currentOrder = await getActiveOrder(opts);
                 if (currentOrder?.shippingAddress) {
                     const result = await setOrderShippingAddress({
                         fullName: currentOrder.shippingAddress.fullName || '',
@@ -93,7 +103,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                         customFields: {
                             rajaOngkirDestinationId: destinationId
                         }
-                    }, { request });
+                    }, opts);
                     mutationHeaders = result._headers;
                     if (result.setOrderShippingAddress.__typename === "Order") {
                         activeOrder = result.setOrderShippingAddress;
@@ -122,7 +132,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                     postalCode: postalCode || '',
                     countryCode,
                     phoneNumber: phoneNumber || '',
-                }, { request });
+                }, opts);
                 mutationHeaders = result._headers;
                 if (result.setOrderBillingAddress.__typename === 'Order') {
                     activeOrder = result.setOrderBillingAddress;
@@ -142,7 +152,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                     firstName: customerData.firstName,
                     lastName: customerData.lastName,
                 },
-                { request }
+                opts
             );
             mutationHeaders = result._headers;
             if (result.setCustomerForOrder.__typename === "Order") {
@@ -155,7 +165,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         case "setShippingMethod": {
             const shippingMethodId = body.get('shippingMethodId');
             if (typeof shippingMethodId === 'string') {
-                const result = await setOrderShippingMethod(shippingMethodId, { request });
+                const result = await setOrderShippingMethod(shippingMethodId, opts);
                 mutationHeaders = result._headers;
                 if (result.setOrderShippingMethod.__typename === 'Order') {
                     activeOrder = result.setOrderShippingMethod;
@@ -167,9 +177,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         }
         case "removeItem": {
             const lineId = body.get("lineId");
-            const result = await removeOrderLine(lineId?.toString() ?? "", {
-                request,
-            });
+            const result = await removeOrderLine(lineId?.toString() ?? "", opts);
             mutationHeaders = result._headers;
             if (result.removeOrderLine.__typename === "Order") {
                 activeOrder = result.removeOrderLine;
@@ -182,9 +190,7 @@ export async function action({ request, params }: Route.ActionArgs) {
             const lineId = body.get("lineId");
             const quantity = body.get("quantity");
             if (lineId && quantity != null) {
-                const result = await adjustOrderLine(lineId?.toString(), +quantity, {
-                    request,
-                });
+                const result = await adjustOrderLine(lineId?.toString(), +quantity, opts);
                 mutationHeaders = result._headers;
                 if (result.adjustOrderLine.__typename === "Order") {
                     activeOrder = result.adjustOrderLine;
@@ -205,9 +211,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                 break;
             }
 
-            const result = await addItemToOrder(variantId!, quantity, {
-                request,
-            });
+            const result = await addItemToOrder(variantId!, quantity, opts);
             mutationHeaders = result._headers;
             if (result.addItemToOrder.__typename === "Order") {
                 activeOrder = result.addItemToOrder;
@@ -231,10 +235,10 @@ export async function action({ request, params }: Route.ActionArgs) {
                         postalCode: body.get('billingAddress_postalCode')?.toString() || '',
                         countryCode: body.get('billingAddress_countryCode')?.toString() || '',
                         phoneNumber: body.get('billingAddress_phoneNumber')?.toString() || '',
-                    }, { request });
+                    }, opts);
                 } else {
                     // Fallback to shipping if no billing
-                    const currentOrder = await getActiveOrder({ request });
+                    const currentOrder = await getActiveOrder(opts);
                     if (currentOrder && !currentOrder.billingAddress?.streetLine1 && currentOrder.shippingAddress?.streetLine1) {
                         await setOrderBillingAddress({
                             fullName: currentOrder.shippingAddress.fullName || '',
@@ -244,14 +248,14 @@ export async function action({ request, params }: Route.ActionArgs) {
                             postalCode: currentOrder.shippingAddress.postalCode || '',
                             countryCode: currentOrder.shippingAddress.countryCode || '',
                             phoneNumber: currentOrder.shippingAddress.phoneNumber || '',
-                        }, { request });
+                        }, opts);
                     }
                 }
 
                 // Ensure transition to ArrangingPayment
-                const orderToTransition = await getActiveOrder({ request });
+                const orderToTransition = await getActiveOrder(opts);
                 if (orderToTransition && orderToTransition.state !== 'ArrangingPayment') {
-                    await transitionOrderToState('ArrangingPayment', { request });
+                    await transitionOrderToState('ArrangingPayment', opts);
                 }
 
                 const paymentInput: any = {
@@ -259,7 +263,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                     metadata: midtransMetadata ? JSON.parse(midtransMetadata) : {},
                 };
 
-                const result = await addPaymentToOrder(paymentInput, { request });
+                const result = await addPaymentToOrder(paymentInput, opts);
                 mutationHeaders = result._headers;
 
                 if (result.addPaymentToOrder.__typename === 'Order') {
@@ -281,11 +285,11 @@ export async function action({ request, params }: Route.ActionArgs) {
             const couponCode = body.get('couponCode')?.toString();
             if (couponCode) {
                 // Get current order state before applying
-                const previousOrder = await getActiveOrder({ request });
+                const previousOrder = await getActiveOrder(opts);
                 const previousTotal = previousOrder?.totalWithTax || 0;
                 const previousLineCount = previousOrder?.lines?.length || 0;
 
-                const result = await applyCouponCode(couponCode, { request });
+                const result = await applyCouponCode(couponCode, opts);
                 mutationHeaders = (result as any)._headers;
 
                 if (result.applyCouponCode?.__typename === 'Order') {
@@ -302,7 +306,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                     // If coupon is valid but had NO effect (no price drop, no gift item), treat as inapplicable
                     if (!isPriceLower && !hasNewItems && !hasDiscounts) {
                         // Revert the coupon
-                        await removeCouponCode(couponCode, { request });
+                        await removeCouponCode(couponCode, opts);
 
                         // Return error to UI
                         error = {
@@ -325,7 +329,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         case 'removeCoupon': {
             const couponCode = body.get('couponCode')?.toString();
             if (couponCode) {
-                const result = await removeCouponCode(couponCode, { request });
+                const result = await removeCouponCode(couponCode, opts);
                 mutationHeaders = (result as any)._headers;
                 if (result.removeCouponCode?.__typename === 'Order') {
                     activeOrder = result.removeCouponCode;
@@ -337,7 +341,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         }
     }
 
-    const finale = await getActiveOrder({ request });
+    const finale = await getActiveOrder(opts);
     const sdkCookie = finale?._headers.get("Set-Cookie") || mutationHeaders?.get("Set-Cookie");
     const session = await getSession(sdkCookie || request.headers.get("Cookie"));
 

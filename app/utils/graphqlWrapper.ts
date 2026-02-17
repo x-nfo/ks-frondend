@@ -8,6 +8,7 @@ export interface QueryOptions {
     request?: Request;
     kv?: KVNamespace;
     cacheTTL?: number; // In seconds
+    apiUrl?: string; // Override API URL (needed for route loaders that run before root loader sets it)
 }
 
 export type WithHeaders<T> = T & { _headers: Headers };
@@ -77,7 +78,7 @@ const requester = async <R, V extends object>(
         }
     }
 
-    const client = new GraphQLClient(getApiUrl(), {
+    const client = new GraphQLClient(options?.apiUrl || getApiUrl(), {
         headers: customHeaders,
     });
 

@@ -13,6 +13,12 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
     const orderCode = (params as any).orderCode;
     if (!orderCode) throw new Error("Order code missing");
 
+    // Ensure API URL is set from Cloudflare env before any requests
+    // (route loaders run in parallel with root loader, so setApiUrl may not have been called yet)
+    const { setApiUrl, DEMO_API_URL } = await import('~/constants');
+    const envApiUrl = (context.cloudflare?.env as any)?.VENDURE_API_URL || process.env.VENDURE_API_URL || DEMO_API_URL;
+    setApiUrl(envApiUrl);
+
     try {
         const order = await getOrderByCode(orderCode, options);
 
@@ -34,16 +40,19 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
             paymentMetadata = midtransPayment.metadata as any;
         }
 
-        // 2. Fallback: Fetch via custom GraphQL query if possible OR if the found metadata seems incomplete
-        // This is useful if the webhook updated the order but the initial `getOrderByCode` didn't catch it yet (race condition)
-        // or if we need fresh status
-        if (order) {
+        // 2. Fallback: fetch fresh metadata via midtransPaymentData query
+        // Payment.metadata is not exposed to customers in orderByCode, so we use this custom query
+        if (order && !paymentMetadata) {
             try {
-                const apiUrl = process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
+                const apiUrl = envApiUrl;
                 const query = `query($code: String!) { midtransPaymentData(orderCode: $code) }`;
+                const forwardHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+                const cookieHeader = request.headers.get('Cookie');
+                if (cookieHeader) forwardHeaders['Cookie'] = cookieHeader;
+
                 const res = await fetch(apiUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: forwardHeaders,
                     body: JSON.stringify({ query, variables: { code: order.code } })
                 });
 
@@ -53,8 +62,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
                     if (metadataString) {
                         try {
                             const freshMetadata = JSON.parse(metadataString);
-                            // If we found fresh metadata, use it as it might have newer status
-                            if (freshMetadata && (freshMetadata.transactionId || freshMetadata.transaction_id)) {
+                            if (freshMetadata && Object.keys(freshMetadata).length > 0) {
                                 paymentMetadata = freshMetadata;
                             }
                         } catch (e) {

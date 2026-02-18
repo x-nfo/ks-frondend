@@ -8,8 +8,9 @@ import type { MidtransPaymentData } from '~/components/checkout/midtrans/types';
 
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
-    const kv = context.cloudflare?.env?.KV_CACHE;
-    const options = { request, kv };
+    // Do NOT pass kv here — orderByCode must always be fetched fresh (never cached)
+    // so that payment state changes (Authorized → Settled) are immediately visible.
+    const options = { request };
     const orderCode = (params as any).orderCode;
     if (!orderCode) throw new Error("Order code missing");
 

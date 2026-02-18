@@ -194,7 +194,7 @@ export default function CheckoutConfirmation() {
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="bg-white/80 shadow-xl rounded-3xl overflow-hidden border border-karima-brand/10 backdrop-blur-sm">
                     {/* ... (existing header content) ... */}
-                    <div className="p-8 sm:p-12 text-center border-b border-karima-brand/10">
+                    <div className="p-6 sm:p-12 text-center border-b border-karima-brand/10">
                         <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-50/50 rounded-full mb-6">
                             <InformationCircleIcon className="w-10 h-10 text-blue-500" />
                         </div>
@@ -207,7 +207,7 @@ export default function CheckoutConfirmation() {
                         <p className="text-sm font-bold text-karima-gold uppercase tracking-widest">Order Number: <span className="text-karima-ink">{order.code}</span></p>
                     </div>
 
-                    <div className="p-8 sm:p-12 space-y-10">
+                    <div className="p-6 sm:p-12 space-y-10">
                         {isDeclined ? (
                             <div className="bg-red-50 border border-red-100 rounded-2xl p-6 flex items-start gap-4">
                                 <XCircleIcon className="w-6 h-6 text-red-500 mt-0.5" />
@@ -248,7 +248,7 @@ export default function CheckoutConfirmation() {
 
                         <section className="pt-6 border-t border-karima-brand/10">
                             <h2 className="text-sm font-black text-karima-gold uppercase tracking-widest mb-6 border-l-4 border-karima-brand pl-4">Shipping Details</h2>
-                            <div className="grid grid-cols-2 gap-8 text-sm">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-sm">
                                 <div>
                                     <p className="font-black text-karima-brand uppercase tracking-tighter mb-2">Shipping Address</p>
                                     <div className="text-karima-ink/80 space-y-1">

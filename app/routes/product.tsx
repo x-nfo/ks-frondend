@@ -230,7 +230,7 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
     const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
 
     return (
-        <div className="bg-white min-h-screen pt-20 lg:pt-50 animate-fade-in">
+        <div className="bg-white min-h-screen pt-32 lg:pt-48 animate-fade-in">
             <div className="container mx-auto px-6 max-w-7xl">
 
 

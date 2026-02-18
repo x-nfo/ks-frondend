@@ -74,7 +74,7 @@ export default function Footer() {
 
                 {/* Bottom Bar */}
                 <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] uppercase tracking-[0.2em] opacity-30">
-                    <p>© 2025 KARIMA OFFICIAL.</p>
+                    <p>© 2026 KARIMA OFFICIAL.</p>
                     <p>Jakarta, Indonesia</p>
                 </div>
             </div>

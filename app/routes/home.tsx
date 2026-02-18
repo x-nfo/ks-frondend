@@ -149,8 +149,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         <div className="flex gap-32 animate-marquee whitespace-nowrap">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center gap-32 opacity-20">
-              <span className="text-3xl font-serif italic text-karima-brand">Autumn Winter 2025</span>
-              <span className="text-[9px] uppercase tracking-[0.4em] font-medium text-karima-brand mt-1">Atelier Collection</span>
+              <span className="text-3xl font-serif italic text-karima-brand">Ramadhan Sale</span>
+              <span className="text-[9px] uppercase tracking-[0.4em] font-medium text-karima-brand mt-1">Up to 25% Off</span>
             </div>
           ))}
         </div>

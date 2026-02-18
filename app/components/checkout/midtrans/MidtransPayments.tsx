@@ -200,8 +200,8 @@ export function MidtransPayments({
                                 <div className="flex items-center gap-3">
                                     <div className="flex items-center gap-2 overflow-hidden px-1">
                                         {cat.logos.map((logo, i) => (
-                                            <div key={i} className="h-7 w-auto flex items-center bg-white px-2 border border-gray-50 rounded-md shadow-sm">
-                                                <img src={logo} alt="logo" className="h-4 w-auto object-contain" />
+                                            <div key={i} className="h-10 w-auto flex items-center bg-white px-2 border border-gray-50 rounded-md shadow-sm">
+                                                <img src={logo} alt="logo" className="h-6 w-auto object-contain" />
                                             </div>
                                         ))}
                                     </div>
@@ -238,7 +238,7 @@ export function MidtransPayments({
                                                             : "border-gray-100 hover:border-gray-300"
                                                     )}
                                                 >
-                                                    <div className="w-16 h-8 flex items-center shrink-0">
+                                                    <div className="w-20 h-10 flex items-center shrink-0">
                                                         <img src={BANK_LOGOS[bank]} alt={bank} className="max-h-full max-w-full object-contain mx-auto" />
                                                     </div>
                                                     <span className={clsx("text-[10px] font-bold uppercase tracking-tight", selectedBank === bank ? "text-karima-ink" : "text-gray-400")}>
@@ -266,7 +266,7 @@ export function MidtransPayments({
                                                             : "border-gray-100 hover:border-gray-300"
                                                     )}
                                                 >
-                                                    <div className="w-16 h-8 flex items-center shrink-0">
+                                                    <div className="w-20 h-10 flex items-center shrink-0">
                                                         <img src={wallet.logo} alt={wallet.label} className="max-h-full max-w-full object-contain mx-auto" />
                                                     </div>
                                                     <span className={clsx("text-[10px] font-bold uppercase tracking-tight", selectedPaymentType === wallet.id ? "text-karima-ink" : "text-gray-400")}>
@@ -279,7 +279,7 @@ export function MidtransPayments({
 
                                     {cat.id === 'qris' && (
                                         <div className="flex flex-col items-center p-4 bg-white border border-gray-100 rounded-lg">
-                                            <img src={LOGOS.qris} alt="QRIS" className="h-10 object-contain mb-2" />
+                                            <img src={LOGOS.qris} alt="QRIS" className="h-14 object-contain mb-2" />
                                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">
                                                 Pay with QRIS scanned by any e-wallet app
                                             </p>
@@ -302,7 +302,7 @@ export function MidtransPayments({
                                                                 : "border-gray-100 hover:border-gray-300"
                                                         )}
                                                     >
-                                                        <div className="w-12 h-6 flex items-center shrink-0">
+                                                        <div className="w-16 h-8 flex items-center shrink-0">
                                                             <img src={STORE_LOGOS[store]} alt={store} className="max-h-full max-w-full object-contain mx-auto" />
                                                         </div>
                                                         <span className={clsx("text-[10px] font-bold uppercase tracking-tight", selectedStore === store ? "text-karima-ink" : "text-gray-400")}>

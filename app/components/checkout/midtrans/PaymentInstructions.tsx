@@ -149,7 +149,7 @@ export function PaymentInstructions({
                             <div className="bg-gray-50 rounded-lg p-5 border border-gray-100">
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 font-sans">Virtual Account Number</p>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-2xl font-mono font-black text-karima-brand">
+                                    <span className="text-xl sm:text-2xl font-mono font-black text-karima-brand break-all">
                                         {finalPermataVa}
                                     </span>
                                     <CopyButton text={finalPermataVa} field="va" />
@@ -195,7 +195,7 @@ export function PaymentInstructions({
                         <div className="bg-gray-50 rounded-lg p-5 border border-gray-100">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 font-sans">Virtual Account Number</p>
                             <div className="flex items-center justify-between">
-                                <span className="text-2xl font-mono font-black text-karima-brand">
+                                <span className="text-xl sm:text-2xl font-mono font-black text-karima-brand break-all">
                                     {vaNumber}
                                 </span>
                                 <CopyButton text={vaNumber} field="va" />
@@ -257,7 +257,7 @@ export function PaymentInstructions({
                                 Scan this QR Code to pay:
                             </p>
                             <div className="inline-block bg-white p-4 border-2 border-primary-50 rounded-2xl shadow-sm">
-                                <img src={getProp(qrAction, 'url')} alt={`${label} QR Code`} className="w-56 h-56 mx-auto" />
+                                <img src={getProp(qrAction, 'url')} alt={`${label} QR Code`} className="w-48 h-48 sm:w-56 sm:h-56 mx-auto" />
                             </div>
                         </div>
                     )}

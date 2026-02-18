@@ -225,7 +225,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
     // For now, let's implement the UI structure.
 
     return (
-        <div className="bg-white min-h-screen pt-35 animate-fade-in pb-40">
+        <div className="bg-white min-h-screen pt-40 animate-fade-in pb-40">
             <div className="container mx-auto px-6">
                 {/* Header Section */}
                 <div className="flex flex-col items-center text-center mb-16 space-y-6">
@@ -258,7 +258,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
                 ) : null}
 
                 {/* Toolbar */}
-                <div className="bg-white border-b border-karima-brand/10 py-4 mb-8 flex items-center justify-between sticky top-[48px] lg:top-[53px] z-30">
+                <div className="bg-white border-b border-karima-brand/10 py-4 mb-8 flex items-center justify-between sticky top-[62px] lg:top-[80px] z-30">
                     {/* Filter Toggle (Mobile Only) */}
                     <button
                         onClick={() => setIsFilterOpen(true)}

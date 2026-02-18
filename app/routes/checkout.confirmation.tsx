@@ -61,9 +61,11 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
 
             if (res.ok) {
                 const json = (await res.json()) as any;
+                console.log(`[confirmation] midtransPaymentData raw response:`, JSON.stringify(json));
                 const paymentStatus = json.data?.midtransPaymentData;
                 if (paymentStatus) {
                     paymentStateFromQuery = paymentStatus.state ?? null;
+                    console.log(`[confirmation] paymentStateFromQuery:`, paymentStateFromQuery);
                     if (!paymentMetadata && paymentStatus.metadata) {
                         try {
                             const freshMetadata = JSON.parse(paymentStatus.metadata);
@@ -74,7 +76,11 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
                             console.error('Failed to parse fresh metadata JSON', e);
                         }
                     }
+                } else {
+                    console.log(`[confirmation] midtransPaymentData returned null/undefined. errors:`, JSON.stringify(json.errors));
                 }
+            } else {
+                console.error(`[confirmation] midtransPaymentData HTTP error:`, res.status, res.statusText);
             }
         } catch (e) {
             console.error('Failed to fetch Midtrans payment data via custom query:', e);

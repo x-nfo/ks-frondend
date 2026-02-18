@@ -113,7 +113,14 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
                 }
             }, options);
 
-            relatedProducts = searchResult.search.items.filter((item: any) => item.productId !== product.id);
+            const seen = new Set<string>();
+            relatedProducts = searchResult.search.items
+                .filter((item: any) => item.productId !== product.id)
+                .filter((item: any) => {
+                    if (seen.has(item.productId)) return false;
+                    seen.add(item.productId);
+                    return true;
+                });
         } catch (e) {
             console.error("Failed to fetch related products:", e);
         }

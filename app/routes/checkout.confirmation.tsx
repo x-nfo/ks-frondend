@@ -40,28 +40,33 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
             paymentMetadata = midtransPayment.metadata as any;
         }
 
-        // 2. Fallback: fetch fresh metadata via midtransPaymentData query
-        // Payment.metadata is not exposed to customers in orderByCode, so we use this custom query
-        if (order && !paymentMetadata) {
-            try {
-                const apiUrl = envApiUrl;
-                const query = `query($code: String!) { midtransPaymentData(orderCode: $code) }`;
-                const forwardHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-                const cookieHeader = request.headers.get('Cookie');
-                if (cookieHeader) forwardHeaders['Cookie'] = cookieHeader;
+        // 2. Fetch payment state + metadata via midtransPaymentData custom query.
+        // This is the authoritative source: it reads directly from the DB, bypassing
+        // Shop API restrictions, and now also returns the Vendure payment state.
+        // This allows us to detect settlement even when orderByCode returns null
+        // (which can happen after Vendure clears the activeOrder session on settlement).
+        let paymentStateFromQuery: string | null = null;
+        try {
+            const apiUrl = envApiUrl;
+            const query = `query($code: String!) { midtransPaymentData(orderCode: $code) { state metadata } }`;
+            const forwardHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+            const cookieHeader = request.headers.get('Cookie');
+            if (cookieHeader) forwardHeaders['Cookie'] = cookieHeader;
 
-                const res = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: forwardHeaders,
-                    body: JSON.stringify({ query, variables: { code: order.code } })
-                });
+            const res = await fetch(apiUrl, {
+                method: 'POST',
+                headers: forwardHeaders,
+                body: JSON.stringify({ query, variables: { code: orderCode } })
+            });
 
-                if (res.ok) {
-                    const json = (await res.json()) as any;
-                    const metadataString = json.data?.midtransPaymentData;
-                    if (metadataString) {
+            if (res.ok) {
+                const json = (await res.json()) as any;
+                const paymentStatus = json.data?.midtransPaymentData;
+                if (paymentStatus) {
+                    paymentStateFromQuery = paymentStatus.state ?? null;
+                    if (!paymentMetadata && paymentStatus.metadata) {
                         try {
-                            const freshMetadata = JSON.parse(metadataString);
+                            const freshMetadata = JSON.parse(paymentStatus.metadata);
                             if (freshMetadata && Object.keys(freshMetadata).length > 0) {
                                 paymentMetadata = freshMetadata;
                             }
@@ -70,28 +75,32 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
                         }
                     }
                 }
-            } catch (e) {
-                console.error('Failed to fetch Midtrans payment data via custom query:', e);
             }
+        } catch (e) {
+            console.error('Failed to fetch Midtrans payment data via custom query:', e);
         }
 
         return {
             order,
+            orderCode,
             paymentMetadata,
+            paymentStateFromQuery,
             error: false,
         };
     } catch (ex) {
         console.error("Confirmation Loader Error:", ex);
         return {
             order: null,
+            orderCode,
             paymentMetadata: null,
+            paymentStateFromQuery: null,
             error: true,
         };
     }
 }
 
 export default function CheckoutConfirmation() {
-    const { order, error, paymentMetadata } = useLoaderData<typeof loader>();
+    const { order, orderCode, error, paymentMetadata, paymentStateFromQuery } = useLoaderData<typeof loader>();
     const revalidator = useRevalidator();
     const navigate = useNavigate();
     const [retries, setRetries] = useState(0);
@@ -104,16 +113,23 @@ export default function CheckoutConfirmation() {
         return meta?.paymentType || meta?.payment_type || meta?.transactionId;
     });
 
-    const isSettled = midtransPayment?.state === 'Settled' || midtransPayment?.state === 'PartiallySettled';
-    const isAuthorized = midtransPayment?.state === 'Authorized';
-    const isDeclined = midtransPayment?.state === 'Declined' || midtransPayment?.state === 'Cancelled';
+    // isSettled: check from orderByCode payment list OR from the custom query
+    // The custom query reads directly from DB, so it's authoritative even when
+    // orderByCode returns null (e.g. after Vendure clears the session on settlement).
+    const isSettledFromOrder = midtransPayment?.state === 'Settled' || midtransPayment?.state === 'PartiallySettled';
+    const isSettledFromQuery = paymentStateFromQuery === 'Settled' || paymentStateFromQuery === 'PartiallySettled';
+    const isSettled = isSettledFromOrder || isSettledFromQuery;
+    const isDeclined = midtransPayment?.state === 'Declined' || midtransPayment?.state === 'Cancelled'
+        || paymentStateFromQuery === 'Declined' || paymentStateFromQuery === 'Cancelled';
 
-    // Auto-redirect to success page if settled
+    // orderCode comes from loader params — available even when order object is null
+
+    // Auto-redirect to success page if settled — works even if order is null
     useEffect(() => {
-        if (order && isSettled) {
-            navigate(`/checkout/success/${order.code}`, { replace: true });
+        if (isSettled && orderCode) {
+            navigate(`/checkout/success/${orderCode}`, { replace: true });
         }
-    }, [order, isSettled, navigate]);
+    }, [isSettled, orderCode, navigate]);
 
     useEffect(() => {
         const hasMidtrans = order?.payments?.some(p => p.method.includes('midtrans'));
@@ -128,17 +144,30 @@ export default function CheckoutConfirmation() {
 
     // Auto-poll for status updates if payment is pending
     useEffect(() => {
-        const isPending = midtransPayment?.state === 'Authorized' || midtransPayment?.state === 'Created';
+        const isPendingFromOrder = midtransPayment?.state === 'Authorized';
+        const isPendingFromQuery = paymentStateFromQuery === 'Authorized';
+        const isPending = isPendingFromOrder || isPendingFromQuery;
 
         if (isPending && !isSettled && !isDeclined) {
             const intervalId = setInterval(() => {
                 if (revalidator.state === 'idle') {
                     revalidator.revalidate();
                 }
-            }, 15000); // Poll every 15 seconds instead of 5
+            }, 15000);
             return () => clearInterval(intervalId);
         }
-    }, [midtransPayment, isSettled, isDeclined, revalidator]);
+    }, [midtransPayment, paymentStateFromQuery, isSettled, isDeclined, revalidator]);
+
+    // If order is null but payment is settled, a redirect is already in-flight via the useEffect above.
+    // Show a brief loading state instead of an error to avoid a flash of the error screen.
+    if (!order && isSettled) {
+        return (
+            <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+                <ArrowPathIcon className="w-10 h-10 text-karima-brand mx-auto mb-4 animate-spin" />
+                <p className="text-karima-ink/70">Redirecting to confirmation...</p>
+            </div>
+        );
+    }
 
     if (error || !order) {
         return (

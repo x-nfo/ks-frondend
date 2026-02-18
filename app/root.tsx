@@ -8,6 +8,7 @@ import {
   useLoaderData,
   useRouteError,
   type LoaderFunctionArgs,
+  type MetaFunction,
 } from "react-router";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
@@ -19,7 +20,14 @@ import { useActiveOrder } from "./utils/use-active-order";
 import { getCollections } from "./providers/collections/collections"; // Assuming this is ported or referenced correctly
 import { activeChannel } from "./providers/channel/channel";
 import { getActiveCustomer } from "./providers/customer/customer";
-import { setApiUrl, DEMO_API_URL } from "./constants";
+import { setApiUrl, DEMO_API_URL, APP_META_TITLE, APP_META_TAGLINE, APP_META_DESCRIPTION } from "./constants";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: `${APP_META_TITLE} | ${APP_META_TAGLINE}` },
+    { name: "description", content: APP_META_DESCRIPTION },
+  ];
+};
 import "./app.css";
 export const links = () => [
   { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },

@@ -11,6 +11,18 @@ import { SortOrder } from "../generated/graphql";
 import { Banner } from "../components/banner/Banner";
 import { useState } from "react";
 import { subscribeToNewsletter } from "../providers/newsletter/newsletter";
+import { APP_META_TITLE, APP_META_TAGLINE, APP_META_DESCRIPTION } from "../constants";
+import type { MetaFunction } from "react-router";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: `${APP_META_TITLE} | ${APP_META_TAGLINE}` },
+    { name: "description", content: APP_META_DESCRIPTION },
+    { property: "og:title", content: APP_META_TITLE },
+    { property: "og:description", content: APP_META_DESCRIPTION },
+    { property: "og:type", content: "website" },
+  ];
+};
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const kv = context.cloudflare.env.KV_CACHE;

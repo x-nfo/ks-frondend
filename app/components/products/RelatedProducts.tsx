@@ -38,28 +38,28 @@ export function RelatedProducts({ products, onTransition }: RelatedProductsProps
     };
 
     return (
-        <section className="py-24 mt-16">
+        <section className="py-12 mt-8 lg:mt-16">
             <div className="container mx-auto px-6 max-w-7xl">
                 {/* Header with Navigation */}
-                <div className="flex justify-between items-end mb-12 px-2">
+                <div className="flex justify-between items-end mb-8 px-2">
                     <div>
-                        <span className="text-[10px] text-karima-accent uppercase tracking-[0.25em] font-bold block mb-3">Complete The Look</span>
-                        <h3 className="text-4xl font-serif text-karima-brand italic">You Might Also Like</h3>
+                        <span className="text-[10px] text-karima-accent uppercase tracking-[0.25em] font-bold block mb-2">Complete The Look</span>
+                        <h3 className="text-2xl md:text-3xl font-serif text-karima-brand italic">You Might Also Like</h3>
                     </div>
-                    <div className="flex gap-4">
+                    <div className="flex gap-3">
                         <button
                             onClick={() => scroll('left')}
-                            className="w-12 h-12 border border-karima-brand/20 flex items-center justify-center hover:border-karima-brand hover:bg-karima-brand hover:text-white transition-all disabled:opacity-50 text-karima-brand"
+                            className="w-10 h-10 border border-karima-brand/20 flex items-center justify-center hover:border-karima-brand hover:bg-karima-brand hover:text-white transition-all disabled:opacity-50 text-karima-brand"
                             aria-label="Scroll left"
                         >
-                            <ChevronLeft size={20} strokeWidth={1} />
+                            <ChevronLeft size={18} strokeWidth={1} />
                         </button>
                         <button
                             onClick={() => scroll('right')}
-                            className="w-12 h-12 border border-karima-brand/20 flex items-center justify-center hover:border-karima-brand hover:bg-karima-brand hover:text-white transition-all text-karima-brand"
+                            className="w-10 h-10 border border-karima-brand/20 flex items-center justify-center hover:border-karima-brand hover:bg-karima-brand hover:text-white transition-all text-karima-brand"
                             aria-label="Scroll right"
                         >
-                            <ChevronRight size={20} strokeWidth={1} />
+                            <ChevronRight size={18} strokeWidth={1} />
                         </button>
                     </div>
                 </div>
@@ -67,7 +67,7 @@ export function RelatedProducts({ products, onTransition }: RelatedProductsProps
                 {/* Scrollable Container */}
                 <div
                     ref={scrollRef}
-                    className="flex gap-6 overflow-x-auto no-scrollbar pb-8 snap-x snap-mandatory scroll-smooth"
+                    className="flex gap-4 md:gap-5 overflow-x-auto no-scrollbar pb-6 snap-x snap-mandatory scroll-smooth"
                 >
                     {products.map((product) => (
                         <RelatedProductItem
@@ -95,10 +95,10 @@ function RelatedProductItem({ product, onTransition }: { product: RelatedProduct
         <Link
             to={to}
             viewTransition
-            className={`min-w-[280px] md:min-w-[320px] cursor-pointer group snap-start block ${isTransitioning ? "transitioning" : ""}`}
+            className={`min-w-[45%] md:min-w-[calc(25%-1rem)] cursor-pointer group snap-start block ${isTransitioning ? "transitioning" : ""}`}
         >
             {/* Image Container */}
-            <div className="w-full aspect-[4/5] mb-5 overflow-hidden relative bg-stone-100">
+            <div className="w-full aspect-[4/5] mb-4 overflow-hidden relative bg-stone-100">
                 <img
                     src={product.productAsset?.preview + '?w=400'}
                     alt={product.productName}
@@ -109,14 +109,14 @@ function RelatedProductItem({ product, onTransition }: { product: RelatedProduct
             </div>
 
             {/* Product Info */}
-            <div className="space-y-2 text-center md:text-left">
+            <div className="space-y-1 text-center md:text-left">
                 <h4
-                    className="font-serif text-xl text-karima-brand"
+                    className="font-serif text-base text-karima-brand"
                 >
                     {product.productName}
                 </h4>
 
-                <div className="pt-1 font-bold text-sm text-karima-ink">
+                <div className="pt-0.5 font-bold text-xs text-karima-ink">
                     <Price
                         priceWithTax={product.priceWithTax}
                         currencyCode={product.currencyCode}

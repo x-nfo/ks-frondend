@@ -105,22 +105,29 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
     let relatedProducts: any[] = [];
     if (product.collections.length > 0) {
         try {
-            const collectionSlug = product.collections[0].slug;
-            const searchResult = await search({
-                input: {
-                    collectionSlug,
-                    take: 10,
-                }
-            }, options);
-
             const seen = new Set<string>();
-            relatedProducts = searchResult.search.items
-                .filter((item: any) => item.productId !== product.id)
-                .filter((item: any) => {
+            seen.add(product.id);
+
+            for (const collection of product.collections) {
+                if (relatedProducts.length >= 10) break;
+
+                const searchResult = await search({
+                    input: {
+                        collectionSlug: collection.slug,
+                        take: 10,
+                    }
+                }, options);
+
+                const newItems = searchResult.search.items.filter((item: any) => {
                     if (seen.has(item.productId)) return false;
                     seen.add(item.productId);
                     return true;
                 });
+
+                relatedProducts = [...relatedProducts, ...newItems];
+            }
+
+            relatedProducts = relatedProducts.slice(0, 10);
         } catch (e) {
             console.error("Failed to fetch related products:", e);
         }

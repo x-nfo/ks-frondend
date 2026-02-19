@@ -1,4 +1,4 @@
-import { Link, useViewTransitionState } from "react-router";
+import { Link } from "react-router";
 import type { SearchQuery } from "../../generated/graphql";
 import { Price } from "./Price";
 import { useMemo, useState } from "react";
@@ -23,8 +23,6 @@ export function ProductCard({
     productVariantId,
 }: ProductCardProps) {
     const to = `/products/${slug}`;
-    // @ts-ignore
-    const isTransitioning = useViewTransitionState(to);
 
     const [extraAssets, setExtraAssets] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -98,7 +96,7 @@ export function ProductCard({
 
     return (
         <Link
-            className={`group relative cursor-pointer block h-full ${isTransitioning ? "transitioning" : ""}`}
+            className="group relative cursor-pointer block h-full"
             to={to}
             onMouseEnter={handleMouseEnter}
             prefetch="intent"

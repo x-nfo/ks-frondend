@@ -118,11 +118,20 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
                     }
                 }, options);
 
-                const newItems = searchResult.search.items.filter((item: any) => {
-                    if (seen.has(item.productId)) return false;
-                    seen.add(item.productId);
-                    return true;
-                });
+                const newItems = searchResult.search.items
+                    .filter((item: any) => {
+                        if (seen.has(item.productId)) return false;
+                        seen.add(item.productId);
+                        return true;
+                    })
+                    .map((item: any) => ({
+                        productId: item.productId,
+                        productName: item.productName,
+                        slug: item.slug,
+                        productAsset: item.productAsset ? { preview: item.productAsset.preview } : undefined,
+                        priceWithTax: item.priceWithTax,
+                        currencyCode: item.currencyCode,
+                    }));
 
                 relatedProducts = [...relatedProducts, ...newItems];
             }

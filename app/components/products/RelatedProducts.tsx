@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Link, useViewTransitionState } from 'react-router';
+import { Link } from 'react-router';
 import { Price } from './Price';
 import { CurrencyCode } from '~/generated/graphql';
 
@@ -84,18 +84,12 @@ export function RelatedProducts({ products, onTransition }: RelatedProductsProps
 
 function RelatedProductItem({ product, onTransition }: { product: RelatedProduct; onTransition?: () => void }) {
     const to = `/products/${product.slug}`;
-    // @ts-ignore
-    const isTransitioning = useViewTransitionState(to);
-
-    if (isTransitioning && onTransition) {
-        onTransition();
-    }
 
     return (
         <Link
             to={to}
             viewTransition
-            className={`min-w-[45%] md:min-w-[calc(25%-1rem)] cursor-pointer group snap-start block ${isTransitioning ? "transitioning" : ""}`}
+            className="min-w-[45%] md:min-w-[calc(25%-1rem)] cursor-pointer group snap-start block"
         >
             {/* Image Container */}
             <div className="w-full aspect-[4/5] mb-4 overflow-hidden relative bg-stone-100">

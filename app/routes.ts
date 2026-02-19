@@ -19,6 +19,7 @@ export default [
     route("password-reset", "routes/reset-password.tsx"),
     route("verify", "routes/verify.tsx"),
     route("api/logout", "routes/api/logout.ts"),
+    route("api/cache-purge", "routes/api/cache-purge.ts"),
     route(".well-known/appspecific/com.chrome.devtools.json", "routes/chrome-devtools.ts"),
     route("about", "routes/about.tsx"),
     route("contact", "routes/contact.tsx"),

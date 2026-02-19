@@ -67,7 +67,7 @@ export function OrderSummary({
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="lg:hidden w-full flex items-center justify-between mb-4"
             >
-                <h3 className="text-lg font-medium text-karima-brand font-serif">
+                <h3 className="text-lg font-bold text-karima-brand font-sans">
                     Order Summary
                 </h3>
                 {isExpanded ? (

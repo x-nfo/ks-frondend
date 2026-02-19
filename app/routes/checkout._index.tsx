@@ -7,7 +7,8 @@ import {
     useRouteError,
     isRouteErrorResponse,
     redirect,
-    data
+    data,
+    Link
 } from 'react-router';
 import type { Route } from './+types/checkout._index';
 import type { OutletContext } from '~/types';
@@ -87,10 +88,32 @@ export async function loader({ request, context }: Route.LoaderArgs) {
         }
     }
 
-    const { availableCountries } = await getAvailableCountries(opts);
-    const { eligibleShippingMethods } = await getEligibleShippingMethods(opts);
-    const { eligiblePaymentMethods } = await getEligiblePaymentMethods(opts);
-    const addressesData = await getActiveCustomerAddresses(opts);
+    // Transition to ArrangingPayment if shipping is set but state is still AddingItems
+    // This is required to reveal eligible payment methods in Vendure
+    let currentOrder = activeOrder;
+    if (currentOrder && currentOrder.state === 'AddingItems' && (currentOrder.shippingLines?.length ?? 0) > 0) {
+        await transitionOrderToState('ArrangingPayment', opts);
+        currentOrder = await getActiveOrder(opts);
+    }
+
+    const [eligibleShippingMethodsData, eligiblePaymentMethodsData, availableCountriesData, addressesData] =
+        await Promise.all([
+            getEligibleShippingMethods(opts),
+            getEligiblePaymentMethods(opts),
+            getAvailableCountries(opts),
+            getActiveCustomerAddresses(opts),
+        ]);
+
+    const availableCountries = availableCountriesData.availableCountries;
+    const eligibleShippingMethods = eligibleShippingMethodsData.eligibleShippingMethods;
+    let eligiblePaymentMethods = eligiblePaymentMethodsData.eligiblePaymentMethods;
+
+    // One more check for payment methods if they are empty
+    if (currentOrder && currentOrder.state === 'ArrangingPayment' && eligiblePaymentMethods.length === 0) {
+        const refresh = await getEligiblePaymentMethods(opts);
+        eligiblePaymentMethods = refresh.eligiblePaymentMethods;
+    }
+
     const addresses = addressesData?.activeCustomer?.addresses ?? [];
     const session = await getSession(request.headers.get("Cookie"));
     const error = session.get('activeOrderError');
@@ -101,7 +124,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     }
 
     return data({
-        activeOrder,
+        activeOrder: currentOrder,
         availableCountries,
         eligibleShippingMethods,
         eligiblePaymentMethods,
@@ -206,7 +229,7 @@ function CheckoutContent() {
     const { error } = useLoaderData<typeof loader>();
     const { applyCoupon, removeCoupon } = useOutletContext<OutletContext>();
     const actionData = useActionData<typeof action>();
-    const { activeOrder, activeOrderFetcher, paymentData, setPaymentData } = useCheckout();
+    const { activeOrder, activeOrderFetcher, paymentData, setPaymentData, activeCustomer } = useCheckout();
 
     const [orderCode, setOrderCode] = useState<string | null>(null);
 
@@ -224,15 +247,22 @@ function CheckoutContent() {
     const shippingCost = (activeOrder?.shippingWithTax ?? 0);
     const orderTotal = activeOrder?.totalWithTax ?? 0;
 
-    if (!activeOrder) {
+    // Jika fetcher belum selesai load pertama kali DAN tidak ada order dari loader, tunggu dulu
+    const fetcherHasLoaded = activeOrderFetcher.data !== undefined;
+    if (!activeOrder && !fetcherHasLoaded) {
+        return null; // Render nothing while loader data arrives via fetcher
+    }
+
+    // Fetcher sudah selesai tapi order tetap tidak ada → benar-benar kosong
+    if (!activeOrder && fetcherHasLoaded) {
         return (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
                 <div className="mb-6">
-                    <h1 className="text-3xl font-serif font-medium text-karima-brand mb-4">Your Cart is Empty</h1>
+                    <h1 className="text-3xl font-sans font-bold text-karima-brand mb-4">Your Cart is Empty</h1>
                     <p className="text-karima-ink/70 mb-8">It looks like you don't have any items in your checkout.</p>
-                    <a href="/" className="inline-block bg-karima-brand text-white px-8 py-3 rounded-none uppercase tracking-widest text-xs font-bold hover:opacity-90 transition-opacity">
+                    <Link to="/" className="w-full sm:w-auto inline-flex items-center justify-center bg-black hover:bg-karima-brand text-white px-12 py-4 rounded-none uppercase tracking-widest text-xs font-black transition-all">
                         Continue Shopping
-                    </a>
+                    </Link>
                 </div>
             </div>
         );
@@ -241,8 +271,15 @@ function CheckoutContent() {
     return (
 
         <div className="flex flex-col lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="lg:col-span-12 mb-8">
-                <h1 className="text-5xl font-serif font-bold text-karima-brand"> <a href="/">Karima</a></h1>
+            <div className="lg:col-span-12 mb-12 flex justify-center lg:justify-start">
+                <Link to="/">
+                    <img
+                        src="/images/karima_logo_brown.webp"
+                        alt="Karima"
+                        width={125}
+                        height={125}
+                    />
+                </Link>
             </div>
             {/* LEFT COLUMN: Steps */}
             <div className="lg:col-span-6 flex flex-col order-2 lg:order-1">
@@ -250,6 +287,13 @@ function CheckoutContent() {
                 <ShippingAddressStep />
                 <DeliveryStep />
                 <PaymentStep />
+
+                <div className="mt-12 pt-6 border-t border-gray-100 flex flex-wrap gap-x-6 gap-y-2 mb-12 lg:mb-20">
+                    <Link to="/returns" className="text-xs text-karima-ink/50 underline hover:text-karima-brand transition-colors font-sans decoration-gray-300 underline-offset-4">Refund policy</Link>
+                    <Link to="/shipping" className="text-xs text-karima-ink/50 underline hover:text-karima-brand transition-colors font-sans decoration-gray-300 underline-offset-4">Shipping</Link>
+                    <Link to="/privacy" className="text-xs text-karima-ink/50 underline hover:text-karima-brand transition-colors font-sans decoration-gray-300 underline-offset-4">Privacy policy</Link>
+                    <Link to="/terms" className="text-xs text-karima-ink/50 underline hover:text-karima-brand transition-colors font-sans decoration-gray-300 underline-offset-4">Terms of service</Link>
+                </div>
             </div>
 
             {/* RIGHT COLUMN: Summary */}
@@ -288,9 +332,13 @@ export default function CheckoutPage() {
     const activeOrder = outletOrder || data.activeOrder;
 
     return (
-        <div className="pt-8 lg:pt-12 bg-white min-h-screen text-karima-ink font-sans">
+        <div className="relative bg-white min-h-screen text-karima-ink font-sans">
+            <div className="absolute inset-0 flex pointer-events-none" aria-hidden="true">
+                <div className="w-1/2 bg-white" />
+                <div className="w-1/2 bg-gray-50 border-l border-gray-100 hidden lg:block" />
+            </div>
 
-            <main className="pt-16">
+            <main className="relative z-10 pt-8 lg:pt-16 pb-20">
                 <CheckoutProvider
                     activeOrder={activeOrder}
                     activeCustomer={data.activeCustomer as any}
@@ -329,9 +377,9 @@ export function ErrorBoundary() {
                     </div>
                 )}
 
-                <a href="/checkout" className="w-full bg-gray-900 hover:bg-black text-white py-4 px-6 rounded-xl shadow-xl transition-all text-sm font-black uppercase tracking-widest inline-block text-center">
+                <Link to="/checkout" className="w-full bg-black hover:bg-karima-brand text-white py-4 px-6 rounded-none transition-all duration-300 text-sm font-black uppercase tracking-widest inline-block text-center font-sans">
                     Try Again
-                </a>
+                </Link>
             </div>
         </div>
     );

@@ -88,7 +88,6 @@ function RelatedProductItem({ product, onTransition }: { product: RelatedProduct
     return (
         <Link
             to={to}
-            viewTransition
             className="min-w-[45%] md:min-w-[calc(25%-1rem)] cursor-pointer group snap-start block"
         >
             {/* Image Container */}

@@ -225,24 +225,24 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
     // For now, let's implement the UI structure.
 
     return (
-        <div className="bg-white min-h-screen pt-40 animate-fade-in pb-40">
+        <div className="bg-white min-h-screen pt-40 pb-40">
             <div className="container mx-auto px-6">
                 {/* Header Section */}
                 <div className="flex flex-col items-center text-center mb-16 space-y-6">
-                    <h1 className="text-5xl md:text-7xl lg:text-9xl font-serif text-karima-brand italic font-thin leading-none tracking-tighter reveal-on-scroll delay-100">
+                    <h1 className="text-5xl md:text-7xl lg:text-9xl font-serif text-karima-brand italic font-thin leading-none tracking-tighter">
                         {collection.name}
                     </h1>
 
-                    <div className="w-24 h-[1px] bg-karima-brand/10 reveal-on-scroll delay-200"></div>
+                    <div className="w-24 h-[1px] bg-karima-brand/10"></div>
 
-                    <p className="text-[10px] uppercase tracking-[0.4em] text-karima-accent font-medium reveal-on-scroll delay-300">
+                    <p className="text-[10px] uppercase tracking-[0.4em] text-karima-accent font-medium">
                         {filteredProducts.length} {filteredProducts.length === 1 ? 'Piece' : 'Pieces'}
                     </p>
                 </div>
 
                 {/* Subcategories (if any) - Only show if no filters active? Or always? */}
                 {collection.children?.length && activeFiltersCount === 0 ? (
-                    <div className="mb-32 reveal-on-scroll">
+                    <div className="mb-32">
                         <div className="flex items-center gap-8 mb-12">
                             <h2 className="text-[10px] uppercase tracking-[0.4em] font-bold text-karima-brand whitespace-nowrap">
                                 Shop by Category
@@ -291,13 +291,13 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
                         <div className="hidden lg:flex items-center gap-2 border-l border-karima-brand/10 pl-6">
                             <button
                                 onClick={() => setGridCols(2)}
-                                className={`p-1 hover:text-karima-brand transition-colors ${gridCols === 2 ? 'text-karima-brand' : 'text-karima-ink/30'}`}
+                                className={`p-1 hover:text-karima-brand ${gridCols === 2 ? 'text-karima-brand' : 'text-karima-ink/30'}`}
                             >
                                 <LayoutGrid size={18} />
                             </button>
                             <button
                                 onClick={() => setGridCols(3)}
-                                className={`p-1 hover:text-karima-brand transition-colors ${gridCols === 3 ? 'text-karima-brand' : 'text-karima-ink/30'}`}
+                                className={`p-1 hover:text-karima-brand ${gridCols === 3 ? 'text-karima-brand' : 'text-karima-ink/30'}`}
                             >
                                 <Grid3x3 size={18} />
                             </button>
@@ -354,7 +354,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
                                     const colorValues = getProductColorHexes(item, facetLookup);
 
                                     return (
-                                        <div key={item.productId} className="reveal-on-scroll" style={{ transitionDelay: `${(idx % 3) * 150}ms` }}>
+                                        <div key={item.productId}>
                                             <ProductCard
                                                 {...item}
                                                 category={categoryFacet?.name}

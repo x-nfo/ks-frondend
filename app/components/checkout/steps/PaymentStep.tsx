@@ -19,14 +19,30 @@ export function PaymentStep() {
     const navigate = useNavigate();
     const isSubmitting = fetcher.state === 'submitting';
 
-    // Watch for successful payment and redirect to confirmation
+    // Track if billing address is "saved/confirmed" for this step
+    const [isBillingSaved, setIsBillingSaved] = useState(false);
+
+    // Watch for successful billing save or payment
     useEffect(() => {
-        if (fetcher.data?.success && fetcher.data?.orderCode) {
-            navigate(`/checkout/confirmation/${fetcher.data.orderCode}`, {
-                viewTransition: true
-            });
+        if (fetcher.data?.activeOrder && !fetcher.data?.error) {
+            // If the action was setOrderBillingAddress, we mark it as saved locally
+            if (fetcher.formData?.get('action') === 'setOrderBillingAddress') {
+                setIsBillingSaved(true);
+            }
         }
-    }, [fetcher.data, navigate]);
+
+        if (fetcher.data?.success && fetcher.data?.orderCode) {
+            // Gunakan window.location untuk full navigation agar tidak terperangkap dalam nested route context
+            window.location.href = `/checkout/confirmation/${fetcher.data.orderCode}`;
+        }
+    }, [fetcher.data, fetcher.formData, navigate]);
+
+    // Reset saved state if user goes back to a previous step or order changes significantly
+    useEffect(() => {
+        if (stepsStatus.payment !== 'current') {
+            setIsBillingSaved(false);
+        }
+    }, [stepsStatus.payment]);
 
     const isCurrent = stepsStatus.payment === 'current';
     const isActive = isCurrent;
@@ -38,8 +54,6 @@ export function PaymentStep() {
     const [paymentMetadata, setPaymentMetadata] = useState<string>('');
 
     const shippingAddress = activeOrder?.shippingAddress;
-
-    // Use the total from the API (backend) as the source of truth
     const orderTotal = activeOrder?.totalWithTax ?? 0;
 
     const handleBillingAddressChange = (useSame: boolean, address?: any) => {
@@ -47,8 +61,7 @@ export function PaymentStep() {
         setBillingAddressData(useSame ? shippingAddress : address);
     };
 
-    const hasBillingAddress = !!((useSameAsShipping && shippingAddress) || (!useSameAsShipping && billingAddressData));
-    const canCompleteOrder = hasBillingAddress && !!selectedPaymentMethod;
+    const canCompleteOrder = !!selectedPaymentMethod;
 
     return (
         <div className={`bg-transparent sm:rounded-none transition-all duration-300 overflow-hidden mb-2 ${isActive ? '' : ''} ${isDisabled ? 'opacity-40 grayscale' : ''}`}>
@@ -61,89 +74,135 @@ export function PaymentStep() {
 
             {isActive && (
                 <div className="pb-6 pt-4 px-0 lg:px-0 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                    <BillingAddressSection
-                        availableCountries={availableCountries.map(c => ({ ...c, id: c.code })) as any}
-                        shippingAddress={shippingAddress as any}
-                        billingAddress={billingAddressData}
-                        onBillingAddressChange={handleBillingAddressChange}
-                        defaultFullName={activeOrder?.customer ? `${activeOrder.customer.firstName} ${activeOrder.customer.lastName}` : ''}
-                    />
 
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-black text-karima-ink/40 uppercase tracking-widest border-l-4 border-karima-brand pl-4 font-sans">Select Payment Method</h3>
-                        {eligiblePaymentMethods.length === 0 && (
-                            <p className="text-red-500 text-sm italic">No payment methods available.</p>
+                    {/* Phase 1: Billing Address */}
+                    <div className={clsx("space-y-6", isBillingSaved && "opacity-50 pointer-events-none")}>
+                        <BillingAddressSection
+                            availableCountries={availableCountries.map(c => ({ ...c, id: c.code })) as any}
+                            shippingAddress={shippingAddress as any}
+                            billingAddress={billingAddressData}
+                            onBillingAddressChange={handleBillingAddressChange}
+                            defaultFullName={activeOrder?.customer ? `${activeOrder.customer.firstName} ${activeOrder.customer.lastName}` : ''}
+                            namePrefix="billingAddress_"
+                        />
+
+                        {!isBillingSaved && (
+                            <fetcher.Form method="post" action="/api/active-order">
+                                <input type="hidden" name="action" value="setOrderBillingAddress" />
+                                {useSameAsShipping ? (
+                                    <>
+                                        <input type="hidden" name="fullName" value={shippingAddress?.fullName || ''} />
+                                        <input type="hidden" name="streetLine1" value={shippingAddress?.streetLine1 || ''} />
+                                        <input type="hidden" name="streetLine2" value={shippingAddress?.streetLine2 || ''} />
+                                        <input type="hidden" name="city" value={shippingAddress?.city || ''} />
+                                        <input type="hidden" name="province" value={shippingAddress?.province || ''} />
+                                        <input type="hidden" name="postalCode" value={shippingAddress?.postalCode || ''} />
+                                        <input type="hidden" name="countryCode" value={shippingAddress?.countryCode || 'ID'} />
+                                        <input type="hidden" name="phoneNumber" value={shippingAddress?.phoneNumber || ''} />
+                                    </>
+                                ) : (
+                                    <>
+                                        <input type="hidden" name="fullName" value={billingAddressData?.fullName || ''} />
+                                        <input type="hidden" name="streetLine1" value={billingAddressData?.streetLine1 || ''} />
+                                        <input type="hidden" name="streetLine2" value={billingAddressData?.streetLine2 || ''} />
+                                        <input type="hidden" name="city" value={billingAddressData?.city || ''} />
+                                        <input type="hidden" name="province" value={billingAddressData?.province || ''} />
+                                        <input type="hidden" name="postalCode" value={billingAddressData?.postalCode || ''} />
+                                        <input type="hidden" name="countryCode" value={billingAddressData?.countryCode || 'ID'} />
+                                        <input type="hidden" name="phoneNumber" value={billingAddressData?.phoneNumber || ''} />
+                                    </>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting || isGlobalLoading}
+                                    className="w-full bg-karima-brand text-white py-4 px-8 rounded-none transition-all duration-300 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans disabled:opacity-50"
+                                >
+                                    {isSubmitting && fetcher.formData?.get('action') === 'setOrderBillingAddress'
+                                        ? "Saving Address..."
+                                        : "Confirm Billing Address"}
+                                </button>
+                            </fetcher.Form>
                         )}
-                        <div className="grid gap-4">
-                            {/* Render Midtrans selection once if any midtrans method is eligible */}
-                            {eligiblePaymentMethods.some(p => p.code.includes('midtrans')) && (
-                                <MidtransPayments
-                                    paymentMethodCode={eligiblePaymentMethods.find(p => p.code.includes('midtrans'))?.code || 'midtrans-payment'}
-                                    currencyCode={activeOrder?.currencyCode ?? 'IDR'}
-                                    totalAmount={orderTotal}
-                                    paymentError={fetcher.data?.error}
-                                    onPaymentSelect={(code, metadata) => {
-                                        setSelectedPaymentMethod(code);
-                                        setPaymentMetadata(metadata);
-                                    }}
-                                    hideSubmitButton={true}
-                                />
-                            )}
 
-                            {/* Render other (non-midtrans) payment methods if any */}
-                            {eligiblePaymentMethods.filter(p => !p.code.includes('midtrans')).map((paymentMethod) => (
-                                <div key={paymentMethod.id} className="p-4 border rounded-xl flex items-center justify-between">
-                                    <span className="font-bold">{paymentMethod.name}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setSelectedPaymentMethod(paymentMethod.code)}
-                                        className={clsx(
-                                            "px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-widest font-sans",
-                                            selectedPaymentMethod === paymentMethod.code ? "bg-karima-ink text-white" : "bg-gray-100 text-gray-600"
-                                        )}
-                                    >
-                                        Select
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
+                        {isBillingSaved && (
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={() => setIsBillingSaved(false)}
+                                    className="text-[10px] font-black uppercase tracking-widest text-karima-brand hover:underline"
+                                >
+                                    Edit Billing Address
+                                </button>
+                            </div>
+                        )}
                     </div>
 
-                    <fetcher.Form method="post" action="/api/active-order" className="mt-8">
-                        <input type="hidden" name="action" value="completeOrder" />
-                        <input type="hidden" name="paymentMethodCode" value={selectedPaymentMethod} />
-                        {paymentMetadata && <input type="hidden" name="midtransMetadata" value={paymentMetadata} />}
+                    {/* Phase 2: Payment Method */}
+                    {isBillingSaved && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-black text-karima-ink/40 uppercase tracking-widest border-l-4 border-karima-brand pl-4 font-sans">Select Payment Method</h3>
+                                {eligiblePaymentMethods.length === 0 && (
+                                    <p className="text-red-500 text-sm italic">No payment methods available.</p>
+                                )}
+                                <div className="grid gap-4">
+                                    {eligiblePaymentMethods.some(p => p.code.includes('midtrans')) && (
+                                        <MidtransPayments
+                                            paymentMethodCode={eligiblePaymentMethods.find(p => p.code.includes('midtrans'))?.code || 'midtrans-payment'}
+                                            currencyCode={activeOrder?.currencyCode ?? 'IDR'}
+                                            totalAmount={orderTotal}
+                                            paymentError={fetcher.data?.error}
+                                            onPaymentSelect={(code, metadata) => {
+                                                setSelectedPaymentMethod(code);
+                                                setPaymentMetadata(metadata);
+                                            }}
+                                            hideSubmitButton={true}
+                                        />
+                                    )}
 
-                        {/* 
-                          We also pass billing address info in the form so the action can set it 
-                          if needed (although docs might not do it, it's safer for our backend)
-                        */}
-                        {!useSameAsShipping && billingAddressData && (
-                            <>
-                                <input type="hidden" name="billingAddress_fullName" value={billingAddressData.fullName || ''} />
-                                <input type="hidden" name="billingAddress_streetLine1" value={billingAddressData.streetLine1 || ''} />
-                                <input type="hidden" name="billingAddress_city" value={billingAddressData.city || ''} />
-                                <input type="hidden" name="billingAddress_province" value={billingAddressData.province || ''} />
-                                <input type="hidden" name="billingAddress_postalCode" value={billingAddressData.postalCode || ''} />
-                                <input type="hidden" name="billingAddress_countryCode" value={billingAddressData.countryCode || ''} />
-                                <input type="hidden" name="billingAddress_phoneNumber" value={billingAddressData.phoneNumber || ''} />
-                            </>
-                        )}
+                                    {eligiblePaymentMethods.filter(p => !p.code.includes('midtrans')).map((paymentMethod) => (
+                                        <div key={paymentMethod.id} className="p-4 border rounded-xl flex items-center justify-between">
+                                            <span className="font-bold">{paymentMethod.name}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setSelectedPaymentMethod(paymentMethod.code)}
+                                                className={clsx(
+                                                    "px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-widest font-sans",
+                                                    selectedPaymentMethod === paymentMethod.code ? "bg-karima-ink text-white" : "bg-gray-100 text-gray-600"
+                                                )}
+                                            >
+                                                Select
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
 
-                        <button
-                            type="submit"
-                            disabled={!canCompleteOrder || isSubmitting || isGlobalLoading}
-                            className="w-full bg-black hover:bg-karima-brand/90 text-white py-4 px-6 rounded-sm shadow-xl text-sm font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-karima-brand disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 font-sans"
-                        >
-                            {isSubmitting ? "Processing Payment..." : "Complete Order"}
-                        </button>
+                            <div className="mt-8">
+                                <fetcher.Form method="post" action="/api/active-order">
+                                    <input type="hidden" name="action" value="completeOrder" />
+                                    <input type="hidden" name="paymentMethodCode" value={selectedPaymentMethod} />
+                                    {paymentMetadata && <input type="hidden" name="midtransMetadata" value={paymentMetadata} />}
 
-                        {fetcher.data?.error && (
-                            <p className="mt-4 text-sm text-red-600 font-bold italic text-center">
-                                Error: {typeof fetcher.data.error === 'string' ? fetcher.data.error : (fetcher.data.error.message || 'Payment failed')}
-                            </p>
-                        )}
-                    </fetcher.Form>
+                                    <button
+                                        type="submit"
+                                        disabled={!canCompleteOrder || isSubmitting || isGlobalLoading}
+                                        className="w-full bg-black hover:bg-karima-brand text-white py-4 px-8 rounded-none transition-all duration-300 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans disabled:opacity-50 disabled:cursor-not-allowed group"
+                                    >
+                                        {isSubmitting && fetcher.formData?.get('action') === 'completeOrder'
+                                            ? "Processing Order..."
+                                            : "Complete Order"}
+                                    </button>
+                                </fetcher.Form>
+
+                                {fetcher.data?.error && (
+                                    <p className="mt-4 text-sm text-red-600 font-bold italic text-center">
+                                        Error: {typeof fetcher.data.error === 'string' ? fetcher.data.error : (fetcher.data.error.message || 'Payment failed')}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

@@ -8,7 +8,8 @@ export interface QueryOptions {
     request?: Request;
     kv?: KVNamespace;
     cacheTTL?: number; // In seconds
-    apiUrl?: string; // Override API URL (needed for route loaders that run before root loader sets it)
+    apiUrl?: string; // Override API URL
+    headers?: Headers;
 }
 
 export type WithHeaders<T> = T & { _headers: Headers };
@@ -44,7 +45,7 @@ function hashString(str: string): string {
 const requester = async <R, V extends object>(
     doc: DocumentNode,
     vars?: V,
-    options?: { headers?: Headers; request?: Request; kv?: KVNamespace; cacheTTL?: number }
+    options?: QueryOptions
 ): Promise<R & { _headers: Headers }> => {
     const customHeaders = await getHeaders(options?.request);
     if (options?.headers) {
@@ -66,15 +67,16 @@ const requester = async <R, V extends object>(
         try {
             const cached = await kv.get(cacheKey);
             if (cached) {
-                const parsed = JSON.parse(cached) as R; // Cast to R
-                // Attach a helper header to indicate cache hit
+                const parsed = JSON.parse(cached) as R;
                 const resHeaders = new Headers();
                 resHeaders.set("X-Cache", "HIT");
                 return { ...parsed, _headers: resHeaders };
             }
         } catch (e) {
-            console.warn("KV Cache Read Error:", e);
-            // Fallback to live request
+            // Only log if it's not a noise error or if we're not in dev
+            if (!(e instanceof Error && e.message.includes('fetch failed')) || !import.meta.env.DEV) {
+                console.warn("KV Cache Read Error:", e);
+            }
         }
     }
 

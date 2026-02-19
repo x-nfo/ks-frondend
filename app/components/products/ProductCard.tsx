@@ -100,12 +100,11 @@ export function ProductCard({
             to={to}
             onMouseEnter={handleMouseEnter}
             prefetch="intent"
-            viewTransition
         >
             {/* Image Container with Aspect Ratio */}
-            <div className="relative w-full overflow-hidden bg-stone-100 aspect-[2/3] mb-8 transition-all duration-[2000ms] ease-out group-hover:shadow-2xl group-hover:shadow-karima-brand/5">
+            <div className="relative w-full overflow-hidden bg-stone-100 aspect-[2/3] mb-8 transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:shadow-2xl group-hover:shadow-karima-brand/5">
                 {/* Wishlist Button */}
-                <div className="absolute top-3 right-3 z-30 opacity-100 transition-opacity duration-500">
+                <div className="absolute top-3 right-3 z-30 opacity-100">
                     <WishlistButton
                         productVariantId={productVariantId}
                         className="!w-9 !h-9 bg-white text-karima-brand border border-white/40 !shadow-none backdrop-blur-sm"
@@ -114,7 +113,7 @@ export function ProductCard({
 
                 {/* Main Image */}
                 <img
-                    className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-[2000ms] ease-out group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
                     alt={productName}
                     src={productAsset?.preview
                         ? (productAsset.preview + (productAsset.preview.includes('?') ? '&' : '?') + "w=600&h=800&fit=crop")
@@ -126,7 +125,7 @@ export function ProductCard({
                 {/* Hover Image (Secondary Asset) */}
                 {secondarySrc && (
                     <img
-                        className="absolute inset-0 w-full h-full object-cover object-top opacity-0 transition-opacity duration-[2000ms] ease-out group-hover:opacity-100 group-hover:scale-105"
+                        className="absolute inset-0 w-full h-full object-cover object-top opacity-0 transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:opacity-100 group-hover:scale-105"
                         alt={`${productName} - Alternate View`}
                         src={secondarySrc}
                         loading="lazy"
@@ -134,7 +133,7 @@ export function ProductCard({
                 )}
 
                 {/* Quick View Overlay */}
-                <div className="absolute inset-0 bg-black/5 transition-opacity duration-[2000ms] opacity-0 group-hover:opacity-100 pointer-events-none">
+                <div className="absolute inset-0 bg-black/5 transition-opacity duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] opacity-0 group-hover:opacity-100 pointer-events-none">
                     <div className="absolute bottom-6 left-0 w-full text-center pointer-events-auto">
                         <span className="inline-block border border-white/80 text-white px-8 py-3 text-[10px] uppercase tracking-[0.25em] backdrop-blur-sm hover:bg-white hover:text-karima-brand transition-all duration-500">
                             Quick View
@@ -162,7 +161,7 @@ export function ProductCard({
 
                 {/* Color swatches preview - Fade in on hover */}
                 {colors && colors.length > 0 && (
-                    <div className="flex gap-2 pt-4 transition-all duration-[2000ms] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0">
+                    <div className="flex gap-2 pt-4 transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0">
                         {colors.slice(0, 4).map((color, idx) => (
                             <div
                                 key={`${color}-${idx}`}

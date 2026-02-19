@@ -56,8 +56,8 @@ export function Header({
     const cartBadgeBg = getResponsiveColor("bg-black", "bg-white");
     const cartBadgeText = getResponsiveColor("text-white", "text-black");
 
-    const navLinkClass = `relative text-xs uppercase tracking-[0.2em] font-medium ${textColorClass} hover:opacity-70 transition-all group py-4`;
-    const navUnderlineClass = `absolute bottom-3 left-0 w-0 h-[1px] ${bgLinkHover} transition-all duration-500 group-hover:w-full opacity-50`;
+    const navLinkClass = `relative text-xs uppercase tracking-[0.2em] font-medium ${textColorClass} hover:opacity-70 group py-4`;
+    const navUnderlineClass = `absolute bottom-3 left-0 w-0 h-[1px] ${bgLinkHover} group-hover:w-full opacity-50`;
 
     const handleMobileNav = (path: string) => {
         // close menu then navigate - handled by Link naturally, but we need to close menu
@@ -74,7 +74,7 @@ export function Header({
             {/* Main Nav */}
             <header
                 className={classNames(
-                    "fixed left-0 w-full z-[1000] border-b transition-all duration-500 ease-in-out lg:top-0 top-0",
+                    "fixed left-0 w-full z-[1000] border-b lg:top-0 top-0",
                     "translate-y-0 opacity-100",
                     isScrolled ? "bg-white/80 backdrop-blur-md border-karima-brand/1 py-2 shadow-sm" : "bg-white/5 backdrop-blur-sm border-white/10 py-6 lg:pt-12 lg:pb-8"
                 )}
@@ -97,11 +97,11 @@ export function Header({
                     </nav>
 
                     {/* Center Logo */}
-                    <Link to="/" className="flex-shrink-0 cursor-pointer text-center group transition-all duration-500 z-10 relative">
-                        <h1 className={`font-serif font-medium tracking-tight ${logoColorClass} transition-all duration-500 ${isScrolled ? "text-2xl lg:text-3xl" : "text-3xl lg:text-5xl"}`}>
+                    <Link to="/" className="flex-shrink-0 cursor-pointer text-center group z-10 relative">
+                        <h1 className={`font-serif font-medium tracking-tight ${logoColorClass} ${isScrolled ? "text-2xl lg:text-3xl" : "text-3xl lg:text-5xl"}`}>
                             Karima
                         </h1>
-                        <span className={`text-[10px] ${accentColorClass} hidden lg:block mt-1 font-serif italic tracking-wider transition-all duration-300 ${isScrolled ? "opacity-0 h-0 overflow-hidden" : "opacity-100 h-auto"}`}>
+                        <span className={`text-[10px] ${accentColorClass} hidden lg:block mt-1 font-serif italic tracking-wider ${isScrolled ? "opacity-0 h-0 overflow-hidden" : "opacity-100 h-auto"}`}>
                             Faithfully Beautiful
                         </span>
                     </Link>
@@ -139,10 +139,10 @@ export function Header({
 
                         <button
                             onClick={onCartIconClick}
-                            className="relative hover:opacity-60 transition-opacity"
+                            className="relative hover:opacity-60"
                             aria-label="Cart"
                         >
-                            <ShoppingBag size={20} strokeWidth={2} />
+                            <ShoppingBag size={20} strokeWidth={1.5} />
                             {cartQuantity > 0 && (
                                 <span className={`absolute -top-2 -right-2 ${cartBadgeBg} ${cartBadgeText} text-[10px] w-5 h-5 flex items-center justify-center rounded-full`}>
                                     {cartQuantity}
@@ -162,7 +162,7 @@ export function Header({
             </header>
 
             {/* Mobile Menu - Off-Canvas Slide from Left (Full Screen) */}
-            <div className={`fixed inset-0 h-[100dvh] bg-karima-base z-[900] flex flex-col transition-transform duration-500 ease-in-out ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+            <div className={`fixed inset-0 h-[100dvh] bg-karima-base z-[900] flex flex-col ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
                 {/* Header Spacer for Close Button Alignment */}
                 <div className="w-full h-24"></div>
 
@@ -181,18 +181,17 @@ export function Header({
                                 key={idx}
                                 to={item.path}
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className={`group flex items-center gap-4 text-3xl md:text-4xl font-serif transition-all duration-700 transform ${isMobileMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"}`}
-                                style={{ transitionDelay: `${150 + (idx * 100)}ms` }}
+                                className={`group flex items-center gap-4 text-3xl md:text-4xl font-serif transform ${isMobileMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"}`}
                             >
-                                <span className="group-hover:text-karima-gold transition-colors duration-300 text-karima-brand">{item.label}</span>
-                                <ArrowRight size={24} strokeWidth={0.5} className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-karima-gold" />
+                                <span className="group-hover:text-karima-gold text-karima-brand">{item.label}</span>
+                                <ArrowRight size={24} strokeWidth={0.5} className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 text-karima-gold" />
                             </Link>
                         ))}
                     </div>
 
                     {/* Secondary Links */}
                     {isMobileMenuOpen && (
-                        <div className="flex flex-col gap-4 text-left border-t border-karima-brand/10 pt-10 mr-12 opacity-0 animate-fade-in-up" style={{ animationDelay: "600ms", animationFillMode: "forwards" }}>
+                        <div className="flex flex-col gap-4 text-left border-t border-karima-brand/10 pt-10 mr-12">
                             <Link to="/account" onClick={() => setIsMobileMenuOpen(false)} className="text-karima-ink/60 hover:text-karima-brand uppercase tracking-[0.15em] text-xs font-medium text-left">
                                 My Account
                             </Link>
@@ -207,7 +206,7 @@ export function Header({
 
                     {/* Social Media Icons */}
                     {isMobileMenuOpen && (
-                        <div className="flex items-center gap-8 mt-4 opacity-0 animate-fade-in-up" style={{ animationDelay: "800ms", animationFillMode: "forwards" }}>
+                        <div className="flex items-center gap-8 mt-4">
                             <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-karima-brand hover:text-karima-gold transition-colors">
                                 <Instagram size={20} strokeWidth={1} />
                             </a>
@@ -222,7 +221,7 @@ export function Header({
                 </div>
 
                 <div
-                    className={`absolute bottom-8 left-8 md:left-12 text-karima-accent text-[10px] uppercase tracking-[0.3em] transition-all duration-1000 delay-500 ${isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                    className={`absolute bottom-8 left-8 md:left-12 text-karima-accent text-[10px] uppercase tracking-[0.3em] ${isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                 >
                     Karima Official Store
                 </div>
@@ -231,11 +230,11 @@ export function Header({
 
             {/* Karima Search Overlay */}
             {searchOpen && (
-                <div className="fixed inset-0 z-[100] bg-white/98 backdrop-blur-2xl p-12 flex flex-col animate-fade-in">
+                <div className="fixed inset-0 z-[100] bg-white/98 backdrop-blur-2xl p-12 flex flex-col">
                     <div className="flex justify-end">
                         <button
                             onClick={() => setSearchOpen(false)}
-                            className="bg-karima-brand/5 p-4 rounded-full text-karima-brand hover:rotate-90 transition-all duration-700"
+                            className="bg-karima-brand/5 p-4 rounded-full text-karima-brand hover:rotate-90"
                         >
                             <X size={32} strokeWidth={1} />
                         </button>

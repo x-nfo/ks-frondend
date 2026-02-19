@@ -1,6 +1,6 @@
 import { getOrderByCode } from '~/providers/orders/order';
 import { useLoaderData, useRevalidator, useNavigate, useRouteLoaderData } from 'react-router';
-import type { Route } from './+types/checkout.confirmation';
+import type { Route } from './+types/checkout.confirmation.$orderCode';
 import { CheckCircleIcon, XCircleIcon, InformationCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import { PaymentInstructions } from '~/components/checkout/midtrans/PaymentInstructions';
@@ -87,6 +87,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
             console.error('Failed to fetch Midtrans payment data via custom query:', e);
         }
 
+        console.log(`[confirmation] Successfully fetched order:`, order?.code, order?.state);
         return {
             order,
             orderCode,
@@ -94,7 +95,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
             paymentStateFromQuery,
             error: false,
         };
-    } catch (ex) {
+    } catch (ex: any) {
         console.error("Confirmation Loader Error:", ex);
         return {
             order: null,
@@ -102,8 +103,27 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
             paymentMetadata: null,
             paymentStateFromQuery: null,
             error: true,
+            errorMessage: ex?.message || 'Unknown error'
         };
     }
+}
+
+export function ErrorBoundary({ error }: any) {
+    console.error("💥 CHECKOUT CONFIRMATION ERROR:", error);
+    return (
+        <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+            <XCircleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-sans font-bold text-karima-brand mb-2">Something went wrong</h1>
+            <p className="text-karima-ink/70">We encountered an error while displaying your order confirmation. Your order may have been processed successfully.</p>
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg text-left overflow-auto max-h-40 inline-block max-w-full">
+                <p className="text-[10px] font-mono text-red-800 break-words">{(error as any)?.message || 'Unknown Error'}</p>
+            </div>
+            <div className="mt-8 space-x-4">
+                <a href="/account/history" className="text-karima-accent font-bold underline hover:text-karima-brand">Check Order History</a>
+                <a href="/" className="text-karima-accent font-bold underline hover:text-karima-brand">Back to Shopping</a>
+            </div>
+        </div>
+    );
 }
 
 export default function CheckoutConfirmation() {
@@ -112,6 +132,7 @@ export default function CheckoutConfirmation() {
     const navigate = useNavigate();
     const [retries, setRetries] = useState(0);
     const maxRetries = 5;
+    const activeCustomer = (useRouteLoaderData('root') as any)?.activeCustomer;
 
     const midtransPayment = [...(order?.payments || [])].reverse().find(p => {
         if (p.method.includes('midtrans')) return true;
@@ -180,14 +201,12 @@ export default function CheckoutConfirmation() {
         return (
             <div className="max-w-3xl mx-auto px-4 py-16 text-center">
                 <XCircleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
-                <h1 className="text-2xl font-serif font-bold text-karima-brand mb-2">Something went wrong</h1>
+                <h1 className="text-2xl font-sans font-bold text-karima-brand mb-2">Something went wrong</h1>
                 <p className="text-karima-ink/70">Order not found or still processing. Please check your order history.</p>
                 <a href="/account/history" className="mt-8 inline-block text-karima-accent font-bold underline hover:text-karima-brand">Check Order History</a>
             </div>
         );
     }
-
-    const activeCustomer = (useRouteLoaderData('root') as any)?.activeCustomer;
 
     return (
         <div className="bg-white min-h-screen py-12">
@@ -198,7 +217,7 @@ export default function CheckoutConfirmation() {
                         <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-50/50 rounded-full mb-6">
                             <InformationCircleIcon className="w-10 h-10 text-blue-500" />
                         </div>
-                        <h1 className="text-3xl font-black font-serif text-karima-brand uppercase tracking-tight mb-2">
+                        <h1 className="text-3xl font-black font-sans text-karima-brand uppercase tracking-tight mb-2">
                             {isDeclined ? 'Payment Failed' : 'Waiting for Payment'}
                         </h1>
                         <p className="text-karima-ink/60 font-medium italic mb-2">
@@ -214,7 +233,7 @@ export default function CheckoutConfirmation() {
                                 <div>
                                     <p className="font-bold text-red-900 mb-1">Payment Declined or Cancelled</p>
                                     <p className="text-sm text-red-700 mb-4">Your transaction failed. You can try to checkout again with another payment method.</p>
-                                    <a href="/checkout" className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-red-700 transition-all">
+                                    <a href="/checkout" className="inline-flex items-center gap-2 bg-black hover:bg-karima-brand text-white px-8 py-4 rounded-none text-sm font-black uppercase tracking-widest transition-all">
                                         <ArrowPathIcon className="w-4 h-4" />
                                         Try Again
                                     </a>
@@ -271,7 +290,7 @@ export default function CheckoutConfirmation() {
                             <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6 flex flex-col md:flex-row items-start gap-4 shadow-sm">
                                 <InformationCircleIcon className="w-8 h-8 text-amber-500 shrink-0" />
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-bold text-amber-900 mb-1 font-serif">Track Your Order History</h3>
+                                    <h3 className="text-lg font-bold text-amber-900 mb-1 font-sans">Track Your Order History</h3>
                                     <p className="text-amber-800 text-sm mb-3 leading-relaxed">
                                         Your email <span className="font-bold text-amber-950">{order.customer?.emailAddress}</span> is registered with this order.
                                         Create a password to easily track this order and speed up future checkouts.
@@ -287,8 +306,8 @@ export default function CheckoutConfirmation() {
                         )}
 
                         <div className="pt-10 flex flex-col sm:flex-row gap-4 border-t border-karima-brand/10">
-                            <a href="/" className="flex-1 bg-karima-brand text-white text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-karima-brand/90 transition-all shadow-xl">Back to Shopping</a>
-                            <a href="/account/history" className="flex-1 bg-white text-karima-brand border-2 border-karima-brand text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-karima-base transition-all">Order History</a>
+                            <a href="/" className="flex-1 bg-black hover:bg-karima-brand text-white text-center py-4 rounded-none font-black uppercase tracking-widest text-xs transition-all">Back to Shopping</a>
+                            <a href="/account/history" className="flex-1 bg-white text-karima-brand border-2 border-karima-brand text-center py-4 rounded-none font-black uppercase tracking-widest text-xs hover:bg-karima-brand hover:text-white transition-all">Order History</a>
                         </div>
                     </div>
                 </div>

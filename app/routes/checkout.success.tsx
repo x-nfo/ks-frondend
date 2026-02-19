@@ -45,7 +45,7 @@ export default function CheckoutSuccess() {
     if (error || !order) {
         return (
             <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-                <h1 className="text-2xl font-bold font-serif text-karima-brand mb-2">Something went wrong</h1>
+                <h1 className="text-2xl font-bold font-sans text-karima-brand mb-2">Something went wrong</h1>
                 <p className="text-karima-ink/70">Order not found or still processing.</p>
                 <a href="/" className="mt-8 inline-block text-karima-accent font-bold underline hover:text-karima-brand">Back to Shopping</a>
             </div>
@@ -60,7 +60,7 @@ export default function CheckoutSuccess() {
                         <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100/50 rounded-full mb-6">
                             <CheckCircleIcon className="w-12 h-12 text-green-600" />
                         </div>
-                        <h1 className="text-3xl font-black font-serif text-karima-brand uppercase tracking-tight mb-2">
+                        <h1 className="text-3xl font-black font-sans text-karima-brand uppercase tracking-tight mb-2">
                             Thank You!
                         </h1>
                         <p className="text-karima-ink/70 font-medium mb-2">
@@ -107,7 +107,7 @@ export default function CheckoutSuccess() {
                             <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6 flex flex-col md:flex-row items-start gap-4 shadow-sm">
                                 <InformationCircleIcon className="w-8 h-8 text-amber-500 shrink-0" />
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-bold text-amber-900 mb-1 font-serif">Track Your Order History</h3>
+                                    <h3 className="text-lg font-bold text-amber-900 mb-1 font-sans">Track Your Order History</h3>
                                     <p className="text-amber-800 text-sm mb-3 leading-relaxed">
                                         Your email <span className="font-bold text-amber-950">{order.customer?.emailAddress}</span> is registered with this order.
                                         Create a password to easily track this order and speed up future checkouts.
@@ -123,10 +123,10 @@ export default function CheckoutSuccess() {
                         )}
 
                         <div className="pt-10 flex flex-col sm:flex-row gap-4 border-t border-karima-brand/10">
-                            <a href="/" className="flex-1 bg-karima-brand text-white text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-karima-brand/90 transition-all shadow-xl">
+                            <a href="/" className="flex-1 bg-black hover:bg-karima-brand text-white text-center py-4 rounded-none font-black uppercase tracking-widest text-xs transition-all">
                                 Back to Shopping
                             </a>
-                            <a href="/account/history" className="flex-1 bg-white text-karima-brand border-2 border-karima-brand text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-karima-base transition-all">
+                            <a href="/account/history" className="flex-1 bg-white text-karima-brand border-2 border-karima-brand text-center py-4 rounded-none font-black uppercase tracking-widest text-xs hover:bg-karima-brand hover:text-white transition-all">
                                 Order History
                             </a>
                         </div>

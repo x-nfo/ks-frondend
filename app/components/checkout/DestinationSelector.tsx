@@ -88,7 +88,7 @@ export function DestinationSelector({
                     {label}
                 </Combobox.Label>
                 <div className="relative">
-                    <div className="relative w-full cursor-default overflow-hidden rounded-none border border-karima-brand/20 bg-white text-left shadow-sm focus-within:ring-2 focus-within:ring-karima-brand focus-within:border-karima-brand transition-all">
+                    <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-200 bg-white text-left shadow-sm focus-within:ring-1 focus-within:ring-karima-brand focus-within:border-karima-brand transition-all">
                         <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-karima-ink/40" />
                         <ComboboxInput
                             className="w-full border-none py-3 pl-12 pr-10 text-sm leading-5 text-karima-ink focus:ring-0 font-medium placeholder:text-gray-200 placeholder:font-light font-sans"

@@ -52,7 +52,7 @@ export default function SearchPage() {
     const { term, products, totalProducts } = useLoaderData<typeof loader>();
 
     return (
-        <div className="bg-white min-h-screen pt-32 pb-40 animate-fade-in">
+        <div className="bg-white min-h-screen pt-32 pb-40">
             <div className="container mx-auto px-6">
 
                 {/* Header Section */}
@@ -74,7 +74,7 @@ export default function SearchPage() {
                 {products.length > 0 ? (
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 md:gap-x-12 md:gap-y-16">
                         {products.map((item: any, idx: number) => (
-                            <div key={item.productId} className="reveal-on-scroll" style={{ transitionDelay: `${(idx % 4) * 100}ms` }}>
+                            <div key={item.productId}>
                                 <ProductCard
                                     {...item}
                                     productVariantId={item.productVariantId}
@@ -90,7 +90,7 @@ export default function SearchPage() {
                         </p>
                         <Link
                             to="/collections/all"
-                            className="text-[10px] uppercase tracking-[0.2em] font-medium text-karima-brand border-b border-karima-brand/20 pb-1 hover:border-karima-brand transition-all"
+                            className="text-[10px] uppercase tracking-[0.2em] font-medium text-karima-brand border-b border-karima-brand/20 pb-1 hover:border-karima-brand"
                         >
                             View All Collections
                         </Link>

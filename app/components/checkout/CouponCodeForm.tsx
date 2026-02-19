@@ -100,7 +100,7 @@ export function CouponCodeForm({ activeOrder, activeOrderFetcher, applyCoupon, r
                 <button
                     type="submit"
                     disabled={!couponCode.trim() || isSubmitting}
-                    className="bg-black text-white px-6 py-3 text-sm font-medium rounded-sm hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:hover:bg-black"
+                    className="bg-black hover:bg-karima-brand text-white px-8 py-3 rounded-none transition-all duration-300 text-xs font-black uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed font-sans"
                 >
                     {isSubmitting ? '...' : 'Apply'}
                 </button>

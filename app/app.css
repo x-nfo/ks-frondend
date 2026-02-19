@@ -27,8 +27,18 @@
   --animate-fade-in: fadeIn 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
   --animate-slide-up: slideUp 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
   --animate-slide-down: slideDown 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-  --animate-dropIn: dropIn 0.2s ease-out;
+  --animate-zoom-out: zoomOut 20s ease-out forwards;
   --animate-marquee: marquee 60s linear infinite;
+
+  @keyframes zoomOut {
+    0% {
+      transform: scale(1.1);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
 
   @keyframes fadeIn {
     0% {
@@ -64,17 +74,15 @@
     }
   }
 
-  @keyframes dropIn {
+  @keyframes marquee {
     0% {
-      transform: translateY(-100px);
+      transform: translateX(0);
     }
 
     100% {
-      transform: translateY(0);
+      transform: translateX(-50%);
     }
   }
-
-  --animate-marquee: marquee 60s linear infinite;
 
   --text-xxs: 0.625rem;
   --text-micro: 0.5625rem;
@@ -86,25 +94,12 @@
 html,
 body {
   @apply bg-white text-karima-ink antialiased selection:bg-karima-brand selection:text-white;
-  scroll-behavior: smooth;
 }
 
 
 
 .font-serif {
   font-variant-numeric: oldstyle-nums;
-}
-
-.reveal-on-scroll {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 1.4s ease-out, transform 1.4s ease-out;
-  will-change: opacity, transform;
-}
-
-.reveal-on-scroll.is-visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -114,49 +109,4 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-/* View Transitions */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes fade-out {
-  to {
-    opacity: 0;
-  }
-}
-
-::view-transition-old(root) {
-  animation: 250ms ease-in both fade-out;
-}
-
-::view-transition-new(root) {
-  animation: 400ms ease-out both fade-in;
-}
-
-/* Custom Image Expand Transition */
-::view-transition-group(image-expand) {
-  animation-duration: 0.8s;
-  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
-  z-index: 100;
-}
-
-::view-transition-old(image-expand),
-::view-transition-new(image-expand) {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-}
-
-/* Class-based transitions */
-.transitioning img:first-of-type {
-  view-transition-name: image-expand;
-}
-
-.transitioning h3,
-.transitioning h4 {
-  view-transition-name: product-title;
 }

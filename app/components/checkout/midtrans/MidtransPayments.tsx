@@ -1,4 +1,4 @@
-import { Form, useNavigation } from 'react-router';
+import { Form, useNavigation, useSubmit } from 'react-router';
 import { useState, useEffect } from 'react';
 
 import { XCircleIcon } from '@heroicons/react/24/solid';
@@ -68,6 +68,7 @@ export function MidtransPayments({
     hideSubmitButton = false,
 }: MidtransPaymentsProps) {
     const navigation = useNavigation();
+    const submit = useSubmit();
     const isSubmitting = navigation.state === 'submitting';
 
     const [selectedCategory, setSelectedCategory] =
@@ -126,20 +127,36 @@ export function MidtransPayments({
         }
     }, [selectedCategory, selectedPaymentType, selectedBank, selectedStore, onPaymentSelect, paymentMethodCode]);
 
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        submit(formData, { method: 'post' });
+    };
+
+    // Use a regular div when hidden, or a Form when standalone
+    const Container = hideSubmitButton ? 'div' : Form;
+    const containerProps = hideSubmitButton
+        ? { className: "space-y-6" }
+        : { method: "post" as const, className: "space-y-6", onSubmit: handleSubmit };
+
 
     return (
         <div className="w-full max-w-lg mx-auto bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <Form method="post" className="space-y-6">
-                <input
-                    type="hidden"
-                    name="paymentMethodCode"
-                    value={paymentMethodCode}
-                />
-                <input
-                    type="hidden"
-                    name="midtransMetadata"
-                    value={getSubmitMetadata()}
-                />
+            <Container {...(containerProps as any)}>
+                {!hideSubmitButton && (
+                    <>
+                        <input
+                            type="hidden"
+                            name="paymentMethodCode"
+                            value={paymentMethodCode}
+                        />
+                        <input
+                            type="hidden"
+                            name="midtransMetadata"
+                            value={getSubmitMetadata()}
+                        />
+                    </>
+                )}
 
                 {paymentError && (
                     <div className="rounded-xl bg-red-50 p-4 mb-6 border border-red-100 flex gap-3 animate-in fade-in slide-in-from-top-2">
@@ -342,7 +359,7 @@ export function MidtransPayments({
                     </div>
                 </div>
 
-            </Form>
+            </Container>
         </div>
     );
 }

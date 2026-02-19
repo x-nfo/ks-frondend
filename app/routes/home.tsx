@@ -171,7 +171,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       {/* 3. NEW ARRIVALS */}
       <section className="py-40 px-6 bg-white lg:px-24">
         <div className="container mx-auto">
-          <div className="flex flex-col items-center mb-28 reveal-on-scroll">
+          <div className="flex flex-col items-center mb-28">
             <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-6 block font-medium">New Arrivals</span>
             <h2 className="text-6xl lg:text-8xl font-serif text-karima-brand leading-none text-center font-thin">
               The <span className="italic opacity-70">Essentials.</span>
@@ -197,7 +197,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               }).filter(Boolean) as string[];
 
               return (
-                <div key={product.productId} className="reveal-on-scroll" style={{ transitionDelay: `${idx * 150}ms` }}>
+                <div key={product.productId}>
                   <ProductCard
                     {...product}
                     category={categoryFacet?.name}
@@ -208,10 +208,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             })}
           </div>
 
-          <div className="mt-32 text-center reveal-on-scroll">
-            <Link to="/collections/all" className="group text-[10px] font-bold uppercase tracking-[0.3em] text-karima-brand transition-all flex items-center justify-center gap-4 mx-auto">
+          <div className="mt-32 text-center">
+            <Link to="/collections/all" className="group text-[10px] font-bold uppercase tracking-[0.3em] text-karima-brand flex items-center justify-center gap-4 mx-auto">
               <span>View Full Collection</span>
-              <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-500" />
+              <ArrowUpRight size={16} />
             </Link>
           </div>
         </div>
@@ -219,7 +219,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       {/* 4. CURATED CATEGORIES */}
       <section className="bg-white">
-        <div className="flex flex-col items-center py-32 border-b border-karima-brand/5 reveal-on-scroll">
+        <div className="flex flex-col items-center py-32 border-b border-karima-brand/5">
           <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-6 block font-medium">Explore</span>
           <h2 className="text-5xl md:text-7xl font-serif text-karima-brand italic font-thin tracking-tight">Curated Collections</h2>
         </div>
@@ -268,7 +268,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       {/* 6. NEWSLETTER */}
       <section className="py-20 px-6 bg-white">
-        <div className="container mx-auto flex flex-col items-center reveal-on-scroll">
+        <div className="container mx-auto flex flex-col items-center">
           <div className="w-full max-w-xl text-center">
             <div className="flex justify-center mb-8 text-karima-brand">
               <Mail size={24} strokeWidth={0.5} />
@@ -322,7 +322,7 @@ function NewsletterForm() {
         <button
           type="submit"
           disabled={status === "loading" || status === "success"}
-          className="absolute right-0 text-[10px] font-bold uppercase tracking-[0.2em] text-karima-brand hover:text-karima-gold transition-colors disabled:opacity-50"
+          className="absolute right-0 text-[10px] font-bold uppercase tracking-[0.2em] text-karima-brand disabled:opacity-50"
         >
           {status === "loading" ? "..." : "Join"}
         </button>

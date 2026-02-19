@@ -10,10 +10,12 @@ export function AddressForm({
   address,
   defaultFullName,
   availableCountries,
+  namePrefix = "",
 }: {
   address?: OrderAddress | null;
   defaultFullName?: string;
   availableCountries?: AvailableCountriesQuery['availableCountries'];
+  namePrefix?: string;
 }) {
   const { searchDestinations } = useRajaOngkir();
   const [city, setCity] = useState(address?.city ?? '');
@@ -48,8 +50,8 @@ export function AddressForm({
         <div>
           <FloatingLabelInput
             type="text"
-            id="fullName"
-            name="fullName"
+            id={namePrefix + "fullName"}
+            name={namePrefix + "fullName"}
             defaultValue={defaultFullName}
             required
             autoComplete="given-name"
@@ -60,8 +62,8 @@ export function AddressForm({
         <div className="sm:col-span-2">
           <FloatingLabelInput
             type="text"
-            name="company"
-            id="company"
+            name={namePrefix + "company"}
+            id={namePrefix + "company"}
             defaultValue={address?.company ?? ''}
             label="Company"
           />
@@ -70,8 +72,8 @@ export function AddressForm({
         <div className="sm:col-span-2">
           <FloatingLabelInput
             type="text"
-            name="streetLine1"
-            id="streetLine1"
+            name={namePrefix + "streetLine1"}
+            id={namePrefix + "streetLine1"}
             defaultValue={address?.streetLine1 ?? ''}
             required
             autoComplete="street-address"
@@ -82,8 +84,8 @@ export function AddressForm({
         <div className="sm:col-span-2">
           <FloatingLabelInput
             type="text"
-            name="streetLine2"
-            id="streetLine2"
+            name={namePrefix + "streetLine2"}
+            id={namePrefix + "streetLine2"}
             defaultValue={address?.streetLine2 ?? ''}
             label="Address Line 2"
           />
@@ -98,14 +100,14 @@ export function AddressForm({
             placeholder="Type your kecamatan or village..."
             initialLabel={address?.city ? `${address.city}, ${address.province}` : ''}
           />
-          <input type="hidden" name="rajaOngkirDestinationId" value={destinationId} />
+          <input type="hidden" name={namePrefix + "rajaOngkirDestinationId"} value={destinationId} />
         </div>
 
         <div>
           <FloatingLabelInput
             type="text"
-            name="city"
-            id="city"
+            name={namePrefix + "city"}
+            id={namePrefix + "city"}
             autoComplete="address-level2"
             value={city}
             onChange={(e) => setCity(e.target.value)}
@@ -126,11 +128,11 @@ export function AddressForm({
           <div className="relative">
             {availableCountries && (
               <select
-                id="countryCode"
-                name="countryCode"
+                id={namePrefix + "countryCode"}
+                name={namePrefix + "countryCode"}
                 required
                 defaultValue={address?.countryCode ?? 'ID'}
-                className="block w-full px-4 pt-5 pb-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-karima-brand focus:border-karima-brand sm:text-sm appearance-none bg-transparent"
+                className="block w-full px-4 pt-5 pb-2.5 border border-gray-100 rounded-lg shadow-sm focus:ring-karima-brand focus:border-karima-brand sm:text-sm appearance-none bg-white font-sans"
               >
                 {availableCountries.map((item) => (
                   <option key={item.id} value={item.code}>
@@ -139,17 +141,14 @@ export function AddressForm({
                 ))}
               </select>
             )}
-            {/* <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-            </div> */}
           </div>
         </div>
 
         <div>
           <FloatingLabelInput
             type="text"
-            name="province"
-            id="province"
+            name={namePrefix + "province"}
+            id={namePrefix + "province"}
             value={province}
             onChange={(e) => setProvince(e.target.value)}
             required
@@ -163,8 +162,8 @@ export function AddressForm({
         <div>
           <FloatingLabelInput
             type="text"
-            name="postalCode"
-            id="postalCode"
+            name={namePrefix + "postalCode"}
+            id={namePrefix + "postalCode"}
             value={postalCode}
             onChange={(e) => setPostalCode(e.target.value)}
             required
@@ -178,8 +177,8 @@ export function AddressForm({
         <div className="sm:col-span-2">
           <FloatingLabelInput
             type="tel"
-            name="phoneNumber"
-            id="phoneNumber"
+            name={namePrefix + "phoneNumber"}
+            id={namePrefix + "phoneNumber"}
             defaultValue={address?.phoneNumber ?? ''}
             required
             autoComplete="tel"

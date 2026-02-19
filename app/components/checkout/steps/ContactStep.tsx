@@ -90,41 +90,25 @@ export function ContactStep() {
     const renderHeader = () => (
         <div
             className={clsx(
-                "py-6 px-0 flex items-center justify-between transition-all border-b border-gray-100",
+                "py-6 px-0 flex items-center justify-between transition-all",
                 isCompleted ? "cursor-pointer" : ""
             )}
             onClick={() => isCompleted && goToStep('contact')}
         >
-            <div className="flex-1 flex items-center justify-between">
-                <h2 className="text-base font-bold text-karima-brand font-sans leading-tight">1. Contact</h2>
-                {isActive && !activeCustomer && (
-                    <p className="text-sm text-karima-ink/60 font-sans hidden sm:block">
+            <div className="flex items-center gap-x-4">
+                <h2 className="text-base font-bold text-karima-brand font-sans leading-tight">1. Email</h2>
+                {!activeCustomer && (
+                    <p className="text-xs text-karima-ink/60 font-sans italic">
                         Already have an account? <Link to={`/sign-in?redirectTo=${encodeURIComponent('/checkout')}`} className="text-karima-brand font-bold underline hover:text-karima-brand/80">Log in</Link>
                     </p>
                 )}
             </div>
-            {isCompleted && (
-                <div className="text-right animate-in fade-in slide-in-from-right-2 duration-300">
-                    <p className="text-sm font-bold text-karima-brand leading-tight font-sans">
-                        {activeCustomer?.firstName || guestFirstName} {activeCustomer?.lastName || guestLastName}
-                    </p>
-                    <p className="text-xs text-karima-ink/60 font-medium font-sans">{activeCustomer?.emailAddress || guestEmail}</p>
-                    <button className="text-[10px] underline text-karima-ink/40 hover:text-karima-brand mt-1">Change</button>
-                </div>
+            {isCompleted && !isActive && (
+                <button className="text-xs underline text-karima-brand font-bold hover:text-karima-brand/80 transition-colors font-sans">Change</button>
             )}
         </div>
     );
 
-    if (activeCustomer && !isActive) {
-        // Authenticated view when not current step
-        return (
-            <div className="bg-white rounded-none border-b border-karima-brand/10 overflow-hidden mb-6">
-                {renderHeader()}
-            </div>
-        );
-    }
-
-    // Guest view
     return (
         <div className={clsx(
             "bg-transparent rounded-none transition-all duration-300 overflow-hidden mb-2",
@@ -132,6 +116,17 @@ export function ContactStep() {
             !isActive && !isCompleted ? "opacity-40 grayscale" : ""
         )}>
             {renderHeader()}
+
+            {isCompleted && !isActive && (
+                <div className="pb-8 grid grid-cols-12 gap-x-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="col-span-3">
+                        <span className="text-sm text-karima-ink/40 font-sans">Email</span>
+                    </div>
+                    <div className="col-span-9">
+                        <span className="text-sm text-karima-ink font-medium font-sans">{activeOrder?.customer?.emailAddress || 'Guest'}</span>
+                    </div>
+                </div>
+            )}
 
             {isActive && (
                 <div className="pb-10 pt-4 animate-in fade-in slide-in-from-top-4 duration-500">
@@ -150,7 +145,7 @@ export function ContactStep() {
                             <div className="pt-4">
                                 <button
                                     onClick={() => completeStep('contact')}
-                                    className="w-full bg-black hover:bg-karima-brand/90 text-white py-4 px-6 rounded-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans"
+                                    className="w-full bg-black hover:bg-karima-brand text-white py-4 px-8 rounded-none transition-all duration-300 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans disabled:opacity-50 disabled:cursor-not-allowed group"
                                 >
                                     Continue to Shipping
                                 </button>
@@ -222,7 +217,7 @@ export function ContactStep() {
                                 <button
                                     type="submit"
                                     disabled={isLoading || isSubmitting}
-                                    className="w-full bg-black hover:bg-karima-brand/90 text-white py-4 px-6 rounded-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none font-sans"
+                                    className="w-full bg-black hover:bg-karima-brand text-white py-4 px-8 rounded-none transition-all duration-300 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans disabled:opacity-50 disabled:cursor-not-allowed group"
                                 >
                                     {isLoading || isSubmitting ? (
                                         <>

@@ -109,7 +109,7 @@ export function ShippingAddressStep() {
     const renderHeader = () => (
         <div
             className={clsx(
-                "py-6 px-0 flex items-center justify-between transition-all border-b border-gray-100",
+                "py-6 px-0 flex items-center justify-between transition-all",
                 isCompleted ? "cursor-pointer" : ""
             )}
             onClick={() => isCompleted && goToStep('address')}
@@ -119,32 +119,50 @@ export function ShippingAddressStep() {
                     <h2 className={clsx(
                         "text-base font-bold font-sans leading-tight",
                         isDisabled ? "text-gray-400" : "text-karima-brand"
-                    )}>2. Delivery Details</h2>
-                    {isActive && <p className={clsx(
-                        "text-xs mt-1 font-medium italic font-sans",
-                        isDisabled ? "text-gray-300" : "text-karima-ink/60"
-                    )}>Where should we send your order?</p>}
+                    )}>2. Delivery details</h2>
                 </div>
             </div>
             {isCompleted && !isActive && (
-                <div className="text-right animate-in fade-in slide-in-from-right-2 duration-300">
-                    <p className="text-sm font-bold text-karima-brand leading-tight font-sans">{shippingAddress?.fullName}</p>
-                    <p className="text-xs text-karima-ink/60 font-medium truncate max-w-[200px] font-sans">
-                        {shippingAddress?.streetLine1}, {shippingAddress?.city}
-                    </p>
-                    <button className="text-[10px] underline text-karima-ink/40 hover:text-karima-brand mt-1">Change</button>
-                </div>
+                <button className="text-xs underline text-karima-brand font-bold hover:text-karima-brand/80 transition-colors font-sans">Change</button>
             )}
         </div>
     );
 
     return (
         <div className={clsx(
-            "bg-transparent rounded-none transition-all duration-300 overflow-hidden mb-2",
+            "bg-transparent rounded-none transition-all duration-300 overflow-hidden mb-2 border-b border-gray-100",
             isActive ? "" : "",
             isDisabled ? "opacity-40 grayscale" : ""
         )}>
             {renderHeader()}
+
+            {isCompleted && !isActive && (
+                <div className="pb-8 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="grid grid-cols-12 gap-x-4">
+                        <div className="col-span-3">
+                            <span className="text-sm text-karima-ink/40 font-sans">Shipping address</span>
+                        </div>
+                        <div className="col-span-9">
+                            <div className="text-sm text-karima-ink font-medium font-sans space-y-0.5">
+                                <p className="font-bold">{shippingAddress?.fullName}</p>
+                                <p>{shippingAddress?.streetLine1}</p>
+                                <p>{shippingAddress?.city}</p>
+                                <p>{shippingAddress?.postalCode} {shippingAddress?.city}</p>
+                                <p>{shippingAddress?.province}</p>
+                                <p>{shippingAddress?.phoneNumber}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-12 gap-x-4">
+                        <div className="col-span-3">
+                            <span className="text-sm text-karima-ink/40 font-sans">Billing address</span>
+                        </div>
+                        <div className="col-span-9">
+                            <span className="text-sm text-karima-ink font-medium font-sans">Same as shipping address</span>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {isActive && (
                 <div className="pb-10 pt-4 px-0 lg:px-0 animate-in fade-in slide-in-from-top-4 duration-500">
@@ -185,7 +203,7 @@ export function ShippingAddressStep() {
                                         type="button"
                                         onClick={handleContinueSavedAddress}
                                         disabled={isLoading || isSubmitting}
-                                        className="w-full bg-karima-brand hover:bg-karima-brand/90 text-white py-4 px-6 rounded-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0 font-sans"
+                                        className="w-full bg-black hover:bg-karima-brand text-white py-4 px-8 rounded-none transition-all duration-300 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans disabled:opacity-50 disabled:cursor-not-allowed group"
                                     >
                                         {isLoading || isSubmitting ? "Loading..." : "Continue to Delivery"}
                                     </button>
@@ -225,7 +243,7 @@ export function ShippingAddressStep() {
                                     <button
                                         type="submit"
                                         disabled={isLoading || isSubmitting}
-                                        className="w-full bg-black hover:bg-karima-brand/90 text-white py-4 px-6 rounded-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0 font-sans"
+                                        className="w-full bg-black hover:bg-karima-brand text-white py-4 px-8 rounded-none transition-all duration-300 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans disabled:opacity-50 disabled:cursor-not-allowed group"
                                     >
                                         {isLoading || isSubmitting ? "Loading..." : "Continue to Delivery"}
                                     </button>

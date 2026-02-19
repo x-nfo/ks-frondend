@@ -84,9 +84,9 @@ export function RajaOngkirShippingSelector({
 
     if (isLoading) {
         return (
-            <div className="bg-white p-6 rounded-xl border border-karima-brand/10 shadow-sm">
-                <h3 className="text-lg font-bold text-karima-brand font-serif mb-6">
-                    Shipping Options (RajaOngkir)
+            <div className="bg-white p-6 rounded-none border border-gray-100 shadow-sm">
+                <h3 className="text-lg font-bold text-karima-brand font-sans mb-6">
+                    Shipping Options
                 </h3>
                 <div className="space-y-4">
                     {[1, 2, 3].map((i) => (
@@ -106,8 +106,8 @@ export function RajaOngkirShippingSelector({
 
     if (!shippingOptions || shippingOptions.length === 0) {
         return (
-            <div className="bg-white p-6 rounded-xl border border-karima-brand/10 shadow-sm">
-                <h3 className="text-lg font-bold text-karima-brand font-serif mb-4">
+            <div className="bg-white p-6 rounded-none border border-gray-100 shadow-sm">
+                <h3 className="text-lg font-bold text-karima-brand font-sans mb-4">
                     Shipping Options
                 </h3>
                 <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-3">
@@ -120,13 +120,13 @@ export function RajaOngkirShippingSelector({
         );
     }
 
-    const selectedOption = shippingOptions.find((opt) => opt.id === selectedOptionId) || null;
+    const selectedOption = shippingOptions.find((opt) => opt.id === selectedOptionId) ?? null;
 
     return (
-        <div className="bg-white p-6 rounded-xl border border-karima-brand/10 shadow-sm">
+        <div className="bg-white p-6 rounded-none border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h3 className="text-lg font-bold text-karima-brand font-serif leading-none mb-1">
+                    <h3 className="text-lg font-bold text-karima-brand font-sans leading-none mb-1">
                         Shipping Options
                     </h3>
                     <p className="text-xs text-karima-ink/60 font-medium tracking-wide font-sans">
@@ -135,15 +135,15 @@ export function RajaOngkirShippingSelector({
                 </div>
             </div>
 
-            <RadioGroup value={selectedOption ?? undefined} onChange={onChange} className="space-y-3">
+            <RadioGroup value={selectedOption} onChange={onChange} className="space-y-3">
                 {shippingOptions.map((option) => (
                     <Radio
                         key={option.id}
                         value={option}
                         className={({ checked }) =>
                             clsx(
-                                checked ? 'border-karima-brand bg-karima-brand/5' : 'border-gray-200 bg-white',
-                                'relative border-2 rounded-xl p-4 flex cursor-pointer focus:outline-none hover:border-karima-brand/40 transition-all group'
+                                checked ? 'border-karima-brand bg-white' : 'border-gray-200 bg-white hover:border-karima-brand/40',
+                                'relative border rounded-none p-4 flex cursor-pointer focus:outline-none transition-all group'
                             )
                         }
                     >

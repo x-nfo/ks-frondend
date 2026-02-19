@@ -116,7 +116,7 @@ export function DeliveryStep() {
     const renderHeader = () => (
         <div
             className={clsx(
-                "py-6 px-0 flex items-center justify-between transition-all border-b border-gray-100",
+                "py-6 px-0 flex items-center justify-between transition-all",
                 isCompleted ? "cursor-pointer" : ""
             )}
             onClick={() => isCompleted && goToStep('delivery')}
@@ -127,20 +127,10 @@ export function DeliveryStep() {
                         "text-base font-bold font-sans leading-tight",
                         isDisabled ? "text-gray-400" : "text-karima-brand"
                     )}>3. Shipping</h2>
-                    {isActive && <p className={clsx(
-                        "text-xs mt-1 font-medium italic font-sans",
-                        isDisabled ? "text-gray-300" : "text-karima-ink/60"
-                    )}>Choose your preferred shipping.</p>}
                 </div>
             </div>
             {isCompleted && !isActive && (
-                <div className="text-right animate-in fade-in slide-in-from-right-2 duration-300">
-                    <p className="text-sm font-bold text-karima-brand leading-tight font-sans">{currentShippingMethod?.name}</p>
-                    <p className="text-xs text-karima-brand font-black font-sans">
-                        <Price priceWithTax={activeOrder?.shippingWithTax || 0} currencyCode={activeOrder?.currencyCode || CurrencyCode.Idr} />
-                    </p>
-                    <button className="text-[10px] underline text-karima-ink/40 hover:text-karima-brand mt-1">Change</button>
-                </div>
+                <button className="text-xs underline text-karima-brand font-bold hover:text-karima-brand/80 transition-colors font-sans">Change</button>
             )}
         </div>
     );
@@ -173,6 +163,22 @@ export function DeliveryStep() {
             isDisabled ? "opacity-40 grayscale" : ""
         )}>
             {renderHeader()}
+
+            {isCompleted && !isActive && (
+                <div className="pb-8 grid grid-cols-12 gap-x-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="col-span-3">
+                        <span className="text-sm text-karima-ink/40 font-sans">Method</span>
+                    </div>
+                    <div className="col-span-9">
+                        <div className="text-sm text-karima-ink font-medium font-sans">
+                            <p className="font-bold">{currentShippingMethod?.name}</p>
+                            <p className="text-xs mt-1 text-karima-brand font-black">
+                                <Price priceWithTax={activeOrder?.shippingWithTax || 0} currencyCode={activeOrder?.currencyCode || CurrencyCode.Idr} />
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {isActive && (
                 <div className="pb-10 pt-4 px-0 lg:px-0 animate-in fade-in slide-in-from-top-4 duration-500 space-y-8">
@@ -233,7 +239,7 @@ export function DeliveryStep() {
                             type="button"
                             onClick={handleContinue}
                             disabled={!canContinue || isLoading || isSubmitting}
-                            className="w-full bg-black hover:bg-karima-brand/90 text-white py-4 px-6 rounded-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none disabled:cursor-not-allowed font-sans"
+                            className="w-full bg-black hover:bg-karima-brand text-white py-4 px-8 rounded-none transition-all duration-300 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans disabled:opacity-50 disabled:cursor-not-allowed group"
                         >
                             {isLoading || isSubmitting ? "Loading..." : "Continue to Payment"}
                         </button>

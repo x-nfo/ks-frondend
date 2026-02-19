@@ -97,13 +97,6 @@ export function ImageGallery({
                                 src={img.preview + "?w=1000"}
                                 alt={`Product view ${idx + 1}`}
                                 className="w-full h-full object-cover"
-                                // Only apply viewTransitionName to the currently visible image to avoid conflicts? 
-                                // Or effectively only the active one matters. 
-                                // The original code tried to transition 'image-expand'.
-                                // We can apply it conditionally.
-                                style={{
-                                    viewTransitionName: isTransitioning ? "none" : (idx === safeIndex ? "image-expand" : undefined)
-                                }}
                             />
                             <div className="absolute inset-0 bg-black/5 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>

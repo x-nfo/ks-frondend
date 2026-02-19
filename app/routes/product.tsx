@@ -275,7 +275,6 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
                                 </span>
                                 <h1
                                     className="text-4xl md:text-5xl lg:text-6xl font-serif text-karima-brand italic leading-tight tracking-tight"
-                                    style={{ viewTransitionName: "product-title" }}
                                 >
                                     {product.name}
                                 </h1>

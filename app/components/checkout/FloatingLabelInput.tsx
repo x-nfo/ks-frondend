@@ -38,19 +38,20 @@ export function FloatingLabelInput({
     return (
         <div className={clsx("relative", className)}>
             <input
-                {...props}
                 id={id}
+                autoComplete="off"
+                {...props}
                 {...inputValueProps}
                 placeholder=" "
                 className={clsx(
-                    "block px-4 pb-2.5 pt-5 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 peer",
-                    error ? "border-red-500 focus:border-red-600" : "border-gray-300 focus:border-karima-brand"
+                    "block px-4 pb-2.5 pt-5 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-200 appearance-none focus:outline-none focus:ring-0 peer font-sans transition-all",
+                    error ? "border-red-500 focus:border-red-600" : "border-gray-200 focus:border-karima-brand"
                 )}
             />
             <label
                 htmlFor={id}
                 className={clsx(
-                    "absolute text-sm duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-focus:text-karima-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 bg-white px-1",
+                    "absolute text-sm duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-left left-4 peer-focus:text-karima-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 bg-white px-1",
                     error ? "text-red-500" : "text-gray-500"
                 )}
             >

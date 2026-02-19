@@ -14,13 +14,20 @@ export function PaymentInstructions({
 }: PaymentInstructionsProps) {
     const [copiedField, setCopiedField] = useState<string | null>(null);
 
-    const formatCurrency = (amount: string | number) => {
-        const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: currencyCode || 'IDR',
-            minimumFractionDigits: 0,
-        }).format(numericAmount);
+    const formatCurrency = (amount: string | number | undefined | null) => {
+        if (amount === undefined || amount === null) return 'N/A';
+        try {
+            const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+            if (isNaN(numericAmount)) return 'N/A';
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: currencyCode || 'IDR',
+                minimumFractionDigits: 0,
+            }).format(numericAmount);
+        } catch (e) {
+            console.error('Error formatting currency:', e);
+            return String(amount);
+        }
     };
 
     const formatExpiryTime = (expiryTime?: string) => {
@@ -136,7 +143,7 @@ export function PaymentInstructions({
         const bank = (getProp(vaNumbers?.[0], 'bank') || getProp(paymentData, 'bank') || '').toLowerCase();
 
         if (bank === 'permata' || paymentType === 'permata' || permataVaNumber) {
-            const finalPermataVa = permataVaNumber || vaNumberDirect || vaNumbers?.[0]?.vaNumber || vaNumbers?.[0]?.va_number;
+            const finalPermataVa = permataVaNumber || vaNumberDirect || (Array.isArray(vaNumbers) && vaNumbers.length > 0 ? (getProp(vaNumbers[0], 'vaNumber') || getProp(vaNumbers[0], 'va_number')) : undefined);
 
             if (finalPermataVa) {
                 return (
@@ -230,10 +237,10 @@ export function PaymentInstructions({
     // QRIS & E-Wallet (GoPay, ShopeePay)
     if (paymentType === 'qris' || paymentType === 'gopay' || paymentType === 'shopeepay') {
         const actions = getProp(paymentData, 'actions');
-        const qrAction = actions?.find((a: any) =>
+        const qrAction = Array.isArray(actions) ? actions.find((a: any) =>
             ['generate-qr-code', 'generate-qr-code-v2'].includes(getProp(a, 'name'))
-        );
-        const deeplinkAction = actions?.find((a: any) => getProp(a, 'name') === 'deeplink-redirect');
+        ) : undefined;
+        const deeplinkAction = Array.isArray(actions) ? actions.find((a: any) => getProp(a, 'name') === 'deeplink-redirect') : undefined;
 
         const label = PAYMENT_TYPE_LABELS[paymentType as keyof typeof PAYMENT_TYPE_LABELS] || 'E-Wallet';
 

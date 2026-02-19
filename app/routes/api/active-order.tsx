@@ -168,6 +168,8 @@ export async function action({ request, params, context }: Route.ActionArgs) {
                 const result = await setOrderShippingMethod(shippingMethodId, opts);
                 mutationHeaders = result._headers;
                 if (result.setOrderShippingMethod.__typename === 'Order') {
+                    // Transition to ArrangingPayment so payment methods are available in the next fetch
+                    await transitionOrderToState('ArrangingPayment', opts);
                     activeOrder = result.setOrderShippingMethod;
                 } else {
                     error = result.setOrderShippingMethod as ErrorResult;
@@ -227,7 +229,7 @@ export async function action({ request, params, context }: Route.ActionArgs) {
             if (paymentMethodCode) {
                 // Update billing address if provided in form
                 if (body.get('billingAddress_streetLine1')) {
-                    await setOrderBillingAddress({
+                    const billingResult = await setOrderBillingAddress({
                         fullName: body.get('billingAddress_fullName')?.toString() || '',
                         streetLine1: body.get('billingAddress_streetLine1')?.toString() || '',
                         city: body.get('billingAddress_city')?.toString() || '',
@@ -236,11 +238,16 @@ export async function action({ request, params, context }: Route.ActionArgs) {
                         countryCode: body.get('billingAddress_countryCode')?.toString() || '',
                         phoneNumber: body.get('billingAddress_phoneNumber')?.toString() || '',
                     }, opts);
+
+                    if (billingResult.setOrderBillingAddress.__typename !== 'Order') {
+                        error = billingResult.setOrderBillingAddress as ErrorResult;
+                        break; // Stop and return error
+                    }
                 } else {
                     // Fallback to shipping if no billing
                     const currentOrder = await getActiveOrder(opts);
                     if (currentOrder && !currentOrder.billingAddress?.streetLine1 && currentOrder.shippingAddress?.streetLine1) {
-                        await setOrderBillingAddress({
+                        const billingResult = await setOrderBillingAddress({
                             fullName: currentOrder.shippingAddress.fullName || '',
                             streetLine1: currentOrder.shippingAddress.streetLine1,
                             city: currentOrder.shippingAddress.city || '',
@@ -249,6 +256,11 @@ export async function action({ request, params, context }: Route.ActionArgs) {
                             countryCode: currentOrder.shippingAddress.countryCode || '',
                             phoneNumber: currentOrder.shippingAddress.phoneNumber || '',
                         }, opts);
+
+                        if (billingResult.setOrderBillingAddress.__typename !== 'Order') {
+                            error = billingResult.setOrderBillingAddress as ErrorResult;
+                            break; // Stop and return error
+                        }
                     }
                 }
 

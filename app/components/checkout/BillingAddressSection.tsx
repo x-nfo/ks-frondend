@@ -32,6 +32,7 @@ interface BillingAddressSectionProps {
     billingAddress?: Address;
     onBillingAddressChange: (useSameAsShipping: boolean, address?: Address) => void;
     defaultFullName?: string;
+    namePrefix?: string;
 }
 
 export function BillingAddressSection({
@@ -40,6 +41,7 @@ export function BillingAddressSection({
     billingAddress,
     onBillingAddressChange,
     defaultFullName,
+    namePrefix,
 }: BillingAddressSectionProps) {
     const [useSameAsShipping, setUseSameAsShipping] = useState(true);
 
@@ -51,18 +53,18 @@ export function BillingAddressSection({
     return (
         <div className="bg-white p-6 rounded-none border border-gray-100 shadow-sm space-y-6">
             <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-none">
+                <div className="p-2 bg-karima-brand/5 text-karima-brand rounded-none">
                     <ShieldCheckIcon className="w-5 h-5" />
                 </div>
-                <h2 className="text-lg font-bold text-karima-brand font-serif leading-none">
+                <h2 className="text-lg font-bold text-karima-brand font-sans leading-none">
                     Billing Address
                 </h2>
             </div>
 
             {/* Same as shipping checkbox */}
             <div className={clsx(
-                "flex items-start p-4 rounded-none border-2 transition-all cursor-pointer",
-                useSameAsShipping ? "border-karima-brand bg-karima-brand/5" : "border-gray-100 bg-gray-50/50 hover:border-gray-200"
+                "flex items-start p-4 rounded-none border transition-all cursor-pointer",
+                useSameAsShipping ? "border-karima-brand bg-white" : "border-gray-200 bg-white hover:border-karima-brand/40"
             )}
                 onClick={() => handleToggle(!useSameAsShipping)}
             >
@@ -89,11 +91,12 @@ export function BillingAddressSection({
 
             {/* Billing address form (shown when not same as shipping) */}
             {!useSameAsShipping && (
-                <div className="mt-6 p-6 bg-gray-50 border border-gray-100 rounded-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="mt-6 p-6 bg-white border border-gray-100 rounded-none animate-in fade-in slide-in-from-top-2 duration-300">
                     <AddressForm
                         availableCountries={availableCountries as any}
                         address={billingAddress as any}
                         defaultFullName={defaultFullName}
+                        namePrefix={namePrefix}
                     />
                 </div>
             )}

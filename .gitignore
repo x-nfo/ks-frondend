@@ -14,3 +14,7 @@ query_*.json
 mutation_*.json
 API.txt
 public/images/API.txt
+
+# Local config and cache
+.wrangler/
+.claude/

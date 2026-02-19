@@ -110,7 +110,8 @@ export function CheckoutProvider({
 
     const [paymentData, setPaymentData] = useState<MidtransPaymentData | null>(null);
 
-    const isLoading = activeOrderFetcher.state === 'submitting' || activeOrderFetcher.state === 'loading';
+    // Hanya blok interaksi saat sedang submit mutation, bukan saat loading/revalidasi
+    const isLoading = activeOrderFetcher.state === 'submitting';
 
     return (
         <CheckoutContext.Provider

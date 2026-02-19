@@ -1,13 +1,15 @@
 import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
 export default [
+    route("checkout/confirmation/:orderCode", "routes/checkout.confirmation.$orderCode.tsx"),
+    route("checkout/success/:orderCode", "routes/checkout.success.tsx"),
+    route("checkout", "routes/checkout.tsx", [
+        index("routes/checkout._index.tsx"),
+    ]),
     index("routes/home.tsx"),
     route("products/:slug", "routes/product.tsx"),
     route("collections/:slug", "routes/collections.$slug.tsx"),
     route("cart", "routes/cart.tsx"),
-    route("checkout/confirmation/:orderCode", "routes/checkout.confirmation.tsx"),
-    route("checkout/success/:orderCode", "routes/checkout.success.tsx"),
-    route("checkout", "routes/checkout._index.tsx"),
     route("api/active-order", "routes/api/active-order.tsx"),
     route("api/wishlist", "routes/api/wishlist.tsx"),
     route("api/reviews", "routes/api/reviews.tsx"),

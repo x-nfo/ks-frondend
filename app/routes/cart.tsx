@@ -14,10 +14,43 @@ export default function CartPage() {
     const shipping = activeOrder?.shippingWithTax || 0;
     const total = activeOrder?.totalWithTax || 0;
 
+    // Fetcher masih loading atau belum pernah di-load sama sekali (data === undefined = render awal)
+    const isLoading = activeOrderFetcher.state === 'loading' || activeOrderFetcher.data === undefined;
+
+    if (isLoading) {
+        return (
+            <div className="mt-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="h-10 w-72 bg-gray-200 animate-pulse rounded mb-12" />
+                <div className="lg:grid lg:grid-cols-12 lg:gap-x-12">
+                    <div className="lg:col-span-8 space-y-6">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="flex gap-6 py-6 border-t border-gray-200">
+                                <div className="w-24 h-24 bg-gray-200 animate-pulse rounded" />
+                                <div className="flex-1 space-y-3">
+                                    <div className="h-4 w-48 bg-gray-200 animate-pulse rounded" />
+                                    <div className="h-4 w-32 bg-gray-200 animate-pulse rounded" />
+                                    <div className="h-4 w-20 bg-gray-200 animate-pulse rounded" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="lg:col-span-4 mt-16 lg:mt-0">
+                        <div className="bg-gray-50/50 p-6 sm:p-8 space-y-4">
+                            <div className="h-4 w-full bg-gray-200 animate-pulse rounded" />
+                            <div className="h-4 w-full bg-gray-200 animate-pulse rounded" />
+                            <div className="h-4 w-3/4 bg-gray-200 animate-pulse rounded" />
+                            <div className="h-12 w-full bg-gray-200 animate-pulse rounded mt-6" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     if (!activeOrder || lines.length === 0) {
         return (
             <div className="mt-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-                <h1 className="text-3xl font-serif text-karima-brand mb-4">Your Shopping Cart</h1>
+                <h1 className="text-3xl font-sans font-bold text-karima-brand mb-4">Your Shopping Cart</h1>
                 <p className="text-gray-500 mb-8">Your cart is currently empty.</p>
                 <Link to="/" className="inline-block bg-karima-brand text-white px-8 py-3 rounded-sm uppercase tracking-wider text-sm font-medium hover:bg-karima-brand/90 transition-colors">
                     Continue Shopping
@@ -28,7 +61,7 @@ export default function CartPage() {
 
     return (
         <div className="mt-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h1 className="text-4xl font-serif text-karima-brand mb-12">Your shopping cart</h1>
+            <h1 className="text-4xl font-sans font-bold text-karima-brand mb-12">Your shopping cart</h1>
 
             <div className="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
                 {/* Left Column: Cart Items */}
@@ -174,7 +207,7 @@ export default function CartPage() {
                         <div className="mt-6">
                             <Link
                                 to="/checkout"
-                                className="w-full flex justify-center items-center px-6 py-4 border border-transparent text-base font-medium rounded-sm shadow-sm text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors uppercase tracking-widest"
+                                className="w-full bg-black hover:bg-karima-brand text-white py-4 px-8 rounded-none transition-all duration-300 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans disabled:opacity-50 disabled:cursor-not-allowed group"
                             >
                                 Proceed to checkout
                             </Link>

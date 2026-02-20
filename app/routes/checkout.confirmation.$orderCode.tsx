@@ -20,8 +20,15 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
     const envApiUrl = (context.cloudflare?.env as any)?.VENDURE_API_URL || process.env.VENDURE_API_URL || DEMO_API_URL;
     setApiUrl(envApiUrl);
 
+    // Diagnose: log incoming cookie header (masked) and whether auth token is present
+    const cookieHeader = request.headers.get('Cookie') || '';
+    const hasAuthToken = cookieHeader.includes('authToken') || cookieHeader.includes('vendure_session');
+    console.log(`[confirmation loader] orderCode: ${orderCode}`);
+    console.log(`[confirmation loader] Cookie header present: ${cookieHeader.length > 0}, hasAuthToken: ${hasAuthToken}`);
+
     try {
         const order = await getOrderByCode(orderCode, options);
+        console.log(`[confirmation loader] getOrderByCode result: ${order ? `FOUND (state: ${order.state})` : 'NULL'}`);
 
         // Try to fetch specific Midtrans data using the custom query if it's not in the order already
         let paymentMetadata: MidtransPaymentData | null = null;
@@ -131,7 +138,9 @@ export default function CheckoutConfirmation() {
     const revalidator = useRevalidator();
     const navigate = useNavigate();
     const [retries, setRetries] = useState(0);
+    const [orderRetries, setOrderRetries] = useState(0);
     const maxRetries = 5;
+    const maxOrderRetries = 6;
     const activeCustomer = (useRouteLoaderData('root') as any)?.activeCustomer;
 
     const midtransPayment = [...(order?.payments || [])].reverse().find(p => {
@@ -158,6 +167,17 @@ export default function CheckoutConfirmation() {
             navigate(`/checkout/success/${orderCode}`, { replace: true });
         }
     }, [isSettled, orderCode, navigate]);
+
+    // If order is null (race condition right after payment), retry fetching before showing error
+    useEffect(() => {
+        if (!order && !error && orderRetries < maxOrderRetries) {
+            const timer = setTimeout(() => {
+                setOrderRetries(prev => prev + 1);
+                revalidator.revalidate();
+            }, 1500);
+            return () => clearTimeout(timer);
+        }
+    }, [order, error, orderRetries, revalidator]);
 
     useEffect(() => {
         const hasMidtrans = order?.payments?.some(p => p.method.includes('midtrans'));
@@ -193,6 +213,16 @@ export default function CheckoutConfirmation() {
             <div className="max-w-3xl mx-auto px-4 py-16 text-center">
                 <ArrowPathIcon className="w-10 h-10 text-karima-brand mx-auto mb-4 animate-spin" />
                 <p className="text-karima-ink/70">Redirecting to confirmation...</p>
+            </div>
+        );
+    }
+
+    // Order null tapi masih retry → tampilkan loading, bukan error
+    if (!order && !error && orderRetries < maxOrderRetries) {
+        return (
+            <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+                <ArrowPathIcon className="w-10 h-10 text-karima-brand mx-auto mb-4 animate-spin" />
+                <p className="text-karima-ink/70 font-medium">Memuat detail pesanan...</p>
             </div>
         );
     }

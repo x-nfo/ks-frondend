@@ -8,7 +8,9 @@ import {
     isRouteErrorResponse,
     redirect,
     data,
-    Link
+    Link,
+    useFetchers,
+    useNavigate,
 } from 'react-router';
 import type { Route } from './+types/checkout._index';
 import type { OutletContext } from '~/types';
@@ -187,33 +189,26 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
             if (result.addPaymentToOrder.__typename === 'Order') {
                 const order = result.addPaymentToOrder;
-                let payment = order.payments?.[order.payments.length - 1];
 
-                const getPaymentData = (p: any) => {
-                    if (p?.metadata && Object.keys(p.metadata).length > 0) {
-                        return p.metadata;
-                    }
-                    return null;
-                };
-
-                let paymentData = getPaymentData(payment);
-
-                if (payment && !paymentData) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    try {
-                        const refetchedOrder = await getOrderByCode(order.code, { request });
-                        if (refetchedOrder) {
-                            const refetchedPayment = refetchedOrder.payments?.[refetchedOrder.payments.length - 1];
-                            if (refetchedPayment) {
-                                paymentData = getPaymentData(refetchedPayment);
-                            }
-                        }
-                    } catch (err) {
-                        console.error('Error refetching order:', err);
-                    }
+                // Forward Set-Cookie from addPaymentToOrder so the browser keeps
+                // the updated auth token. Without this, the confirmation page loader
+                // runs with the old token → Vendure can't find the order (guest race condition).
+                const redirectHeaders = new Headers();
+                const resultHeaders = (result as any)._headers as Headers | undefined;
+                const setCookie = resultHeaders?.get('set-cookie');
+                console.log('[checkout action] addPaymentToOrder _headers keys:', resultHeaders ? [...resultHeaders.keys()] : 'NO HEADERS');
+                console.log('[checkout action] set-cookie from addPaymentToOrder:', setCookie ? 'PRESENT' : 'ABSENT');
+                if (setCookie) {
+                    redirectHeaders.set('Set-Cookie', setCookie);
                 }
 
-                return redirect(`/checkout/confirmation/${order.code}`);
+                // Also log all response headers for full diagnosis
+                resultHeaders?.forEach((v, k) => {
+                    console.log(`[checkout action] response header: ${k} = ${k.toLowerCase().includes('cookie') ? '[REDACTED]' : v}`);
+                });
+
+                console.log('[checkout action] redirecting to confirmation, order state:', order.state, 'code:', order.code);
+                return redirect(`/checkout/confirmation/${order.code}`, { headers: redirectHeaders });
             } else {
                 return data(
                     { error: (result.addPaymentToOrder as any)?.message || 'Payment failed' },
@@ -229,9 +224,12 @@ function CheckoutContent() {
     const { error } = useLoaderData<typeof loader>();
     const { applyCoupon, removeCoupon } = useOutletContext<OutletContext>();
     const actionData = useActionData<typeof action>();
+    const navigation = useNavigation();
     const { activeOrder, activeOrderFetcher, paymentData, setPaymentData, activeCustomer } = useCheckout();
 
     const [orderCode, setOrderCode] = useState<string | null>(null);
+    // Set to true once payment completes to prevent "cart empty" flash during redirect
+    const [isPaymentCompleted, setIsPaymentCompleted] = useState(false);
 
     useEffect(() => {
         const data = actionData as any;
@@ -244,6 +242,15 @@ function CheckoutContent() {
         }
     }, [actionData, activeOrderFetcher, setPaymentData]);
 
+    // Listen for payment success signal from child fetcher (PaymentStep posts to /api/active-order)
+    useEffect(() => {
+        const handlePaymentSuccess = (e: CustomEvent) => {
+            setIsPaymentCompleted(true);
+        };
+        window.addEventListener('paymentCompleted', handlePaymentSuccess as EventListener);
+        return () => window.removeEventListener('paymentCompleted', handlePaymentSuccess as EventListener);
+    }, []);
+
     const shippingCost = (activeOrder?.shippingWithTax ?? 0);
     const orderTotal = activeOrder?.totalWithTax ?? 0;
 
@@ -251,6 +258,12 @@ function CheckoutContent() {
     const fetcherHasLoaded = activeOrderFetcher.data !== undefined;
     if (!activeOrder && !fetcherHasLoaded) {
         return null; // Render nothing while loader data arrives via fetcher
+    }
+
+    // Guard: jika sedang navigating ke confirmation page (post-payment redirect), jangan tampilkan empty cart
+    const isNavigatingToConfirmation = navigation.location?.pathname?.startsWith('/checkout/confirmation');
+    if (!activeOrder && fetcherHasLoaded && (navigation.state !== 'idle' || isNavigatingToConfirmation || isPaymentCompleted)) {
+        return null;
     }
 
     // Fetcher sudah selesai tapi order tetap tidak ada → benar-benar kosong
@@ -327,6 +340,20 @@ export default function CheckoutPage() {
         applyCoupon,
         removeCoupon
     } = useOutletContext<OutletContext>();
+    const navigate = useNavigate();
+    const fetchers = useFetchers();
+
+    // Monitor all fetchers for payment success signal from PaymentStep.
+    // This runs at the route level (never unmounted during navigation) so
+    // navigate() is always called from a stable, mounted context.
+    useEffect(() => {
+        for (const f of fetchers) {
+            if (f.data?.success && f.data?.orderCode) {
+                navigate(`/checkout/confirmation/${f.data.orderCode}`, { replace: true });
+                break;
+            }
+        }
+    }, [fetchers, navigate]);
 
     // Priority: outletOrder (live updates) > loader data
     const activeOrder = outletOrder || data.activeOrder;

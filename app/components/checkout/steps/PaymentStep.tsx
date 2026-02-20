@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useFetcher, useNavigate } from 'react-router';
+import { useFetcher } from 'react-router';
 import { useCheckout } from '../CheckoutProvider';
 import { MidtransPayments } from '~/components/checkout/midtrans';
 import { BillingAddressSection } from '~/components/checkout/BillingAddressSection';
@@ -16,7 +16,6 @@ export function PaymentStep() {
     } = useCheckout();
 
     const fetcher = useFetcher<any>();
-    const navigate = useNavigate();
     const isSubmitting = fetcher.state === 'submitting';
 
     // Track if billing address is "saved/confirmed" for this step
@@ -32,10 +31,12 @@ export function PaymentStep() {
         }
 
         if (fetcher.data?.success && fetcher.data?.orderCode) {
-            // Gunakan window.location untuk full navigation agar tidak terperangkap dalam nested route context
-            window.location.href = `/checkout/confirmation/${fetcher.data.orderCode}`;
+            // Signal to CheckoutContent to suppress "cart empty" flash.
+            // Actual navigation is handled by CheckoutPage via useFetchers()
+            // so navigate() runs from a stable, never-unmounted context.
+            window.dispatchEvent(new CustomEvent('paymentCompleted'));
         }
-    }, [fetcher.data, fetcher.formData, navigate]);
+    }, [fetcher.data, fetcher.formData]);
 
     // Reset saved state if user goes back to a previous step or order changes significantly
     useEffect(() => {

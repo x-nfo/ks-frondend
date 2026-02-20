@@ -55,12 +55,27 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
   setApiUrl(apiUrl);
 
-  const collections = await getCollections({ take: 20 }, options);
-  const topLevelCollections = collections?.filter(
+  // Wrap each call individually so a transient GraphQL error (e.g. during
+  // post-payment session transition) does not throw and trigger the root
+  // ErrorBoundary ("Oops!") while navigating to the confirmation page.
+  const [collections, activeCustomer, channel] = await Promise.all([
+    getCollections({ take: 20 }, options).catch((e) => {
+      console.error('[root loader] getCollections error:', e?.message);
+      return null;
+    }),
+    getActiveCustomer(options).catch((e) => {
+      console.error('[root loader] getActiveCustomer error:', e?.message);
+      return null;
+    }),
+    activeChannel(options).catch((e) => {
+      console.error('[root loader] activeChannel error:', e?.message);
+      return null;
+    }),
+  ]);
+
+  const topLevelCollections = (Array.isArray(collections) ? collections : []).filter(
     (collection: any) => collection.parent?.name === "__root_collection__"
-  ) || [];
-  const activeCustomer = await getActiveCustomer(options);
-  const channel = await activeChannel(options);
+  );
 
   return {
     activeCustomer,
@@ -145,6 +160,24 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: any) {
+  console.error('[root ErrorBoundary] caught error:', error);
+  console.error('[root ErrorBoundary] error type:', typeof error, error?.constructor?.name);
+  console.error('[root ErrorBoundary] isRouteErrorResponse:', isRouteErrorResponse(error));
+  console.error('[root ErrorBoundary] error.message:', error?.message);
+  console.error('[root ErrorBoundary] error.stack:', error?.stack);
+
+  // NetworkError from aborted fetcher during navigation — ignore and let the new page load
+  const isNetworkError = error?.message?.includes('NetworkError') ||
+    error?.message?.includes('Failed to fetch') ||
+    error?.message?.includes('network') ||
+    error?.message?.includes('Load failed') ||
+    error?.name === 'TypeError';
+
+  if (isNetworkError && !isRouteErrorResponse(error)) {
+    console.warn('[root ErrorBoundary] Suppressing NetworkError (likely aborted fetch during navigation)');
+    return null;
+  }
+
   let message = "Oops!";
   let details = "An unexpected error occurred.";
   let stack: string | undefined;

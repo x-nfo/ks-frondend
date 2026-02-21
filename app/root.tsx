@@ -17,10 +17,12 @@ import Footer from "./components/footer/Footer";
 import { FeaturesBar } from "./components/FeaturesBar";
 import { CartTray } from "./components/cart/CartTray";
 import { useActiveOrder } from "./utils/use-active-order";
-import { getCollections } from "./providers/collections/collections"; // Assuming this is ported or referenced correctly
+import { getCollections } from "./providers/collections/collections";
 import { activeChannel } from "./providers/channel/channel";
 import { getActiveCustomer } from "./providers/customer/customer";
 import { setApiUrl, DEMO_API_URL, APP_META_TITLE, APP_META_TAGLINE, APP_META_DESCRIPTION } from "./constants";
+import { getSiteSettings } from "./providers/site/site-settings";
+import UnderConstruction from "./routes/under-construction";
 
 export const meta: MetaFunction = () => {
   return [
@@ -55,10 +57,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
   setApiUrl(apiUrl);
 
-  // Wrap each call individually so a transient GraphQL error (e.g. during
-  // post-payment session transition) does not throw and trigger the root
-  // ErrorBoundary ("Oops!") while navigating to the confirmation page.
-  const [collections, activeCustomer, channel] = await Promise.all([
+  // siteSettings must NOT go through KV cache so the under construction
+  // toggle takes effect immediately on every request.
+  const siteSettingsOptions = { request, apiUrl }; // intentionally no `kv`
+
+  const [collections, activeCustomer, channel, siteSettings] = await Promise.all([
     getCollections({ take: 20 }, options).catch((e) => {
       console.error('[root loader] getCollections error:', e?.message);
       return null;
@@ -71,16 +74,23 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       console.error('[root loader] activeChannel error:', e?.message);
       return null;
     }),
+    getSiteSettings(siteSettingsOptions).catch((e) => {
+      console.error('[root loader] getSiteSettings error:', e?.message);
+      return { underConstruction: false };
+    }),
   ]);
 
   const topLevelCollections = (Array.isArray(collections) ? collections : []).filter(
     (collection: any) => collection.parent?.name === "__root_collection__"
   );
 
+  const underConstruction = siteSettings?.underConstruction ?? false;
+
   return {
     activeCustomer,
     activeChannel: channel,
     collections: topLevelCollections,
+    underConstruction,
     env: {
       VENDURE_API_URL: apiUrl,
     },
@@ -112,7 +122,7 @@ export default function App() {
   const isCheckout = location.pathname.startsWith("/checkout");
 
   const loaderData = useLoaderData<typeof loader>();
-  const { collections, env } = loaderData;
+  const { collections, env, underConstruction } = loaderData;
 
   const {
     activeOrderFetcher,
@@ -129,6 +139,12 @@ export default function App() {
       setApiUrl(env.VENDURE_API_URL);
     }
   }, [loaderData]);
+
+  // If under construction mode is enabled, show the under construction page
+  // for ALL routes so no real content leaks through.
+  if (underConstruction) {
+    return <UnderConstruction />;
+  }
 
   return (
     <>

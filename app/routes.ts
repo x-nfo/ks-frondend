@@ -7,6 +7,8 @@ export default [
         route("success/:orderCode", "routes/checkout.success.tsx"),
     ]),
     index("routes/home.tsx"),
+    route("under-construction", "routes/under-construction.tsx"),
+
     route("products/:slug", "routes/product.tsx"),
     route("collections/:slug", "routes/collections.$slug.tsx"),
     route("cart", "routes/cart.tsx"),

@@ -1,7 +1,7 @@
 export const APP_META_TITLE = "Karima";
-export const APP_META_TAGLINE = "Modesty in Elegance - Fashion Muslim Syar'i Premium";
+export const APP_META_TAGLINE = "Faithfully Beautiful";
 export const APP_META_DESCRIPTION =
-    "Karima menghadirkan koleksi busana muslim syar'i premium yang memadukan kesantunan dan keanggunan. Temukan gamis, khimar, dan set syar'i eksklusif di sini.";
+    "Karima menghadirkan koleksi busana muslim syar'i premium yang memadukan kesantunan dan keanggunan. Temukan Abaya, khimar, dan set syar'i eksklusif di sini.";
 export const DEMO_API_URL = "http://localhost:3000/shop-api";
 export let API_URL =
     typeof process !== "undefined"

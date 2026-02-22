@@ -9,7 +9,7 @@ export const meta: MetaFunction = () => [
 ];
 
 // Target launch date — change as needed
-const LAUNCH_DATE = new Date("2025-03-20T00:00:00+07:00");
+const LAUNCH_DATE = new Date("2026-03-20T00:00:00+07:00");
 
 function useCountdown(target: Date) {
     const calc = () => {

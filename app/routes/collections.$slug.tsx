@@ -14,13 +14,14 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
     const { slug } = params;
     const kv = context.cloudflare.env.KV_CACHE;
     const apiUrl = (context.cloudflare.env as any).VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
-    const options = { request, kv, apiUrl };
+    const options = { request, apiUrl };
+    const publicOptions = { ...options, kv };
 
     if (!slug) {
         throw new Response("Not Found", { status: 404 });
     }
 
-    const collection = await getCollection(slug, options);
+    const collection = await getCollection(slug, publicOptions);
 
     if (!collection?.id || !collection?.name) {
         throw new Response("Not Found", { status: 404 });
@@ -36,7 +37,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
                 take: 100,
             },
         },
-        options
+        publicOptions
     );
 
     return {

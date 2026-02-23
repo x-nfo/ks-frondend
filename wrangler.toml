@@ -7,7 +7,7 @@ pages_build_output_dir = "./build/client"
 VENDURE_API_URL = "https://api.karimasyari.com/shop-api"
 VENDURE_TOKEN_NAME = "vendure-auth-token"
 
-MIDTRANS_CLIENT_KEY=Mid-client-0_p64dw3EBdyl9EB
+MIDTRANS_CLIENT_KEY = "Mid-client-0_p64dw3EBdyl9EB"
 
 [[kv_namespaces]]
 binding = "KV_CACHE"

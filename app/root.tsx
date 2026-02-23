@@ -85,12 +85,14 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   );
 
   const underConstruction = siteSettings?.underConstruction ?? false;
+  const countdownDate = siteSettings?.countdownDate ?? null;
 
   return {
     activeCustomer,
     activeChannel: channel,
     collections: topLevelCollections,
     underConstruction,
+    countdownDate,
     env: {
       VENDURE_API_URL: apiUrl,
     },
@@ -122,7 +124,7 @@ export default function App() {
   const isCheckout = location.pathname.startsWith("/checkout");
 
   const loaderData = useLoaderData<typeof loader>();
-  const { collections, env, underConstruction } = loaderData;
+  const { collections, env, underConstruction, countdownDate } = loaderData;
 
   const {
     activeOrderFetcher,

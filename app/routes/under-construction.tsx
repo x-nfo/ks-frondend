@@ -9,8 +9,10 @@ export const meta: MetaFunction = () => [
     { name: "robots", content: "noindex, nofollow" },
 ];
 
+import { useLoaderData } from "react-router";
+
 // Target launch date — change as needed
-const LAUNCH_DATE = new Date("2026-03-20T00:00:00+07:00");
+const DEFAULT_LAUNCH_DATE = new Date("2026-03-20T00:00:00+07:00");
 
 function useCountdown(target: Date) {
     const calc = () => {
@@ -34,7 +36,12 @@ function useCountdown(target: Date) {
 }
 
 export default function UnderConstruction() {
-    const { days, hours, minutes, seconds } = useCountdown(LAUNCH_DATE);
+    const loaderData = useLoaderData();
+    const countdownDate = (loaderData as any)?.countdownDate
+        ? new Date((loaderData as any).countdownDate)
+        : DEFAULT_LAUNCH_DATE;
+
+    const { days, hours, minutes, seconds } = useCountdown(countdownDate);
     const [email, setEmail] = useState("");
     const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
 
@@ -78,7 +85,7 @@ export default function UnderConstruction() {
             <div className="relative z-10 w-full max-w-2xl mx-auto flex flex-col items-center text-center animate-fade-in">
 
                 {/* Logo / Brand */}
-                <span className="text-[10px] uppercase tracking-[0.5em] text-karima-accent font-medium mb-8">
+                <span className="text-[10px] tracking-[0.5em] font-quiche mb-8">
                     Karima
                 </span>
 
@@ -163,7 +170,7 @@ export default function UnderConstruction() {
                 {/* Social links */}
                 <div className="flex items-center gap-8 mt-16">
                     <a
-                        href="https://instagram.com/karimasyari"
+                        href="https://instagram.com/karima.syari"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[9px] uppercase tracking-[0.35em] text-karima-ink/40 hover:text-karima-accent transition-colors duration-300 font-medium"
@@ -172,7 +179,7 @@ export default function UnderConstruction() {
                     </a>
                     <div className="w-[1px] h-3 bg-karima-brand/20" />
                     <a
-                        href="mailto:hello@karimasyari.com"
+                        href="mailto:info@karimasyari.com"
                         className="text-[9px] uppercase tracking-[0.35em] text-karima-ink/40 hover:text-karima-accent transition-colors duration-300 font-medium"
                     >
                         Contact
@@ -184,7 +191,7 @@ export default function UnderConstruction() {
             {/* Footer */}
             <div className="absolute bottom-6 left-0 right-0 text-center">
                 <span className="text-[9px] uppercase tracking-[0.4em] text-karima-ink/25 font-medium">
-                    © {new Date().getFullYear()} Karima — Modesty in Elegance
+                    © {new Date().getFullYear()} Karima — Faithfully Beautiful
                 </span>
             </div>
         </div>

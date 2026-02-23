@@ -3,14 +3,18 @@ import { expect, it, describe, vi } from 'vitest';
 import { DateDisplay } from './DateDisplay';
 
 describe('DateDisplay Component (WIB)', () => {
-    it('should render a placeholder during SSR/initial hydration', () => {
+    it('should render the span as visible after mount (happy-dom runs effects synchronously)', () => {
         const utcDate = '2026-02-23T00:00:00Z'; // 07:00 WIB
         const { container } = render(<DateDisplay date={utcDate} />);
 
-        // Initial render should be "hidden" via opacity or style to avoid mismatch
-        // In our implementation, we use visibility: 'hidden'
+        // In happy-dom (the Vitest environment), useEffect fires synchronously
+        // right after render, so the component is always in the "mounted" state
+        // by the time we query the DOM. The hidden/placeholder span is only
+        // relevant in a real browser during SSR hydration.
         const span = container.querySelector('span');
-        expect(span).toHaveStyle({ visibility: 'hidden' });
+        expect(span).toBeInTheDocument();
+        // The span should NOT have visibility:hidden — it should be fully visible
+        expect(span).not.toHaveStyle({ visibility: 'hidden' });
     });
 
     it('should render the correct WIB time after mounting', async () => {

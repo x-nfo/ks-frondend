@@ -12,6 +12,7 @@ import { getProductReviews } from "../providers/reviews/reviews";
 import { getActiveCustomer, getActiveCustomerOrderList } from "../providers/customer/customer";
 import { search } from "../providers/products/products";
 import { Check } from "lucide-react";
+import { stripHtml, truncate } from "../utils/text";
 
 import { APP_META_TITLE } from "../constants";
 import { type CartLoaderData } from "./api/active-order";
@@ -29,20 +30,37 @@ import { ImageGallery, type Asset } from "../components/products/ImageGallery";
 import { ProductOptionSelector, type OptionGroup } from "../components/products/ProductOptionSelector";
 
 export const meta = ({ data }: Route.MetaArgs) => {
+    const product = data?.product;
+    if (!product) {
+        return [{ title: APP_META_TITLE }];
+    }
+
+    const title = `${product.name} - ${APP_META_TITLE}`;
+    const description = truncate(stripHtml(product.description || ""), 160);
+    const imageUrl = product.featuredAsset?.preview || "";
+
     return [
-        {
-            title: data?.product?.name
-                ? `${data.product.name} - ${APP_META_TITLE}`
-                : APP_META_TITLE,
-        },
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:image", content: imageUrl },
+        { property: "og:type", content: "website" },
+        { property: "og:site_name", content: APP_META_TITLE },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: imageUrl },
     ];
 };
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
     const kv = context.cloudflare.env.KV_CACHE;
     const apiUrl = (context.cloudflare.env as any).VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
-    const options = { request, kv, apiUrl };
-    const { product } = await getProductBySlug(params.slug, options);
+    const options = { request, apiUrl };
+    const publicOptions = { ...options, kv };
+
+    const { product } = await getProductBySlug(params.slug, publicOptions);
     if (!product) {
         throw data("Not Found", {
             status: 404,
@@ -95,7 +113,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
 
     let reviews: any[] = [];
     try {
-        const reviewsData = await getProductReviews(product.id, options);
+        const reviewsData = await getProductReviews(product.id, publicOptions);
         reviews = reviewsData?.items || [];
     } catch (e) {
         console.error("Failed to fetch reviews:", e);
@@ -116,7 +134,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
                         collectionSlug: collection.slug,
                         take: 10,
                     }
-                }, options);
+                }, publicOptions);
 
                 const newItems = searchResult.search.items
                     .filter((item: any) => {

@@ -1,6 +1,7 @@
 import type { MetaFunction } from "react-router";
 import { useState, useEffect } from "react";
 import { APP_META_TITLE } from "../constants";
+import { subscribeToNewsletter } from "../providers/newsletter/newsletter";
 
 export const meta: MetaFunction = () => [
     { title: `${APP_META_TITLE} — Coming Soon` },
@@ -41,10 +42,16 @@ export default function UnderConstruction() {
         e.preventDefault();
         if (!email) return;
         setStatus("loading");
-        // Simulate a submit — connect to your newsletter provider
-        await new Promise((r) => setTimeout(r, 900));
-        setStatus("success");
-        setEmail("");
+        try {
+            await subscribeToNewsletter(email);
+            setStatus("success");
+            setEmail("");
+        } catch (error) {
+            console.error('Newsletter subscription error:', error);
+            setStatus("idle");
+            // You could add an error state here if you want to show a specific error message
+            alert("Terjadi kesalahan saat menyimpan email. Silakan coba lagi.");
+        }
     };
 
     return (

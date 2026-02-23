@@ -29,6 +29,6 @@ export async function getSiteSettings(
   } catch (e) {
     console.error("[getSiteSettings] error:", e);
     // Fail open: if we can't reach the API, show real site
-    return { underConstruction: false };
+    return { underConstruction: false, countdownDate: null };
   }
 }

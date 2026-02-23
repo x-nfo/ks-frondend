@@ -49,7 +49,8 @@ export const links = () => [
 ];
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const kv = context.cloudflare?.env?.KV_CACHE;
-  const options = { request, kv };
+  const options = { request };
+  const publicOptions = { ...options, kv };
 
   // @ts-ignore - Cloudflare env is in context
   const envVars = context.cloudflare?.env || process.env;
@@ -62,7 +63,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   const siteSettingsOptions = { request, apiUrl }; // intentionally no `kv`
 
   const [collections, activeCustomer, channel, siteSettings] = await Promise.all([
-    getCollections({ take: 20 }, options).catch((e) => {
+    getCollections({ take: 20 }, publicOptions).catch((e) => {
       console.error('[root loader] getCollections error:', e?.message);
       return null;
     }),
@@ -76,7 +77,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     }),
     getSiteSettings(siteSettingsOptions).catch((e) => {
       console.error('[root loader] getSiteSettings error:', e?.message);
-      return { underConstruction: false };
+      return { underConstruction: false, countdownDate: null };
     }),
   ]);
 

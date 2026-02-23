@@ -25,12 +25,17 @@ function useCountdown(target: Date) {
         };
     };
 
-    const [time, setTime] = useState(calc);
+    // Initialize with zeros to avoid hydration mismatch between server and client
+    const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+    const targetTime = target.getTime();
 
     useEffect(() => {
+        // Update immediately on mount to show correct time
+        setTime(calc());
         const id = setInterval(() => setTime(calc()), 1000);
         return () => clearInterval(id);
-    }, []);
+    }, [targetTime]);
 
     return time;
 }
@@ -84,8 +89,7 @@ export default function UnderConstruction() {
 
             <div className="relative z-10 w-full max-w-2xl mx-auto flex flex-col items-center text-center animate-fade-in">
 
-                {/* Logo / Brand */}
-                <span className="text-[10px] tracking-[0.5em] font-quiche mb-8">
+                <span className="text-[20px] font-quiche mb-5 text-karima-brand opacity-60">
                     Karima
                 </span>
 

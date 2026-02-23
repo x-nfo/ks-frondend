@@ -9,7 +9,8 @@
     "preview": "npm run build && wrangler pages dev",
     "deploy": "npm run build && wrangler pages deploy",
     "typecheck": "react-router typegen && tsc",
-    "generate": "graphql-codegen --config codegen.ts"
+    "generate": "graphql-codegen --config codegen.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@conform-to/react": "^1.16.0",
@@ -47,6 +48,11 @@
     "typescript": "^5.9.2",
     "vite": "^7.1.7",
     "vite-tsconfig-paths": "^5.1.4",
-    "wrangler": "^4.65.0"
+    "wrangler": "^4.65.0",
+    "vitest": "^4.0.18",
+    "happy-dom": "^20.6.1",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@vitejs/plugin-react": "^4.3.4"
   }
 }

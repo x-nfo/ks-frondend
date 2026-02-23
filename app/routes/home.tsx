@@ -27,10 +27,11 @@ export const meta: MetaFunction = () => {
 export async function loader({ request, context }: Route.LoaderArgs) {
   const kv = context.cloudflare.env.KV_CACHE;
   const apiUrl = (context.cloudflare.env as any).VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
-  const options = { request, kv, apiUrl };
+  const options = { request, apiUrl };
+  const publicOptions = { ...options, kv };
 
-  const allCollections = await getCollections({ take: 100 }, options);
-  const homepageData = await getHomepageData(options);
+  const allCollections = await getCollections({ take: 100 }, publicOptions);
+  const homepageData = await getHomepageData(publicOptions);
   const {
     activeHeroBanners,
     activePromoBanners,
@@ -58,7 +59,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
           sort: { name: SortOrder.Asc }
         }
       },
-      options
+      publicOptions
     );
     featuredProducts = searchResult.search.items;
   } else {
@@ -70,7 +71,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
           sort: { name: SortOrder.Desc }
         }
       },
-      options
+      publicOptions
     );
     featuredProducts = searchResult.search.items;
   }
@@ -82,7 +83,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
         take: 100
       }
     },
-    options
+    publicOptions
   );
 
   const facetLookup = facetValuesResult.search.facetValues.reduce((acc: any, curr: any) => {

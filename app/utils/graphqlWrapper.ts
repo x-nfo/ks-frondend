@@ -58,9 +58,17 @@ const requester = async <R, V extends object>(
     // We only cache Queries, not Mutations. graphql-request DocNode has types but let's be safe.
     const isQuery = (doc.definitions[0] as any).operation === 'query';
     const kv = options?.kv;
+
+    // Jaring Pengaman (Safety Net): Check both translated Authorization header 
+    // AND raw cookies for any signs of an authenticated session.
+    const hasAuthHeader = customHeaders.has("Authorization");
+    const rawCookies = options?.request?.headers.get("Cookie") || "";
+    const hasAuthCookie = rawCookies.includes("vendure-auth-token") || rawCookies.includes("vendure_session");
+
+    const isAuthRequest = hasAuthHeader || hasAuthCookie;
     let cacheKey = "";
 
-    if (isQuery && kv) {
+    if (isQuery && kv && !isAuthRequest) {
         const queryStr = (doc.loc?.source.body || JSON.stringify(doc));
         cacheKey = `gql_cache_${hashString(queryStr + JSON.stringify(vars || {}))}`;
 

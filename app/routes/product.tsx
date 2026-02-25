@@ -180,20 +180,16 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
     const addItemToOrderError = getAddItemToOrderError(fetcherError || error);
 
 
-    if (!product) {
-        return <div className="pt-40 text-center">Product not found</div>;
-    }
-
     const [selectedVariantId, setSelectedVariantId] = useState(
-        product.variants[0]?.id
+        product?.variants[0]?.id
     );
-    const selectedVariant = product.variants.find((v: any) => v.id === selectedVariantId);
+    const selectedVariant = product?.variants.find((v: any) => v.id === selectedVariantId);
 
     // Initialize options
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        if (product.variants.length > 0 && Object.keys(selectedOptions).length === 0) {
+        if (product && product.variants.length > 0 && Object.keys(selectedOptions).length === 0) {
             const initialVariant = product.variants[0];
             const initialOptions: Record<string, string> = {};
             initialVariant.options?.forEach((opt: any) => {
@@ -201,10 +197,10 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
             });
             setSelectedOptions(initialOptions);
         }
-    }, [product.variants]);
+    }, [product?.variants]);
 
     // Compute option groups with unique options from variants
-    const optionGroups = product.optionGroups?.map((group: any) => {
+    const optionGroups = product?.optionGroups?.map((group: any) => {
         const groupOptions = new Map();
         product.variants.forEach((variant: any) => {
             variant.options?.forEach((opt: any) => {
@@ -227,10 +223,10 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
 
     useEffect(() => {
         setIsRelatedTransitioning(false);
-    }, [product.id]);
+    }, [product?.id]);
 
     useEffect(() => {
-        if (!selectedVariant && product.variants.length > 0) {
+        if (product && !selectedVariant && product.variants.length > 0) {
             setSelectedVariantId(product.variants[0].id);
             // Also reset options if variant changes externally (rare but possible)
             const initialVariant = product.variants[0];
@@ -240,28 +236,32 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
             });
             setSelectedOptions(initialOptions);
         }
-    }, [product.variants, selectedVariant]);
+    }, [product?.variants, selectedVariant]);
 
     const qtyInCart =
         activeOrder?.lines.find((l: any) => l.productVariant.id === selectedVariantId)
             ?.quantity ?? 0;
 
-    const brandName = product.facetValues.find(
+    const brandName = product?.facetValues.find(
         (fv: any) => fv.facet.code === "brand"
     )?.name;
 
     const [featuredAsset, setFeaturedAsset] = useState(
-        selectedVariant?.featuredAsset || product.featuredAsset
+        selectedVariant?.featuredAsset || product?.featuredAsset
     );
 
     useEffect(() => {
-        setFeaturedAsset(selectedVariant?.featuredAsset || product.featuredAsset);
+        setFeaturedAsset(selectedVariant?.featuredAsset || product?.featuredAsset);
     }, [product, selectedVariant]);
 
     // Ensure assets are valid
-    const validAssets = product.assets.filter((a: any) => a != null);
+    const validAssets = product?.assets.filter((a: any) => a != null) ?? [];
 
     const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
+
+    if (!product) {
+        return <div className="pt-40 text-center">Product not found</div>;
+    }
 
     return (
         <div className="bg-white min-h-screen pt-32 lg:pt-48 animate-fade-in">

@@ -1,12 +1,9 @@
-import { Form } from "react-router";
+import { Form, useSearchParams } from "react-router";
 
 
 export function SearchBar({ onSelect }: { onSelect?: () => void }) {
-
-    let initialQuery = "";
-    if (typeof window !== "undefined") {
-        initialQuery = new URL(window.location.href).searchParams.get("q") ?? "";
-    }
+    const [searchParams] = useSearchParams();
+    const initialQuery = searchParams.get("q") ?? "";
 
     return (
         <Form

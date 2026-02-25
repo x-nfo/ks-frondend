@@ -1,8 +1,8 @@
-import { useLoaderData, Link } from "react-router";
 import type { Route } from "./+types/collections.$slug";
 import { getCollection } from "../providers/collections/collections";
 import { search } from "../providers/products/products";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams, Link } from "react-router";
 import { Filter, LayoutGrid, Grid3x3 } from "lucide-react";
 
 import { CollectionCard } from "../components/collections/CollectionCard";
@@ -21,21 +21,31 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
         throw new Response("Not Found", { status: 404 });
     }
 
-    const collection = await getCollection(slug, publicOptions);
+    let collection;
+    let searchInput: any = {
+        groupByProduct: true,
+        take: 100,
+    };
 
-    if (!collection?.id || !collection?.name) {
-        throw new Response("Not Found", { status: 404 });
+    if (slug === 'all') {
+        collection = {
+            id: 'all',
+            name: 'All Products',
+            children: [],
+            breadcrumbs: [{ id: 'all', name: 'Home', slug: '' }, { id: 'all-products', name: 'All Products', slug: 'all' }]
+        };
+    } else {
+        collection = await getCollection(slug, publicOptions);
+        if (!collection?.id || !collection?.name) {
+            throw new Response("Not Found", { status: 404 });
+        }
+        searchInput.collectionSlug = slug;
     }
 
-    // Fetch products in this collection
-    // Increase take to allow client-side filtering on a larger set
+    // Fetch products
     const searchResult = await search(
         {
-            input: {
-                collectionSlug: slug,
-                groupByProduct: true,
-                take: 100,
-            },
+            input: searchInput,
         },
         publicOptions
     );
@@ -107,6 +117,7 @@ function getProductColorHexes(item: any, facetLookup: Map<string, any>) {
 
 export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
     const { collection, products: initialProducts, facets } = loaderData;
+    const [searchParams] = useSearchParams();
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [gridCols, setGridCols] = useState(3);
@@ -118,6 +129,15 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
         minPrice: 0,
         maxPrice: 100000000 // Set to a high default
     });
+
+    // Sync filters with URL search params
+    useEffect(() => {
+        const categoryParam = searchParams.get("category");
+        setFilters(prev => ({
+            ...prev,
+            category: categoryParam ? [categoryParam] : []
+        }));
+    }, [searchParams]);
 
     // Create a lookup map for FacetValue ID -> FacetValue Details
     const facetLookup = useMemo(() => {

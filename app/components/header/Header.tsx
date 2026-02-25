@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router";
-import { ShoppingBag, User, Search, Heart, Menu, X, ArrowRight, Instagram, Facebook, Youtube } from "lucide-react";
+import { ShoppingBag, User, Search, Heart, Menu, X, ArrowRight, Instagram, Facebook, Youtube, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRootLoader } from "../../utils/use-root-loader";
 import { SearchBar } from "./SearchBar";
@@ -14,12 +14,14 @@ export function Header({
 }) {
     const data = useRootLoader();
     const isSignedIn = !!(data && data.activeCustomer && data.activeCustomer.activeCustomer?.id);
+    const facetCategories = data?.facetCategories || [];
     // Potential TODO: Get real wishlist count if available in data.activeCustomer
     const wishlistCount = 0;
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
     const location = useLocation();
 
     // Check if on product page for transparency logic (from Astro)
@@ -56,8 +58,8 @@ export function Header({
     const cartBadgeBg = getResponsiveColor("bg-black", "bg-white");
     const cartBadgeText = getResponsiveColor("text-white", "text-black");
 
-    const navLinkClass = `relative text-xs uppercase tracking-[0.2em] font-medium ${textColorClass} hover:opacity-70 group py-4`;
-    const navUnderlineClass = `absolute bottom-3 left-0 w-0 h-[1px] ${bgLinkHover} group-hover:w-full opacity-50`;
+    const navLinkClass = `relative text-xs uppercase tracking-[0.2em] font-medium ${textColorClass} hover:opacity-70 group py-4 flex items-center gap-1`;
+    const navUnderlineClass = `absolute bottom-3 left-0 w-0 h-[1px] ${bgLinkHover} group-hover:w-full opacity-50 transition-all duration-300`;
 
     const handleMobileNav = (path: string) => {
         // close menu then navigate - handled by Link naturally, but we need to close menu
@@ -80,34 +82,55 @@ export function Header({
                 )}
             >
                 <div className="container mx-auto px-6 md:px-12 max-w-7xl flex items-center justify-between">
-                    {/* Left Nav */}
-                    <nav className="hidden lg:flex items-center gap-10 flex-1 justify-start">
-                        <Link to="/collections/all" className={navLinkClass}>
-                            Collections <span className={navUnderlineClass}></span>
+                    <div className="flex items-center">
+                        {/* Logo */}
+                        <Link to="/" className="flex-shrink-0 cursor-pointer group z-10 relative lg:mr-16">
+                            <h1 className={`font-quiche font-medium tracking-tight ${logoColorClass} ${isScrolled ? "text-2xl lg:text-3xl" : "text-3xl lg:text-4xl"}`}>
+                                Karima
+                            </h1>
+                            {/* <span className={`text-[10px] ${accentColorClass} hidden lg:block mt-1 font-serif italic tracking-wider ${isScrolled ? "opacity-0 h-0 overflow-hidden" : "opacity-100 h-auto"}`}>
+                                Faithfully Beautiful
+                            </span> */}
                         </Link>
-                        <Link to="/collections/new-in" className={navLinkClass}>
-                            New In <span className={navUnderlineClass}></span>
-                        </Link>
-                        <Link to="/about" className={navLinkClass}>
-                            Atelier <span className={navUnderlineClass}></span>
-                        </Link>
-                        <Link to="/blog" className={navLinkClass}>
-                            Journal <span className={navUnderlineClass}></span>
-                        </Link>
-                    </nav>
 
-                    {/* Center Logo */}
-                    <Link to="/" className="flex-shrink-0 cursor-pointer text-center group z-10 relative">
-                        <h1 className={`font-serif font-medium tracking-tight ${logoColorClass} ${isScrolled ? "text-2xl lg:text-3xl" : "text-3xl lg:text-5xl"}`}>
-                            Karima
-                        </h1>
-                        <span className={`text-[10px] ${accentColorClass} hidden lg:block mt-1 font-serif italic tracking-wider ${isScrolled ? "opacity-0 h-0 overflow-hidden" : "opacity-100 h-auto"}`}>
-                            Faithfully Beautiful
-                        </span>
-                    </Link>
+                        {/* Desktop Nav */}
+                        <nav className="hidden lg:flex items-center gap-10">
+                            {/* Categories Dropdown */}
+                            <div className="relative group/nav py-4">
+                                <Link to="/collections/all" className={navLinkClass}>
+                                    Categories <ChevronDown size={14} className="group-hover/nav:rotate-180 transition-transform duration-300" />
+                                    <span className={navUnderlineClass}></span>
+                                </Link>
+
+                                {/* Dropdown Menu */}
+                                {facetCategories.length > 0 && (
+                                    <div className="absolute top-full left-0 w-48 bg-white shadow-xl opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-300 translate-y-2 group-hover/nav:translate-y-0 border border-karima-brand/5 py-4 z-[1002]">
+                                        <div className="flex flex-col">
+                                            {facetCategories.map((cat: string) => (
+                                                <Link
+                                                    key={cat}
+                                                    to={`/collections/all?category=${encodeURIComponent(cat)}`}
+                                                    className="px-6 py-2 text-[10px] uppercase tracking-[0.2em] text-karima-ink hover:text-karima-brand hover:bg-karima-brand/5 transition-colors"
+                                                >
+                                                    {cat}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <Link to="/collections/new-in" className={navLinkClass}>
+                                New In <span className={navUnderlineClass}></span>
+                            </Link>
+                            <Link to="/about" className={navLinkClass}>
+                                Atelier <span className={navUnderlineClass}></span>
+                            </Link>
+                        </nav>
+                    </div>
 
                     {/* Right Icons */}
-                    <div className={`flex items-center gap-6 md:gap-8 flex-1 justify-end ${textColorClass}`}>
+                    <div className={`flex items-center gap-6 md:gap-8 ${textColorClass}`}>
                         <button
                             onClick={() => setSearchOpen(true)}
                             className="hover:opacity-60 transition-opacity hidden sm:block"
@@ -170,12 +193,35 @@ export function Header({
                 <div className="flex flex-col gap-10 pl-8 md:pl-12 pt-4 overflow-y-auto pb-32">
                     {/* Main Links */}
                     <div className="flex flex-col gap-6 text-left">
+                        {/* Categories Mobile Toggle */}
+                        <div className="flex flex-col gap-4">
+                            <button
+                                onClick={() => setIsMobileCategoriesOpen(!isMobileCategoriesOpen)}
+                                className={`group flex items-center gap-4 text-3xl md:text-4xl font-serif transform transition-all duration-500 ${isMobileMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"}`}
+                            >
+                                <span className={isMobileCategoriesOpen ? "text-karima-gold" : "text-karima-brand"}>Categories</span>
+                                <ChevronDown size={24} strokeWidth={1} className={`transition-transform duration-500 ${isMobileCategoriesOpen ? "rotate-180 text-karima-gold" : "text-karima-brand"}`} />
+                            </button>
+
+                            {/* Nested Categories */}
+                            <div className={`flex flex-col gap-4 pl-6 overflow-hidden transition-all duration-500 ${isMobileCategoriesOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}>
+                                {facetCategories.map((cat: string) => (
+                                    <Link
+                                        key={cat}
+                                        to={`/collections/all?category=${encodeURIComponent(cat)}`}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="text-xl md:text-2xl font-serif text-karima-brand/70 hover:text-karima-gold flex items-center gap-3"
+                                    >
+                                        <span>{cat}</span>
+                                        <ArrowRight size={16} strokeWidth={0.5} className="text-karima-gold" />
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+
                         {[
                             { label: "New Arrivals", path: "/collections/new-in" },
-                            { label: "Abayas", path: "/collections/abayas" },
-                            { label: "Khimars", path: "/collections/khimars" },
-                            { label: "Atelier", path: "/about" },
-                            { label: "Journal", path: "/blog" }
+                            { label: "Atelier", path: "/about" }
                         ].map((item, idx) => (
                             <Link
                                 key={idx}

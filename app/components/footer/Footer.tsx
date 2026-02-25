@@ -29,7 +29,7 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-y-12 md:gap-x-12 lg:gap-x-24 mb-12 md:mb-24">
                     {/* Brand Column */}
                     <div className="md:col-span-4 lg:col-span-5 space-y-10 mb-10 md:mb-0">
-                        <h2 className="text-5xl font-quiche text-karima-brand opacity-60 tracking-tight">
+                        <h2 className="text-4xl font-quiche text-white">
                             Karima
                         </h2>
                         <p className="text-sm font-light leading-relaxed opacity-60 max-w-sm tracking-wide">
@@ -38,8 +38,7 @@ export default function Footer() {
                             Medina Silk.
                         </p>
                         <div className="flex gap-8 opacity-50 text-[10px] uppercase tracking-widest">
-                            <a href="#" className="hover:text-white transition-colors">Instagram</a>
-                            <a href="#" className="hover:text-white transition-colors">Pinterest</a>
+                            <a href="https://www.instagram.com/karima.syari/" className="hover:text-white transition-colors">Instagram</a>
                         </div>
                     </div>
 

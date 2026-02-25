@@ -101,15 +101,14 @@ export function ProductOptionSelector({
                                         <button
                                             key={option.id}
                                             type="button"
-                                            disabled={!isAvailable}
                                             onClick={() => onChange(group.id, option.id)}
                                             className={`
-                                                w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300
+                                                relative w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300
                                                 ${isSelected
                                                     ? "ring-1 ring-offset-3 ring-karima-brand scale-110"
                                                     : "hover:scale-105 hover:ring-2 hover:ring-offset-1 hover:ring-karima-brand/20"
                                                 }
-                                                ${!isAvailable ? "opacity-20 cursor-not-allowed grayscale" : ""}
+                                                ${!isAvailable ? "opacity-40" : ""}
                                             `}
                                             title={option.name}
                                         >
@@ -130,7 +129,6 @@ export function ProductOptionSelector({
                                     <button
                                         key={option.id}
                                         type="button"
-                                        disabled={!isAvailable}
                                         onClick={() => onChange(group.id, option.id)}
                                         className={`
                                             relative min-w-[3rem] h-10 px-3 flex items-center justify-center 
@@ -138,10 +136,10 @@ export function ProductOptionSelector({
                                             ${isSelected
                                                 ? isAvailable
                                                     ? "bg-karima-brand text-white border-karima-brand"
-                                                    : "bg-stone-200 text-stone-400 border-stone-400 cursor-not-allowed"
+                                                    : "bg-karima-brand/40 text-white border-karima-brand/40"
                                                 : isAvailable
                                                     ? "bg-transparent border-karima-brand/10 text-karima-ink hover:border-karima-brand/40"
-                                                    : "bg-stone-200 border-stone-200 text-stone-400 cursor-not-allowed"
+                                                    : "bg-stone-100 border-stone-200 text-stone-400"
                                             }
                                         `}
                                     >

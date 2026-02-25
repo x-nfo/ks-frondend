@@ -14,7 +14,8 @@
       "Bash(gh run view:*)",
       "Bash(gh run list:*)",
       "Bash(npx vitest:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

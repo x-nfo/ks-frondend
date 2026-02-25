@@ -18,6 +18,7 @@ import { FeaturesBar } from "./components/FeaturesBar";
 import { CartTray } from "./components/cart/CartTray";
 import { useActiveOrder } from "./utils/use-active-order";
 import { getCollections } from "./providers/collections/collections";
+import { searchFacetValues } from "./providers/products/products";
 import { activeChannel } from "./providers/channel/channel";
 import { getActiveCustomer } from "./providers/customer/customer";
 import { setApiUrl, DEMO_API_URL, APP_META_TITLE, APP_META_TAGLINE, APP_META_DESCRIPTION } from "./constants";
@@ -62,7 +63,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   // toggle takes effect immediately on every request.
   const siteSettingsOptions = { request, apiUrl }; // intentionally no `kv`
 
-  const [collections, activeCustomer, channel, siteSettings] = await Promise.all([
+  const [collections, activeCustomer, channel, siteSettings, facetsData] = await Promise.all([
     getCollections({ take: 20 }, publicOptions).catch((e) => {
       console.error('[root loader] getCollections error:', e?.message);
       return null;
@@ -79,11 +80,23 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       console.error('[root loader] getSiteSettings error:', e?.message);
       return { underConstruction: false, countdownDate: null };
     }),
+    searchFacetValues({ input: { groupByProduct: true } }, publicOptions).catch((e) => {
+      console.error('[root loader] searchFacetValues error:', e?.message);
+      return null;
+    }),
   ]);
 
   const topLevelCollections = (Array.isArray(collections) ? collections : []).filter(
     (collection: any) => collection.parent?.name === "__root_collection__"
   );
+
+  const facetCategories = facetsData?.search?.facetValues
+    ?.filter((f: any) =>
+      f.facetValue?.facet?.code?.toLowerCase() === 'category' ||
+      f.facetValue?.facet?.name?.toLowerCase() === 'category'
+    )
+    .map((f: any) => f.facetValue?.name)
+    .filter(Boolean) || [];
 
   const underConstruction = siteSettings?.underConstruction ?? false;
   const countdownDate = siteSettings?.countdownDate ?? null;
@@ -92,6 +105,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     activeCustomer,
     activeChannel: channel,
     collections: topLevelCollections,
+    facetCategories: Array.from(new Set(facetCategories)).sort(),
     underConstruction,
     countdownDate,
     env: {
@@ -103,8 +117,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
-    <html lang="en" dir="ltr">
-      <head>
+    <html lang="en" dir="ltr" suppressHydrationWarning>
+      <head suppressHydrationWarning>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />

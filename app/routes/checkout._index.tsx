@@ -349,8 +349,12 @@ export default function CheckoutPage() {
     useEffect(() => {
         for (const f of fetchers) {
             if (f.data?.success && f.data?.orderCode) {
-                navigate(`/checkout/confirmation/${f.data.orderCode}`, { replace: true });
-                break;
+                // Introduce a small delay to allow browser extensions (like DevTools)
+                // to finish processing before we navigate and unmount.
+                const timeoutId = setTimeout(() => {
+                    navigate(`/checkout/confirmation/${f.data.orderCode}`, { replace: true });
+                }, 50);
+                return () => clearTimeout(timeoutId);
             }
         }
     }, [fetchers, navigate]);

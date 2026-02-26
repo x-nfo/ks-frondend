@@ -2,18 +2,18 @@ import {
   ArrowPathIcon,
   CreditCardIcon,
   TruckIcon,
-} from '@heroicons/react/24/outline';
-import { Link, useFetcher } from 'react-router';
-import clsx from 'clsx';
-import { useState } from 'react';
-import type { Address, ErrorResult } from '~/generated/graphql';
-import { Button } from '../Button';
-import { ErrorMessage } from '../ErrorMessage';
-import { HighlightedButton } from '../HighlightedButton';
-import Modal from '../modal/Modal';
+} from "@heroicons/react/24/outline";
+import { Link, useFetcher } from "react-router";
+import clsx from "clsx";
+import { useState } from "react";
+import type { Address, ErrorResult } from "~/generated/graphql";
+import { Button } from "../Button";
+import { ErrorMessage } from "../ErrorMessage";
+import { HighlightedButton } from "../HighlightedButton";
+import Modal from "../modal/Modal";
 
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import useToggleState from '~/utils/use-toggle-state';
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import useToggleState from "~/utils/use-toggle-state";
 
 type EditAddressProps = {
   address: Address;
@@ -36,7 +36,7 @@ export default function EditAddressCard({
       <Modal
         isOpen={isDeleteModalVisible}
         close={() =>
-          setDeleteModalVisible(deleteAddress.state === 'idle' ? false : true)
+          setDeleteModalVisible(deleteAddress.state === "idle" ? false : true)
         }
       >
         <deleteAddress.Form method="post" preventScrollReset>
@@ -49,7 +49,8 @@ export default function EditAddressCard({
                 <ErrorMessage
                   heading="Error"
                   message={
-                    deleteAddress.data?.message ?? "An unexpected error occurred."
+                    deleteAddress.data?.message ??
+                    "An unexpected error occurred."
                   }
                 />
               )}
@@ -59,7 +60,7 @@ export default function EditAddressCard({
             <Button
               type="button"
               onClick={() => setDeleteModalVisible(false)}
-              disabled={deleteAddress.state !== 'idle'}
+              disabled={deleteAddress.state !== "idle"}
             >
               Cancel
             </Button>
@@ -67,8 +68,8 @@ export default function EditAddressCard({
               type="submit"
               name="_action"
               value="deleteAddress"
-              disabled={deleteAddress.state !== 'idle'}
-              isSubmitting={deleteAddress.state !== 'idle'}
+              disabled={deleteAddress.state !== "idle"}
+              isSubmitting={deleteAddress.state !== "idle"}
             >
               Yes, Delete
             </HighlightedButton>
@@ -77,16 +78,18 @@ export default function EditAddressCard({
       </Modal>
       <div
         className={clsx(
-          'border border-karima-base p-5 min-h-[220px] h-full w-full flex flex-col justify-between gap-8 transition-colors',
+          "border border-karima-base p-5 min-h-[220px] h-full w-full flex flex-col justify-between gap-8 transition-colors",
           {
-            'border-karima-brand ring-1 ring-karima-brand': isActive,
+            "border-karima-brand ring-1 ring-karima-brand": isActive,
           },
         )}
       >
         <div className="flex justify-between">
           {/* Customer Data Section */}
           <div className="flex flex-col">
-            <span className="text-left text-base-semi text-karima-ink">{address.fullName}</span>
+            <span className="text-left text-base-semi text-karima-ink">
+              {address.fullName}
+            </span>
             {address.company && (
               <span className="text-small-regular text-karima-ink/60">
                 {address.company}
@@ -109,23 +112,21 @@ export default function EditAddressCard({
           {/* Default Shipping/Billing Section */}
           {(address.defaultShippingAddress ||
             address.defaultBillingAddress) && (
-              <div className="text-end text-gray-500 uppercase tracking-wider">
-                <span className="block text-sm font-medium">
-                  Default
-                </span>
-                <span className="block text-xs mt-1">
-                  {address.defaultShippingAddress && "Shipping"}
-                  {address.defaultShippingAddress &&
-                    address.defaultBillingAddress && (
-                      <>
-                        <br />
-                        &amp;&nbsp;
-                      </>
-                    )}
-                  {address.defaultBillingAddress && "Billing"}
-                </span>
-              </div>
-            )}
+            <div className="text-end text-gray-500 uppercase tracking-wider">
+              <span className="block text-sm font-medium">Default</span>
+              <span className="block text-xs mt-1">
+                {address.defaultShippingAddress && "Shipping"}
+                {address.defaultShippingAddress &&
+                  address.defaultBillingAddress && (
+                    <>
+                      <br />
+                      &amp;&nbsp;
+                    </>
+                  )}
+                {address.defaultBillingAddress && "Billing"}
+              </span>
+            </div>
+          )}
         </div>
         {/* CRUD Actions */}
         <div className="flex flex-col md:flex-row items-start gap-4">
@@ -143,10 +144,10 @@ export default function EditAddressCard({
               type="button"
               title="Delete this address"
               className="text-gray-700 flex items-center gap-x-2"
-              disabled={deleteAddress.state !== 'idle'}
+              disabled={deleteAddress.state !== "idle"}
               onClick={() => setDeleteModalVisible(true)}
             >
-              {deleteAddress.state === 'idle' ? (
+              {deleteAddress.state === "idle" ? (
                 <TrashIcon className="w-4 h-4"></TrashIcon>
               ) : (
                 <ArrowPathIcon className="w-4 h-4 animate-spin"></ArrowPathIcon>
@@ -156,53 +157,53 @@ export default function EditAddressCard({
           </div>
           {(!address.defaultShippingAddress ||
             !address.defaultBillingAddress) && (
-              <div>
-                <span className="text-gray-500 flex gap-4">
-                  {/* Default shipping */}
-                  {!address.defaultShippingAddress && (
-                    <setShipping.Form method="post">
-                      <input type="hidden" name="id" value={address.id} />
-                      <button
-                        name="_action"
-                        value="setDefaultShipping"
-                        type="submit"
-                        title="Set as default shipping address"
-                        className="text-gray-700 flex items-center gap-2"
-                        disabled={setShipping.state !== 'idle'}
-                      >
-                        {setShipping.state === 'idle' ? (
-                          <TruckIcon className="w-4 h-4"></TruckIcon>
-                        ) : (
-                          <ArrowPathIcon className="w-4 h-4 animate-spin"></ArrowPathIcon>
-                        )}
-                        Shipping
-                      </button>
-                    </setShipping.Form>
-                  )}
+            <div>
+              <span className="text-gray-500 flex gap-4">
+                {/* Default shipping */}
+                {!address.defaultShippingAddress && (
+                  <setShipping.Form method="post">
+                    <input type="hidden" name="id" value={address.id} />
+                    <button
+                      name="_action"
+                      value="setDefaultShipping"
+                      type="submit"
+                      title="Set as default shipping address"
+                      className="text-gray-700 flex items-center gap-2"
+                      disabled={setShipping.state !== "idle"}
+                    >
+                      {setShipping.state === "idle" ? (
+                        <TruckIcon className="w-4 h-4"></TruckIcon>
+                      ) : (
+                        <ArrowPathIcon className="w-4 h-4 animate-spin"></ArrowPathIcon>
+                      )}
+                      Shipping
+                    </button>
+                  </setShipping.Form>
+                )}
 
-                  {!address.defaultBillingAddress && (
-                    <setBilling.Form method="post">
-                      <input type="hidden" name="id" value={address.id} />
-                      <button
-                        name="_action"
-                        value="setDefaultBilling"
-                        type="submit"
-                        title="Set as default billing address"
-                        className="text-gray-700 flex items-center gap-2"
-                        disabled={setBilling.state !== 'idle'}
-                      >
-                        {setBilling.state === 'idle' ? (
-                          <CreditCardIcon className="w-4 h-4"></CreditCardIcon>
-                        ) : (
-                          <ArrowPathIcon className="w-4 h-4 animate-spin"></ArrowPathIcon>
-                        )}
-                        Billing
-                      </button>
-                    </setBilling.Form>
-                  )}
-                </span>
-              </div>
-            )}
+                {!address.defaultBillingAddress && (
+                  <setBilling.Form method="post">
+                    <input type="hidden" name="id" value={address.id} />
+                    <button
+                      name="_action"
+                      value="setDefaultBilling"
+                      type="submit"
+                      title="Set as default billing address"
+                      className="text-gray-700 flex items-center gap-2"
+                      disabled={setBilling.state !== "idle"}
+                    >
+                      {setBilling.state === "idle" ? (
+                        <CreditCardIcon className="w-4 h-4"></CreditCardIcon>
+                      ) : (
+                        <ArrowPathIcon className="w-4 h-4 animate-spin"></ArrowPathIcon>
+                      )}
+                      Billing
+                    </button>
+                  </setBilling.Form>
+                )}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </>

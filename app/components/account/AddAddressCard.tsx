@@ -1,6 +1,5 @@
-import { PlusIcon } from '@heroicons/react/24/outline';
-import { Link } from 'react-router';
-
+import { PlusIcon } from "@heroicons/react/24/outline";
+import { Link } from "react-router";
 
 export default function AddAddressCard() {
   return (

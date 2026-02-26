@@ -21,7 +21,13 @@ import { getCollections } from "./providers/collections/collections";
 import { searchFacetValues } from "./providers/products/products";
 import { activeChannel } from "./providers/channel/channel";
 import { getActiveCustomer } from "./providers/customer/customer";
-import { setApiUrl, DEMO_API_URL, APP_META_TITLE, APP_META_TAGLINE, APP_META_DESCRIPTION } from "./constants";
+import {
+  setApiUrl,
+  DEMO_API_URL,
+  APP_META_TITLE,
+  APP_META_TAGLINE,
+  APP_META_DESCRIPTION,
+} from "./constants";
 import { getSiteSettings } from "./providers/site/site-settings";
 import UnderConstruction from "./routes/under-construction";
 
@@ -34,9 +40,23 @@ export const meta: MetaFunction = () => {
 import "./app.css";
 export const links = () => [
   { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-  { rel: "apple-touch-icon", sizes: "180x180", href: "/images/favicon/apple-touch-icon.png" },
-  { rel: "icon", type: "image/png", sizes: "32x32", href: "/images/favicon/favicon-32x32.png" },
-  { rel: "icon", type: "image/png", sizes: "16x16", href: "/images/favicon/favicon-16x16.png" },
+  {
+    rel: "apple-touch-icon",
+    sizes: "180x180",
+    href: "/images/favicon/apple-touch-icon.png",
+  },
+  {
+    rel: "icon",
+    type: "image/png",
+    sizes: "32x32",
+    href: "/images/favicon/favicon-32x32.png",
+  },
+  {
+    rel: "icon",
+    type: "image/png",
+    sizes: "16x16",
+    href: "/images/favicon/favicon-16x16.png",
+  },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
@@ -63,40 +83,48 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   // toggle takes effect immediately on every request.
   const siteSettingsOptions = { request, apiUrl }; // intentionally no `kv`
 
-  const [collections, activeCustomer, channel, siteSettings, facetsData] = await Promise.all([
-    getCollections({ take: 20 }, publicOptions).catch((e) => {
-      console.error('[root loader] getCollections error:', e?.message);
-      return null;
-    }),
-    getActiveCustomer(options).catch((e) => {
-      console.error('[root loader] getActiveCustomer error:', e?.message);
-      return null;
-    }),
-    activeChannel(options).catch((e) => {
-      console.error('[root loader] activeChannel error:', e?.message);
-      return null;
-    }),
-    getSiteSettings(siteSettingsOptions).catch((e) => {
-      console.error('[root loader] getSiteSettings error:', e?.message);
-      return { underConstruction: false, countdownDate: null };
-    }),
-    searchFacetValues({ input: { groupByProduct: true } }, publicOptions).catch((e) => {
-      console.error('[root loader] searchFacetValues error:', e?.message);
-      return null;
-    }),
-  ]);
+  const [collections, activeCustomer, channel, siteSettings, facetsData] =
+    await Promise.all([
+      getCollections({ take: 20 }, publicOptions).catch((e) => {
+        console.error("[root loader] getCollections error:", e?.message);
+        return null;
+      }),
+      getActiveCustomer(options).catch((e) => {
+        console.error("[root loader] getActiveCustomer error:", e?.message);
+        return null;
+      }),
+      activeChannel(options).catch((e) => {
+        console.error("[root loader] activeChannel error:", e?.message);
+        return null;
+      }),
+      getSiteSettings(siteSettingsOptions).catch((e) => {
+        console.error("[root loader] getSiteSettings error:", e?.message);
+        return { underConstruction: false, countdownDate: null };
+      }),
+      searchFacetValues(
+        { input: { groupByProduct: true } },
+        publicOptions,
+      ).catch((e) => {
+        console.error("[root loader] searchFacetValues error:", e?.message);
+        return null;
+      }),
+    ]);
 
-  const topLevelCollections = (Array.isArray(collections) ? collections : []).filter(
-    (collection: any) => collection.parent?.name === "__root_collection__"
+  const topLevelCollections = (
+    Array.isArray(collections) ? collections : []
+  ).filter(
+    (collection: any) => collection.parent?.name === "__root_collection__",
   );
 
-  const facetCategories = facetsData?.search?.facetValues
-    ?.filter((f: any) =>
-      f.facetValue?.facet?.code?.toLowerCase() === 'category' ||
-      f.facetValue?.facet?.name?.toLowerCase() === 'category'
-    )
-    .map((f: any) => f.facetValue?.name)
-    .filter(Boolean) || [];
+  const facetCategories =
+    facetsData?.search?.facetValues
+      ?.filter(
+        (f: any) =>
+          f.facetValue?.facet?.code?.toLowerCase() === "category" ||
+          f.facetValue?.facet?.name?.toLowerCase() === "category",
+      )
+      .map((f: any) => f.facetValue?.name)
+      .filter(Boolean) || [];
 
   const underConstruction = siteSettings?.underConstruction ?? false;
   const countdownDate = siteSettings?.countdownDate ?? null;
@@ -115,7 +143,6 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <head suppressHydrationWarning>
@@ -177,7 +204,16 @@ export default function App() {
         />
       )}
       <main>
-        <Outlet context={{ activeOrderFetcher, activeOrder, adjustOrderLine, removeItem, applyCoupon, removeCoupon }} />
+        <Outlet
+          context={{
+            activeOrderFetcher,
+            activeOrder,
+            adjustOrderLine,
+            removeItem,
+            applyCoupon,
+            removeCoupon,
+          }}
+        />
       </main>
       <CartTray
         open={open}
@@ -193,21 +229,31 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: any) {
-  console.error('[root ErrorBoundary] caught error:', error);
-  console.error('[root ErrorBoundary] error type:', typeof error, error?.constructor?.name);
-  console.error('[root ErrorBoundary] isRouteErrorResponse:', isRouteErrorResponse(error));
-  console.error('[root ErrorBoundary] error.message:', error?.message);
-  console.error('[root ErrorBoundary] error.stack:', error?.stack);
+  console.error("[root ErrorBoundary] caught error:", error);
+  console.error(
+    "[root ErrorBoundary] error type:",
+    typeof error,
+    error?.constructor?.name,
+  );
+  console.error(
+    "[root ErrorBoundary] isRouteErrorResponse:",
+    isRouteErrorResponse(error),
+  );
+  console.error("[root ErrorBoundary] error.message:", error?.message);
+  console.error("[root ErrorBoundary] error.stack:", error?.stack);
 
   // NetworkError from aborted fetcher during navigation — ignore and let the new page load
-  const isNetworkError = error?.message?.includes('NetworkError') ||
-    error?.message?.includes('Failed to fetch') ||
-    error?.message?.includes('network') ||
-    error?.message?.includes('Load failed') ||
-    error?.name === 'TypeError';
+  const isNetworkError =
+    error?.message?.includes("NetworkError") ||
+    error?.message?.includes("Failed to fetch") ||
+    error?.message?.includes("network") ||
+    error?.message?.includes("Load failed") ||
+    error?.name === "TypeError";
 
   if (isNetworkError && !isRouteErrorResponse(error)) {
-    console.warn('[root ErrorBoundary] Suppressing NetworkError (likely aborted fetch during navigation)');
+    console.warn(
+      "[root ErrorBoundary] Suppressing NetworkError (likely aborted fetch during navigation)",
+    );
     return null;
   }
 

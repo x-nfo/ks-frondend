@@ -198,9 +198,31 @@ export const orderDetailFragment = gql`
         id
         name
         price
+        options {
+          id
+          code
+          name
+          group {
+            id
+            code
+            name
+          }
+        }
+        featuredAsset {
+          id
+          preview
+        }
+        assets {
+          id
+          preview
+        }
         product {
           id
           slug
+          assets {
+            id
+            preview
+          }
         }
       }
       proratedUnitPriceWithTax

@@ -11,7 +11,11 @@ import { SortOrder } from "../generated/graphql";
 import { Banner } from "../components/banner/Banner";
 import { useState } from "react";
 import { subscribeToNewsletter } from "../providers/newsletter/newsletter";
-import { APP_META_TITLE, APP_META_TAGLINE, APP_META_DESCRIPTION } from "../constants";
+import {
+  APP_META_TITLE,
+  APP_META_TAGLINE,
+  APP_META_DESCRIPTION,
+} from "../constants";
 import type { MetaFunction } from "react-router";
 
 export const meta: MetaFunction = () => {
@@ -26,7 +30,10 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const kv = context.cloudflare.env.KV_CACHE;
-  const apiUrl = (context.cloudflare.env as any).VENDURE_API_URL || process.env.VENDURE_API_URL || 'http://localhost:3000/shop-api';
+  const apiUrl =
+    (context.cloudflare.env as any).VENDURE_API_URL ||
+    process.env.VENDURE_API_URL ||
+    "http://localhost:3000/shop-api";
   const options = { request, apiUrl };
   const publicOptions = { ...options, kv };
 
@@ -36,15 +43,19 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     activeHeroBanners,
     activePromoBanners,
     activeFeaturedCollections,
-    activePopup
+    activePopup,
   } = homepageData;
 
   const heroBanner = activeHeroBanners.length > 0 ? activeHeroBanners[0] : null;
 
-  const collectionsArray = Array.isArray(allCollections) ? allCollections : (allCollections as any).items || [];
+  const collectionsArray = Array.isArray(allCollections)
+    ? allCollections
+    : (allCollections as any).items || [];
 
   const featuredCollections = activeFeaturedCollections
-    .map((afc: any) => collectionsArray.find((c: any) => c.id === afc.collectionId))
+    .map((afc: any) =>
+      collectionsArray.find((c: any) => c.id === afc.collectionId),
+    )
     .filter(Boolean);
 
   let featuredProducts: any[] = [];
@@ -56,10 +67,10 @@ export async function loader({ request, context }: Route.LoaderArgs) {
           collectionId: featuredCollectionId,
           take: 6,
           groupByProduct: true,
-          sort: { name: SortOrder.Asc }
-        }
+          sort: { name: SortOrder.Asc },
+        },
       },
-      publicOptions
+      publicOptions,
     );
     featuredProducts = searchResult.search.items;
   } else {
@@ -68,10 +79,10 @@ export async function loader({ request, context }: Route.LoaderArgs) {
         input: {
           take: 6,
           groupByProduct: true,
-          sort: { name: SortOrder.Desc }
-        }
+          sort: { name: SortOrder.Desc },
+        },
       },
-      publicOptions
+      publicOptions,
     );
     featuredProducts = searchResult.search.items;
   }
@@ -80,17 +91,19 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     {
       input: {
         groupByProduct: true,
-        take: 100
-      }
+        take: 100,
+      },
     },
-    publicOptions
+    publicOptions,
   );
 
-  const facetLookup = facetValuesResult.search.facetValues.reduce((acc: any, curr: any) => {
-    acc[curr.facetValue.id] = curr.facetValue;
-    return acc;
-  }, {});
-
+  const facetLookup = facetValuesResult.search.facetValues.reduce(
+    (acc: any, curr: any) => {
+      acc[curr.facetValue.id] = curr.facetValue;
+      return acc;
+    },
+    {},
+  );
 
   return {
     heroBanner,
@@ -98,7 +111,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     featuredCollections,
     activePopup: activePopup || null,
     featuredProducts,
-    facetLookup
+    facetLookup,
   };
 }
 
@@ -109,7 +122,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     featuredCollections,
     activePopup,
     featuredProducts,
-    facetLookup
+    facetLookup,
   } = loaderData;
 
   if (!heroBanner) {
@@ -142,11 +155,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             {heroBanner.subtitle}
           </span>
           <h1 className="text-7xl md:text-9xl font-serif text-white italic font-thin tracking-tighter mb-12 animate-slide-up">
-            {heroBanner.headline.split(' ').map((word: string, i: number) => (
-              <span key={i} className={i === 1 ? "opacity-70" : ""}>{word} </span>
+            {heroBanner.headline.split(" ").map((word: string, i: number) => (
+              <span key={i} className={i === 1 ? "opacity-70" : ""}>
+                {word}{" "}
+              </span>
             ))}
           </h1>
-          <Link to={heroBanner.ctaLink} className="border border-white/30 text-white px-12 py-4 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-white hover:text-karima-brand transition-all duration-700 animate-fade-in delay-700">
+          <Link
+            to={heroBanner.ctaLink}
+            className="border border-white/30 text-white px-12 py-4 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-white hover:text-karima-brand transition-all duration-700 animate-fade-in delay-700"
+          >
             {heroBanner.ctaText}
           </Link>
         </div>
@@ -162,8 +180,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         <div className="flex gap-32 animate-marquee whitespace-nowrap">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center gap-32 opacity-20">
-              <span className="text-3xl font-serif italic text-karima-brand">Ramadhan Sale</span>
-              <span className="text-[9px] uppercase tracking-[0.4em] font-medium text-karima-brand mt-1">Up to 25% Off</span>
+              <span className="text-3xl font-serif italic text-karima-brand">
+                Ramadhan Sale
+              </span>
+              <span className="text-[9px] uppercase tracking-[0.4em] font-medium text-karima-brand mt-1">
+                Up to 25% Off
+              </span>
             </div>
           ))}
         </div>
@@ -173,7 +195,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <section className="py-40 px-6 bg-white lg:px-24">
         <div className="container mx-auto">
           <div className="flex flex-col items-center mb-28">
-            <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-6 block font-medium">New Arrivals</span>
+            <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-6 block font-medium">
+              New Arrivals
+            </span>
             <h2 className="text-6xl lg:text-8xl font-serif text-karima-brand leading-none text-center font-thin">
               The <span className="italic opacity-70">Essentials.</span>
             </h2>
@@ -181,21 +205,35 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-16 md:gap-x-12 md:gap-y-28">
             {featuredProducts.map((product: any, idx: number) => {
-              const productFacets = product.facetValueIds?.map((id: string) => facetLookup[id]).filter(Boolean) || [];
-              const categoryFacet = productFacets.find((f: any) => f.facet.code === 'category' || f.facet.name.toLowerCase() === 'category');
-              const colorFacets = productFacets.filter((f: any) => f.facet.code === 'color' || f.facet.code === 'colour' || f.facet.name.toLowerCase() === 'color');
+              const productFacets =
+                product.facetValueIds
+                  ?.map((id: string) => facetLookup[id])
+                  .filter(Boolean) || [];
+              const categoryFacet = productFacets.find(
+                (f: any) =>
+                  f.facet.code === "category" ||
+                  f.facet.name.toLowerCase() === "category",
+              );
+              const colorFacets = productFacets.filter(
+                (f: any) =>
+                  f.facet.code === "color" ||
+                  f.facet.code === "colour" ||
+                  f.facet.name.toLowerCase() === "color",
+              );
 
-              const colorValues = colorFacets.map((f: any) => {
-                const name = f.name.toLowerCase();
-                if (name === 'black') return '#000000';
-                if (name === 'navy') return '#1B243B';
-                if (name === 'maroon') return '#58181F';
-                if (name === 'sage') return '#9CAF88';
-                if (name === 'brown') return '#5D4037';
-                if (name === 'white') return '#FFFFFF';
-                if (name === 'gold') return '#D4AF37';
-                return null;
-              }).filter(Boolean) as string[];
+              const colorValues = colorFacets
+                .map((f: any) => {
+                  const name = f.name.toLowerCase();
+                  if (name === "black") return "#000000";
+                  if (name === "navy") return "#1B243B";
+                  if (name === "maroon") return "#58181F";
+                  if (name === "sage") return "#9CAF88";
+                  if (name === "brown") return "#5D4037";
+                  if (name === "white") return "#FFFFFF";
+                  if (name === "gold") return "#D4AF37";
+                  return null;
+                })
+                .filter(Boolean) as string[];
 
               return (
                 <div key={product.productId}>
@@ -210,7 +248,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
 
           <div className="mt-32 text-center">
-            <Link to="/collections/all" className="group text-[10px] font-bold uppercase tracking-[0.3em] text-karima-brand flex items-center justify-center gap-4 mx-auto">
+            <Link
+              to="/collections/all"
+              className="group text-[10px] font-bold uppercase tracking-[0.3em] text-karima-brand flex items-center justify-center gap-4 mx-auto"
+            >
               <span>View Full Collection</span>
               <ArrowUpRight size={16} />
             </Link>
@@ -221,8 +262,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       {/* 4. CURATED CATEGORIES */}
       <section className="bg-white">
         <div className="flex flex-col items-center py-32 border-b border-karima-brand/5">
-          <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-6 block font-medium">Explore</span>
-          <h2 className="text-5xl md:text-7xl font-serif text-karima-brand italic font-thin tracking-tight">Curated Collections</h2>
+          <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-6 block font-medium">
+            Explore
+          </span>
+          <h2 className="text-5xl md:text-7xl font-serif text-karima-brand italic font-thin tracking-tight">
+            Curated Collections
+          </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full">
           {featuredCollections.map((collection: any) => (
@@ -233,10 +278,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       {activePromoBanners.length > 0 && (
         <Banner
-          title={activePromoBanners[0].title || ''}
-          description={activePromoBanners[0].description || ''}
-          imageUrl={activePromoBanners[0].imageUrl || ''}
-          linkUrl={activePromoBanners[0].linkUrl || '#'}
+          title={activePromoBanners[0].title || ""}
+          description={activePromoBanners[0].description || ""}
+          imageUrl={activePromoBanners[0].imageUrl || ""}
+          linkUrl={activePromoBanners[0].linkUrl || "#"}
         />
       )}
 
@@ -274,7 +319,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <div className="flex justify-center mb-8 text-karima-brand">
               <Mail size={24} strokeWidth={0.5} />
             </div>
-            <h3 className="text-4xl md:text-6xl font-serif text-karima-brand italic mb-6">The Inner Circle</h3>
+            <h3 className="text-4xl md:text-6xl font-serif text-karima-brand italic mb-6">
+              The Inner Circle
+            </h3>
             <p className="text-karima-ink/40 mb-12 font-light text-sm tracking-widest uppercase">
               Early access to limited textile drops.
             </p>
@@ -289,7 +336,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
 function NewsletterForm() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -311,7 +360,10 @@ function NewsletterForm() {
 
   return (
     <div className="w-full max-w-md mx-auto relative">
-      <form className="flex flex-row items-center border-b border-karima-brand/20 w-full relative" onSubmit={handleSubmit}>
+      <form
+        className="flex flex-row items-center border-b border-karima-brand/20 w-full relative"
+        onSubmit={handleSubmit}
+      >
         <input
           type="email"
           placeholder="Enter your email address"
@@ -329,7 +381,9 @@ function NewsletterForm() {
         </button>
       </form>
       {message && (
-        <p className={`absolute top-full left-0 right-0 text-center mt-2 text-xs tracking-widest uppercase ${status === "error" ? "text-red-500" : "text-karima-brand"}`}>
+        <p
+          className={`absolute top-full left-0 right-0 text-center mt-2 text-xs tracking-widest uppercase ${status === "error" ? "text-red-500" : "text-karima-brand"}`}
+        >
           {message}
         </p>
       )}

@@ -2,28 +2,29 @@
 @plugin "@tailwindcss/forms";
 
 @font-face {
-  font-family: 'quicheSans';
-  src: url('/fonts/QUICHE SANS FONT/QUICHE SANS REGULER.otf') format('opentype');
+  font-family: "quicheSans";
+  src: url("/fonts/QUICHE SANS FONT/QUICHE SANS REGULER.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'quicheSans';
-  src: url('/fonts/QUICHE SANS FONT/QUICHE SANS BOLD.otf') format('opentype');
+  font-family: "quicheSans";
+  src: url("/fonts/QUICHE SANS FONT/QUICHE SANS BOLD.otf") format("opentype");
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'quicheSans';
-  src: url('/fonts/QUICHE SANS FONT/QUICHE SANS ITALIC.otf') format('opentype');
+  font-family: "quicheSans";
+  src: url("/fonts/QUICHE SANS FONT/QUICHE SANS ITALIC.otf") format("opentype");
   font-weight: normal;
   font-style: italic;
 }
 
 @theme {
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif,
+  --font-sans:
+    "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: "Marcellus", serif;
   --font-quiche: "quicheSans", serif;
@@ -51,8 +52,6 @@
   --animate-slide-down: slideDown 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
   --animate-zoom-out: zoomOut 20s ease-out forwards;
   --animate-marquee: marquee 60s linear infinite;
-
-
 
   @keyframes zoomOut {
     0% {
@@ -113,14 +112,10 @@
   --text-nano: 0.5rem;
 }
 
-
-
 html,
 body {
   @apply bg-white text-karima-ink antialiased selection:bg-karima-brand selection:text-white;
 }
-
-
 
 .font-serif {
   font-variant-numeric: oldstyle-nums;

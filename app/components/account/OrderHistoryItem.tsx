@@ -1,17 +1,16 @@
-import { useState } from 'react';
-import { Button } from '~/components/Button';
-import { Price } from '~/components/products/Price';
+import { useState } from "react";
+import { Button } from "~/components/Button";
+import { Price } from "~/components/products/Price";
 import type { ActiveCustomerOrderListQuery } from "~/generated/graphql";
-import { OrderStateBadge } from '~/components/account/OrderStateBadge';
-import { ChevronRightIcon } from '@heroicons/react/24/solid';
-import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
-import { Link } from 'react-router';
-
+import { OrderStateBadge } from "~/components/account/OrderStateBadge";
+import { ChevronRightIcon } from "@heroicons/react/24/solid";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
+import { Link } from "react-router";
 
 type OrderHistoryItemProps = {
   order?: NonNullable<
-    ActiveCustomerOrderListQuery['activeCustomer']
-  >['orders']['items'][number];
+    ActiveCustomerOrderListQuery["activeCustomer"]
+  >["orders"]["items"][number];
   isInitiallyExpanded?: boolean;
   areDetailsInitiallyExpanded?: boolean;
   className?: string;
@@ -30,7 +29,9 @@ export default function OrderHistoryItem({
   const [isLineCalcExpanded, setIsLineCalcExpanded] = useState<boolean>(false);
 
   return (
-    <div className={`border border-karima-base rounded-lg overflow-hidden ${className}`}>
+    <div
+      className={`border border-karima-base rounded-lg overflow-hidden ${className}`}
+    >
       {/* Upper Summary */}
       <div
         className="p-4 lg:p-6
@@ -49,11 +50,11 @@ export default function OrderHistoryItem({
             >
               {order?.orderPlacedAt
                 ? new Date(order.orderPlacedAt).toLocaleDateString(undefined, {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })
-                : '--'}
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "--"}
             </span>
           </div>
           {/* Info - Total sum */}
@@ -69,7 +70,7 @@ export default function OrderHistoryItem({
           {/* Info - Order number */}
           <div>
             <span className="block font-medium text-karima-ink">Order #</span>
-            <span className="text-karima-ink/60">{order?.code || '--'}</span>
+            <span className="text-karima-ink/60">{order?.code || "--"}</span>
           </div>
         </div>
 
@@ -90,8 +91,9 @@ export default function OrderHistoryItem({
               title="Expand"
             >
               <ChevronRightIcon
-                className={`w-5 h-5 transition-transform duration-100 ${isExpanded && 'rotate-90'
-                  }`}
+                className={`w-5 h-5 transition-transform duration-100 ${
+                  isExpanded && "rotate-90"
+                }`}
               />
             </Button>
           </div>
@@ -133,10 +135,10 @@ export default function OrderHistoryItem({
                   >
                     {isLineCalcExpanded && (
                       <>
-                        <span title="Quantity">
-                          {line.quantity}
+                        <span title="Quantity">{line.quantity}</span>
+                        <span className="text-karima-ink/40 select-none">
+                          ×
                         </span>
-                        <span className="text-karima-ink/40 select-none">×</span>
                         <span title="Price per unit">
                           <Price
                             currencyCode={line.productVariant.currencyCode}
@@ -161,9 +163,9 @@ export default function OrderHistoryItem({
                     ) === 0
                       ? "Not shipped"
                       : `${line.fulfillmentLines?.reduce(
-                        (acc, fLine) => acc + fLine.quantity,
-                        0,
-                      )} or ${line.quantity} items fulfilled`}
+                          (acc, fLine) => acc + fLine.quantity,
+                          0,
+                        )} or ${line.quantity} items fulfilled`}
                     {line.fulfillmentLines
                       ?.filter((fLine) => fLine.quantity > 0)
                       .map((fLine) => (
@@ -174,9 +176,9 @@ export default function OrderHistoryItem({
                             fLine.fulfillment.updatedAt,
                           ).toLocaleString()}
                         >
-                          {fLine.fulfillment.state}:{' '}
+                          {fLine.fulfillment.state}:{" "}
                           {new Intl.DateTimeFormat(undefined, {
-                            dateStyle: 'medium',
+                            dateStyle: "medium",
                           }).format(new Date(fLine.fulfillment.updatedAt))}
                         </span>
                       ))}
@@ -197,8 +199,8 @@ export default function OrderHistoryItem({
                 className="text-xs"
               >
                 {/* Only show package number if there are more than one: Looks cleaner */}
-                Track Package{' '}
-                {order.fulfillments?.length == 1 ? '' : `#${i + 1}`}
+                Track Package{" "}
+                {order.fulfillments?.length == 1 ? "" : `#${i + 1}`}
               </Button>
             ))}
             <Button
@@ -207,8 +209,9 @@ export default function OrderHistoryItem({
             >
               <span className="text-xs">Detailed Overview</span>
               <ChevronRightIcon
-                className={`w-5 h-5 transition-transform duration-100 ${areDetailsExpanded && 'rotate-90'
-                  }`}
+                className={`w-5 h-5 transition-transform duration-100 ${
+                  areDetailsExpanded && "rotate-90"
+                }`}
               />
             </Button>
           </div>
@@ -216,9 +219,7 @@ export default function OrderHistoryItem({
           {/* More details - Could be expanded with shipping adresses, payment option, etc. */}
           {areDetailsExpanded && (
             <div className="p-2 lg:p-3 grid grid-cols-2 gap-1 text-sm max-w-sm self-center md:self-end">
-              <h6 className="font-medium col-span-full">
-                Summary
-              </h6>
+              <h6 className="font-medium col-span-full">Summary</h6>
               <span>Subtotal</span>
               <span className="text-end">
                 <Price

@@ -7,123 +7,116 @@ import { Price } from "../products/Price";
 import type { CartLoaderData } from "../../routes/api/active-order";
 import { CurrencyCode } from "../../generated/graphql";
 
-
 export function CartTray({
-    open,
-    onClose,
-    activeOrder,
-    adjustOrderLine,
-    removeItem,
+  open,
+  onClose,
+  activeOrder,
+  adjustOrderLine,
+  removeItem,
 }: {
-    open: boolean;
-    onClose: (closed: boolean) => void;
-    activeOrder: CartLoaderData["activeOrder"];
-    adjustOrderLine?: (lineId: string, quantity: number) => void;
-    removeItem?: (lineId: string) => void;
+  open: boolean;
+  onClose: (closed: boolean) => void;
+  activeOrder: CartLoaderData["activeOrder"];
+  adjustOrderLine?: (lineId: string, quantity: number) => void;
+  removeItem?: (lineId: string) => void;
 }) {
-    const currencyCode = activeOrder?.currencyCode || CurrencyCode.Usd;
-    const location = useLocation();
-    const editable = !location.pathname.startsWith("/checkout");
+  const currencyCode = activeOrder?.currencyCode || CurrencyCode.Usd;
+  const location = useLocation();
+  const editable = !location.pathname.startsWith("/checkout");
 
-    return (
-        <Transition.Root show={open} as={Fragment}>
-            <Dialog
-                as="div"
-                className="fixed inset-0 z-[2000]"
-                onClose={onClose}
-            >
-                <Transition.Child
-                    as={Fragment}
-                    enter="ease-in-out duration-300"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="ease-in-out duration-300"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                >
-                    <div className="fixed inset-0 bg-black/20 transition-opacity" />
-                </Transition.Child>
+  return (
+    <Transition.Root show={open} as={Fragment}>
+      <Dialog as="div" className="fixed inset-0 z-[2000]" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-in-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in-out duration-300"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/20 transition-opacity" />
+        </Transition.Child>
 
-                <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
-                    <Transition.Child
-                        as={Fragment}
-                        enter="transform transition ease-in-out duration-300 sm:duration-300"
-                        enterFrom="translate-x-full"
-                        enterTo="translate-x-0"
-                        leave="transform transition ease-in-out duration-300 sm:duration-300"
-                        leaveFrom="translate-x-0"
-                        leaveTo="translate-x-full"
-                    >
-                        <div className="w-screen max-w-md">
-                            <div className="h-full flex flex-col bg-white shadow-xl overflow-y-scroll">
-                                <div className="flex-1 py-6 overflow-y-auto px-4 sm:px-6">
-                                    <div className="flex items-start justify-between">
-                                        <Dialog.Title className="text-2xl font-serif font-medium text-karima-brand">
-                                            Shopping Cart
-                                        </Dialog.Title>
-                                        <div className="ml-3 h-7 flex items-center">
-                                            <button
-                                                type="button"
-                                                className="-m-2 p-2 text-karima-ink/40 hover:text-karima-brand transition-colors"
-                                                onClick={() => onClose(false)}
-                                            >
-                                                <span className="sr-only">
-                                                    Close panel
-                                                </span>
-                                                <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                                            </button>
-                                        </div>
-                                    </div>
+        <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
+          <Transition.Child
+            as={Fragment}
+            enter="transform transition ease-in-out duration-300 sm:duration-300"
+            enterFrom="translate-x-full"
+            enterTo="translate-x-0"
+            leave="transform transition ease-in-out duration-300 sm:duration-300"
+            leaveFrom="translate-x-0"
+            leaveTo="translate-x-full"
+          >
+            <Dialog.Panel className="w-screen max-w-lg">
+              <div className="h-full flex flex-col bg-white shadow-xl overflow-y-scroll">
+                <div className="flex-1 py-6 overflow-y-auto px-4 sm:px-6">
+                  <div className="flex items-start justify-between">
+                    <Dialog.Title className="text-2xl font-serif font-medium text-karima-brand">
+                      Shopping Cart
+                    </Dialog.Title>
+                    <div className="ml-3 h-7 flex items-center">
+                      <button
+                        type="button"
+                        className="-m-2 p-2 text-karima-ink/40 hover:text-karima-brand transition-colors"
+                        onClick={() => onClose(false)}
+                      >
+                        <span className="sr-only">Close panel</span>
+                        <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
 
-                                    <div className="mt-8">
-                                        {activeOrder?.totalQuantity ? (
-                                            <CartContents
-                                                orderLines={activeOrder?.lines ?? []}
-                                                currencyCode={currencyCode!}
-                                                editable={editable}
-                                                removeItem={removeItem}
-                                                adjustOrderLine={adjustOrderLine}
-                                            />
-                                        ) : (
-                                            <div className="flex items-center justify-center h-48 text-xl text-gray-400">
-                                                Your cart is empty
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {activeOrder?.totalQuantity && (
-                                    <div className="border-t border-karima-brand/10 py-6 px-4 sm:px-6">
-                                        <div className="flex justify-between text-base font-medium text-karima-ink">
-                                            <p>Subtotal</p>
-                                            <p>
-                                                {currencyCode && (
-                                                    <Price
-                                                        priceWithTax={activeOrder?.subTotalWithTax ?? 0}
-                                                        currencyCode={currencyCode}
-                                                    />
-                                                )}
-                                            </p>
-                                        </div>
-                                        <p className="mt-0.5 text-sm text-karima-ink/60">
-                                            Shipping and taxes calculated at checkout.
-                                        </p>
-                                        <div className="mt-6">
-                                            <Link
-                                                to="/checkout"
-                                                onClick={() => onClose(false)}
-                                                className="flex justify-center items-center rounded-sm px-6 py-3 border border-transparent shadow-sm text-base font-medium text-white bg-black hover:bg-karima-brand transition-colors"
-                                            >
-                                                Checkout
-                                            </Link>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </Transition.Child>
+                  <div className="mt-8">
+                    {activeOrder?.totalQuantity ? (
+                      <CartContents
+                        orderLines={activeOrder?.lines ?? []}
+                        currencyCode={currencyCode!}
+                        editable={editable}
+                        removeItem={removeItem}
+                        adjustOrderLine={adjustOrderLine}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-48 text-xl text-gray-400">
+                        Your cart is empty
+                      </div>
+                    )}
+                  </div>
                 </div>
-            </Dialog>
-        </Transition.Root >
-    );
+
+                {activeOrder?.totalQuantity && (
+                  <div className="border-t border-karima-brand/10 py-6 px-4 sm:px-6">
+                    <div className="flex justify-between text-base font-medium text-karima-ink">
+                      <p>Subtotal</p>
+                      <p>
+                        {currencyCode && (
+                          <Price
+                            priceWithTax={activeOrder?.subTotalWithTax ?? 0}
+                            currencyCode={currencyCode}
+                          />
+                        )}
+                      </p>
+                    </div>
+                    <p className="mt-0.5 text-sm text-karima-ink/60">
+                      Shipping and taxes calculated at checkout.
+                    </p>
+                    <div className="mt-6">
+                      <Link
+                        to="/checkout"
+                        onClick={() => onClose(false)}
+                        className="flex justify-center items-center rounded-sm px-6 py-3 border border-transparent shadow-sm text-base font-medium text-white bg-black hover:bg-karima-brand transition-colors"
+                      >
+                        Checkout
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Dialog.Panel>
+          </Transition.Child>
+        </div>
+      </Dialog>
+    </Transition.Root>
+  );
 }

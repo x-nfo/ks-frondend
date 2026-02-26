@@ -78,6 +78,10 @@ export const detailedProductFragment = gql`
         id
         preview
       }
+      assets {
+        id
+        preview
+      }
     }
   }
 `;

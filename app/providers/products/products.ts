@@ -82,6 +82,16 @@ export const detailedProductFragment = gql`
         id
         preview
       }
+      facetValues {
+        facet {
+          id
+          code
+          name
+        }
+        id
+        code
+        name
+      }
     }
   }
 `;

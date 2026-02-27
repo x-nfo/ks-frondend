@@ -11,6 +11,8 @@ import { SortOrder } from "../generated/graphql";
 import { Banner } from "../components/banner/Banner";
 import { useState } from "react";
 import { subscribeToNewsletter } from "../providers/newsletter/newsletter";
+import { VideoSection } from "../components/ui/VideoSection";
+import { AboutSection } from "../components/ui/AboutSection";
 import {
   APP_META_TITLE,
   APP_META_TAGLINE,
@@ -176,7 +178,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       </section>
 
       {/* 2. MARQUEE */}
-      <div className="w-full overflow-hidden py-12 border-b border-karima-brand/5 relative bg-white z-20">
+      {/* <div className="w-full overflow-hidden py-12 border-b border-karima-brand/5 relative bg-white z-20">
         <div className="flex gap-32 animate-marquee whitespace-nowrap">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center gap-32 opacity-20">
@@ -189,16 +191,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* 3. NEW ARRIVALS */}
-      <section className="py-40 px-6 bg-white lg:px-24">
+      <section className="py-16 px-6 bg-white lg:py-24 lg:px-24">
         <div className="container mx-auto">
-          <div className="flex flex-col items-center mb-28">
-            <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-6 block font-medium">
+          <div className="flex flex-col items-center mb-16 lg:mb-28">
+            <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-4 block font-medium">
               New Arrivals
             </span>
-            <h2 className="text-6xl lg:text-8xl font-serif text-karima-brand leading-none text-center font-thin">
+            <h2 className="text-4xl md:text-6xl lg:text-8xl font-serif text-karima-brand leading-none text-center font-thin">
               The <span className="italic opacity-70">Essentials.</span>
             </h2>
           </div>
@@ -247,7 +249,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             })}
           </div>
 
-          <div className="mt-32 text-center">
+          <div className="mt-20 lg:mt-32 text-center">
             <Link
               to="/collections/all"
               className="group text-[10px] font-bold uppercase tracking-[0.3em] text-karima-brand flex items-center justify-center gap-4 mx-auto"
@@ -261,17 +263,19 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       {/* 4. CURATED CATEGORIES */}
       <section className="bg-white">
-        <div className="flex flex-col items-center py-32 border-b border-karima-brand/5">
-          <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-6 block font-medium">
+        <div className="flex flex-col items-center py-16 lg:py-24 border-b border-karima-brand/5">
+          <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-4 block font-medium">
             Explore
           </span>
-          <h2 className="text-5xl md:text-7xl font-serif text-karima-brand italic font-thin tracking-tight">
+          <h2 className="text-4xl md:text-7xl font-serif text-karima-brand italic font-thin tracking-tight">
             Curated Collections
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full">
+        <div className="flex overflow-x-auto snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-4 w-full scroll-smooth no-scrollbar gap-4 px-6 md:gap-0 md:px-0">
           {featuredCollections.map((collection: any) => (
-            <CollectionCard key={collection.id} collection={collection} />
+            <div key={collection.id} className="w-[85vw] sm:w-[50vw] md:w-auto snap-start md:snap-align-none shrink-0 rounded-sm overflow-hidden md:rounded-none">
+              <CollectionCard collection={collection} />
+            </div>
           ))}
         </div>
       </section>
@@ -285,44 +289,25 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         />
       )}
 
-      {/* 5. BRAND ATMOSPHERE */}
-      {/* <section className="relative w-full py-48 overflow-hidden bg-stone-900">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1596451190630-186aff535bf2?q=80&w=1974&auto=format&fit=crop"
-            className="w-full h-full object-cover opacity-60 mix-blend-overlay"
-            alt="Atelier"
-          />
-          <div className="absolute inset-0 bg-black/60"></div>
-        </div>
+      {/* 5. BRAND ATMOSPHERE & VIDEO */}
+      <div className="mt-52">
+        <VideoSection />
+      </div>
 
-        <div className="relative z-10 container mx-auto px-6 text-center reveal-on-scroll">
-          <Sparkles className="text-karima-gold mx-auto mb-10 opacity-80" size={32} strokeWidth={0.5} />
-          <h2 className="text-5xl md:text-8xl font-serif text-white italic font-thin mb-10 leading-tight drop-shadow-2xl">
-            Modesty is the <br /> ultimate elegance.
-          </h2>
-          <div className="w-24 h-[1px] bg-white/20 mx-auto mb-10"></div>
-          <p className="max-w-xl mx-auto text-base font-light text-stone-300 leading-loose mb-16 tracking-wide">
-            Crafted in Jakarta using the finest Medina Silk. <br />
-            Designed for the modern woman who seeks grace in every layer.
-          </p>
-          <Link to="/collections/all" className="border border-white/30 text-white px-12 py-4 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-white hover:text-karima-brand transition-all duration-500">
-            Our Heritage
-          </Link>
-        </div>
-      </section> */}
+      {/* 6. ABOUT US */}
+      <AboutSection />
 
       {/* 6. NEWSLETTER */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-12 md:py-16 px-6 bg-white">
         <div className="container mx-auto flex flex-col items-center">
           <div className="w-full max-w-xl text-center">
-            <div className="flex justify-center mb-8 text-karima-brand">
+            <div className="flex justify-center mb-6 md:mb-8 text-karima-brand">
               <Mail size={24} strokeWidth={0.5} />
             </div>
-            <h3 className="text-4xl md:text-6xl font-serif text-karima-brand italic mb-6">
+            <h3 className="text-3xl md:text-6xl font-serif text-karima-brand italic mb-4 md:mb-6">
               The Inner Circle
             </h3>
-            <p className="text-karima-ink/40 mb-12 font-light text-sm tracking-widest uppercase">
+            <p className="text-karima-ink/40 mb-8 md:mb-12 font-light text-[10px] md:text-sm tracking-widest uppercase">
               Early access to limited textile drops.
             </p>
 

@@ -19,6 +19,8 @@ export interface ProductOptionSelectorProps {
   selectedOptions: Record<string, string>;
   onChange: (groupId: string, optionId: string) => void;
   isOptionAvailable?: (groupId: string, optionId: string) => boolean;
+  onOpenSizeGuide?: () => void;
+  hasSizeGuide?: boolean;
 }
 
 // Map color names to hex codes.
@@ -52,6 +54,8 @@ export function ProductOptionSelector({
   selectedOptions,
   onChange,
   isOptionAvailable,
+  onOpenSizeGuide,
+  hasSizeGuide = false,
 }: ProductOptionSelectorProps) {
   if (!optionGroups || optionGroups.length === 0) return null;
 
@@ -78,18 +82,48 @@ export function ProductOptionSelector({
 
         return (
           <div key={group.id} className="space-y-3">
-            <div className="flex justify-between items-baseline">
-              <h4 className="text-[10px] uppercase tracking-[0.3em] font-bold text-karima-brand">
-                {group.name}
-              </h4>
-              {selectedOptions[group.id] && (
-                <span className="text-[10px] uppercase tracking-[0.1em] text-karima-ink/40">
-                  {
-                    group.options.find(
-                      (opt) => opt.id === selectedOptions[group.id],
-                    )?.name
-                  }
-                </span>
+            <div className="flex justify-between items-baseline mb-3">
+              <div className="flex items-center gap-2">
+                <h4 className="text-[10px] uppercase tracking-[0.3em] font-medium text-karima-ink/40">
+                  Select {group.name}
+                </h4>
+                {selectedOptions[group.id] && (
+                  <span className="text-[10px] uppercase tracking-[0.1em] text-karima-ink/40">
+                    {
+                      group.options.find(
+                        (opt) => opt.id === selectedOptions[group.id],
+                      )?.name
+                    }
+                  </span>
+                )}
+              </div>
+              {group.name.toLowerCase() === "size" && hasSizeGuide && (
+                <button
+                  type="button"
+                  onClick={onOpenSizeGuide}
+                  className="flex items-center gap-1.5 text-karima-brand/70 hover:text-karima-brand transition-colors"
+                >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="transform rotate-45"
+                  >
+                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                    <line x1="6" y1="6" x2="6" y2="10"></line>
+                    <line x1="10" y1="6" x2="10" y2="10"></line>
+                    <line x1="14" y1="6" x2="14" y2="10"></line>
+                    <line x1="18" y1="6" x2="18" y2="10"></line>
+                  </svg>
+                  <span className="text-[11px] font-sans font-light tracking-wide">
+                    Size Guide
+                  </span>
+                </button>
               )}
             </div>
 

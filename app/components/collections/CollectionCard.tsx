@@ -8,7 +8,7 @@ export function CollectionCard({ collection }: { collection: any }) {
       to={"/collections/" + collection.slug}
       prefetch="intent"
       key={collection.id}
-      className="group relative h-[600px] w-full overflow-hidden cursor-pointer bg-stone-100 border-r border-white/10 block"
+      className="group relative h-[600px] w-full overflow-hidden cursor-pointer bg-stone-100 md:border-r md:border-white/10 block"
     >
       <img
         src={collection.featuredAsset?.preview + "?w=600&h=800&fit=crop"}

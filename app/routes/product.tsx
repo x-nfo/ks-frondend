@@ -11,7 +11,7 @@ import {
   getActiveCustomerOrderList,
 } from "../providers/customer/customer";
 import { search } from "../providers/products/products";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { stripHtml, truncate } from "../utils/text";
 import { getMatchedColorAssets } from "../utils/variant-image";
 
@@ -234,10 +234,51 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
       setSelectedOptions(initialOptions);
 
       if (!searchParams.get("variant")) {
-        setSearchParams({ variant: variantToUse.id }, { replace: true });
+        setSearchParams({ variant: variantToUse.id }, { replace: true, preventScrollReset: true });
       }
     }
   }, [product?.variants, selectedVariant, searchParams]);
+
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [cleanDescription, setCleanDescription] = useState("");
+  const [sizeGuideContent, setSizeGuideContent] = useState("");
+
+  useEffect(() => {
+    if (product?.description) {
+      // Look for "SIZE GUIDE:" or similar markers (case-insensitive)
+      const markerRegex = /<[^>]*>\s*(?:<strong>|<b>|\*\*|)?size\s*guide\s*:?(?:<\/strong>|<\/b>|\*\*)?\s*<\/[^>]*>/i;
+      const match = product.description.match(markerRegex);
+
+      if (match && match.index !== undefined) {
+        // Split the description at the marker
+        const beforeMarker = product.description.substring(0, match.index);
+        const afterMarker = product.description.substring(match.index + match[0].length);
+
+        setCleanDescription(beforeMarker);
+        setSizeGuideContent(afterMarker);
+      } else {
+        setCleanDescription(product.description);
+        setSizeGuideContent("");
+      }
+    }
+  }, [product?.description]);
+
+  const materialFacet = useMemo(() => {
+    const allFacetValues = [
+      ...(product?.facetValues || []),
+      ...(selectedVariant as any)?.facetValues || [],
+    ];
+    return allFacetValues.find((fv: any) => {
+      const facetCode = fv.facet.code.toLowerCase();
+      const facetName = fv.facet.name.toLowerCase();
+      return (
+        facetCode === "material" ||
+        facetName === "material" ||
+        facetCode.includes("material") ||
+        facetName.includes("material")
+      );
+    });
+  }, [product?.facetValues, selectedVariant]);
 
   const [featuredAsset, setFeaturedAsset] = useState<Asset | undefined>(
     undefined,
@@ -361,7 +402,7 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
           <div className="lg:col-span-5 lg:sticky lg:top-40 mt-16 lg:mt-0">
             <div className="space-y-10">
               <div className="space-y-4">
-                <span className="text-[10px] uppercase tracking-[0.4em] text-karima-accent font-medium">
+                <span className="text-xxs uppercase tracking-[0.4em] text-karima-accent font-medium">
                   {categoryName || brandName}
                 </span>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-karima-brand italic leading-tight tracking-tight">
@@ -384,6 +425,8 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
                   <ProductOptionSelector
                     optionGroups={optionGroups}
                     selectedOptions={selectedOptions}
+                    onOpenSizeGuide={() => setIsSizeGuideOpen(true)}
+                    hasSizeGuide={!!sizeGuideContent}
                     onChange={(groupId, optionId) => {
                       const newOptions = {
                         ...selectedOptions,
@@ -402,7 +445,7 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
                         setSelectedVariantId(variant.id);
                         setSearchParams(
                           { variant: variant.id },
-                          { replace: true },
+                          { replace: true, preventScrollReset: true },
                         );
                       }
                     }}
@@ -429,7 +472,6 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
                   />
                 ) : (
                   product.variants.length > 1 && (
-                    // Fallback for flat variants if no OptionGroups defined
                     <div className="space-y-6">
                       <div className="flex justify-between items-end">
                         <label className="text-[10px] uppercase tracking-[0.3em] font-bold text-karima-brand">
@@ -450,9 +492,8 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
                                 setFeaturedAsset(variant.featuredAsset);
                               }}
                               className={`
-                                                            relative py-4 text-[10px] uppercase tracking-[0.2em] border transition-all duration-500 overflow-hidden
-                                                            ${selectedVariantId ===
-                                  variant.id
+                                relative py-4 text-[10px] uppercase tracking-[0.2em] border transition-all duration-500 overflow-hidden
+                                ${selectedVariantId === variant.id
                                   ? isAvailable
                                     ? "bg-karima-brand text-white border-karima-brand"
                                     : "bg-stone-200 text-stone-400 border-stone-400 cursor-not-allowed"
@@ -477,6 +518,17 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
                       </div>
                     </div>
                   )
+                )}
+
+                {materialFacet && (
+                  <div className="pt-2 space-y-1">
+                    <h3 className="text-lg md:text-xl font-serif text-karima-brand/60 italic">
+                      {materialFacet.name}
+                    </h3>
+                    <p className="text-micro text-karima-ink/40 uppercase tracking-[0.3em]">
+                      Material Composition
+                    </p>
+                  </div>
                 )}
 
                 <div className="fixed bottom-0 left-0 right-0 z-50 bg-white px-4 lg:static lg:bg-transparent lg:shadow-none lg:border-none lg:px-0">
@@ -559,20 +611,10 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
                     <div
                       className="text-sm text-karima-ink/60 font-light leading-relaxed prose prose-stone max-w-none"
                       dangerouslySetInnerHTML={{
-                        __html: product.description,
+                        __html: cleanDescription,
                       }}
                     />
                   </div>
-                </div>
-                <div className="w-full h-[1px] bg-karima-brand/5"></div>
-                <div className="space-y-4">
-                  <h4 className="text-[10px] uppercase tracking-[0.3em] font-bold text-karima-brand">
-                    Shipping & Returns
-                  </h4>
-                  <p className="text-[11px] text-karima-ink/40 leading-loose tracking-widest uppercase">
-                    Free shipping on orders over Rp 2.000.000. <br />
-                    14-day return policy for unworn items.
-                  </p>
                 </div>
               </div>
             </div>
@@ -604,6 +646,36 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
           />
         </div>
       </section>
+
+      {/* Size Guide Modal */}
+      {
+        isSizeGuideOpen && sizeGuideContent && (
+          <div className="fixed inset-0 z-1100 flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setIsSizeGuideOpen(false)}
+            ></div>
+            <div className="relative bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl animate-fade-in">
+              <div className="sticky top-0 bg-white border-b border-karima-brand/10 px-6 py-4 flex justify-between items-center z-10">
+                <h3 className="text-[11px] uppercase tracking-[0.3em] font-bold text-karima-brand">
+                  Size Guide
+                </h3>
+                <button
+                  onClick={() => setIsSizeGuideOpen(false)}
+                  className="p-2 hover:bg-stone-100 rounded-full transition-colors"
+                >
+                  <X size={20} className="text-karima-ink" />
+                </button>
+              </div>
+              <div className="p-6 md:p-10">
+                <div
+                  className="prose prose-stone max-w-none text-sm text-karima-ink/80 prose-table:w-full prose-table:min-w-full prose-table:border-collapse prose-th:bg-stone-50 prose-th:font-serif prose-th:text-xs prose-th:uppercase prose-th:tracking-widest prose-th:p-4 prose-th:border-b-2 prose-th:border-karima-brand/10 prose-th:text-center prose-td:p-4 prose-td:border-b prose-td:border-stone-100 prose-td:text-center prose-td:font-light prose-tr:hover:bg-stone-50/50 transition-colors prose-p:text-center prose-p:mb-6"
+                  dangerouslySetInnerHTML={{ __html: sizeGuideContent }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

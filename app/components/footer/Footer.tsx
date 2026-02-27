@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { Instagram } from "lucide-react";
 import FooterSection from "./FooterSection";
 
 export default function Footer() {
@@ -39,8 +40,9 @@ export default function Footer() {
               <a
                 href="https://www.instagram.com/karima.syari/"
                 className="hover:text-white transition-colors"
+                aria-label="Instagram"
               >
-                Instagram
+                <Instagram size={18} strokeWidth={1.5} />
               </a>
             </div>
           </div>

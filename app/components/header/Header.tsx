@@ -129,6 +129,10 @@ export function Header({
 
             {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-10">
+              <Link to="/collections/new-in" className={navLinkClass}>
+                New In <span className={navUnderlineClass}></span>
+              </Link>
+
               {/* Categories Dropdown */}
               <div className="relative group/nav py-4">
                 <Link to="/collections/all" className={navLinkClass}>
@@ -157,12 +161,11 @@ export function Header({
                   </div>
                 )}
               </div>
-
-              <Link to="/collections/new-in" className={navLinkClass}>
-                New In <span className={navUnderlineClass}></span>
-              </Link>
               <Link to="/about" className={navLinkClass}>
-                Atelier <span className={navUnderlineClass}></span>
+                Our Story <span className={navUnderlineClass}></span>
+              </Link>
+              <Link to="/contact" className={navLinkClass}>
+                Contact <span className={navUnderlineClass}></span>
               </Link>
             </nav>
           </div>
@@ -241,6 +244,21 @@ export function Header({
         <div className="flex flex-col gap-10 pl-8 md:pl-12 pt-4 overflow-y-auto pb-32">
           {/* Main Links */}
           <div className="flex flex-col gap-6 text-left">
+            <Link
+              to="/collections/new-in"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`group flex items-center gap-4 text-3xl md:text-4xl font-serif transform ${isMobileMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"}`}
+            >
+              <span className="group-hover:text-karima-gold text-karima-brand">
+                New Arrivals
+              </span>
+              <ArrowRight
+                size={24}
+                strokeWidth={0.5}
+                className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 text-karima-gold"
+              />
+            </Link>
+
             {/* Categories Mobile Toggle */}
             <div className="flex flex-col gap-4">
               <button
@@ -288,8 +306,8 @@ export function Header({
             </div>
 
             {[
-              { label: "New Arrivals", path: "/collections/new-in" },
-              { label: "Atelier", path: "/about" },
+              { label: "Our Story", path: "/about" },
+              { label: "Contact", path: "/contact" },
             ].map((item, idx) => (
               <Link
                 key={idx}

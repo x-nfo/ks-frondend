@@ -82,7 +82,7 @@ export function ImageGallery({
     <div className="space-y-4">
       {/* Main Slider */}
       <div className="relative aspect-[4/5] overflow-hidden bg-stone-100 group flex items-center justify-center">
-        <AnimatePresence initial={false} custom={direction} mode="popLayout">
+        <AnimatePresence initial={false} custom={direction}>
           <motion.img
             key={currentImage.id || currentImage.preview}
             src={currentImage.preview + "?w=1000"}

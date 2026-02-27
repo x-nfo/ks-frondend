@@ -135,11 +135,37 @@ export function ProductOptionSelector({
                   : true;
 
                 if (isColorGroup) {
-                  const colorCode =
-                    COLOR_MAP[option.name.toLowerCase()] || option.name;
+                  // Resolve color(s) from name or code
+                  // Handles single color ("black") or bicolor ("black/beige" or "black-beige")
+                  const getColors = (name: string, code: string): string[] => {
+                    // Try to find a separator in either name or code
+                    const searchStr = `${name}|${code}`;
+                    const separator = searchStr.includes("/") ? "/" : searchStr.includes("-") ? "-" : null;
+
+                    if (separator) {
+                      // Use the string that actually contains the separator
+                      const target = (name.includes(separator) ? name : code).split(separator);
+                      return target.map(n => {
+                        const trimmed = n.trim().toLowerCase();
+                        return COLOR_MAP[trimmed] || trimmed;
+                      });
+                    }
+                    return [COLOR_MAP[name.toLowerCase()] || code || name];
+                  };
+
+                  const colors = getColors(option.name, option.code);
+                  console.log(`[Color Debug] Option: ${option.name}, Code: ${option.code}, Resolved Colors:`, colors);
+                  const isBicolor = colors.length >= 2;
+                  const primaryColor = colors[0];
+                  const secondaryColor = colors[1] || colors[0];
+
                   const isWhite =
-                    colorCode.toLowerCase() === "#ffffff" ||
-                    colorCode.toLowerCase() === "white";
+                    primaryColor.toLowerCase() === "#ffffff" ||
+                    primaryColor.toLowerCase() === "white";
+
+                  const swatchStyle = isBicolor
+                    ? { background: `linear-gradient(90deg, ${primaryColor} 50%, ${secondaryColor} 50%)` }
+                    : { backgroundColor: primaryColor };
 
                   return (
                     <button
@@ -158,7 +184,7 @@ export function ProductOptionSelector({
                     >
                       <span
                         className={`w-full h-full rounded-full border ${isWhite ? "border-stone-200" : "border-transparent"}`}
-                        style={{ backgroundColor: option.code }}
+                        style={swatchStyle}
                       />
                       {!isAvailable && (
                         <div className="absolute inset-0 flex items-center justify-center">

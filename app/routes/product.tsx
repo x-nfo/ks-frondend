@@ -522,11 +522,12 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
 
                 {materialFacet && (
                   <div className="pt-2 space-y-1">
-                    <h3 className="text-lg md:text-xl font-serif text-karima-brand/60 italic">
-                      {materialFacet.name}
-                    </h3>
+
                     <p className="text-micro text-karima-ink/40 uppercase tracking-[0.3em]">
                       Material Composition
+                    </p>
+                    <p className="text-sm md:text-md font-serif text-karima-brand/50 italic">
+                      {materialFacet.name}
                     </p>
                   </div>
                 )}

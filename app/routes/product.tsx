@@ -293,6 +293,8 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
     (fv: any) => fv.facet.code === "brand",
   )?.name;
 
+  const categoryName = product?.collections?.[0]?.name || "Abaya";
+
   // Ensure assets are valid - prioritize variant assets if they exist
   const variantAssets = useMemo(
     () => (selectedVariant as any)?.assets?.filter((a: any) => a != null) ?? [],
@@ -360,7 +362,7 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
             <div className="space-y-10">
               <div className="space-y-4">
                 <span className="text-[10px] uppercase tracking-[0.4em] text-karima-accent font-medium">
-                  {brandName || "Atelier Collection"}
+                  {categoryName || brandName}
                 </span>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-karima-brand italic leading-tight tracking-tight">
                   {selectedVariant?.name || product.name}

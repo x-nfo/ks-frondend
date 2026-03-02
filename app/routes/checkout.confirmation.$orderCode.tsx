@@ -262,13 +262,15 @@ export default function CheckoutConfirmation() {
     }
   }, [order, paymentMetadata, retries, revalidator]);
 
-  // Auto-poll for status updates if payment is pending
+  // Auto-poll for status updates if payment is pending (only for non-manual payments)
   useEffect(() => {
     const isPendingFromOrder = midtransPayment?.state === "Authorized";
     const isPendingFromQuery = paymentStateFromQuery === "Authorized";
     const isPending = isPendingFromOrder || isPendingFromQuery;
 
-    if (isPending && !isSettled && !isDeclined) {
+    const isManualPayment = order?.payments?.some(p => p.method === 'manual-payment-bsi');
+
+    if (isPending && !isSettled && !isDeclined && !isManualPayment) {
       const intervalId = setInterval(() => {
         if (revalidator.state === "idle") {
           revalidator.revalidate();
@@ -281,6 +283,7 @@ export default function CheckoutConfirmation() {
     paymentStateFromQuery,
     isSettled,
     isDeclined,
+    order,
     revalidator,
   ]);
 
@@ -373,39 +376,99 @@ export default function CheckoutConfirmation() {
               </div>
             ) : (
               <>
-                {paymentMetadata && (
-                  <section className="bg-gray-50/50 rounded-2xl p-6 border border-karima-brand/5 mt-8">
-                    <div className="mb-6 text-center">
-                      <h2 className="text-lg font-bold text-karima-brand">
-                        Payment Instructions
-                      </h2>
-                      <p className="text-sm text-karima-ink/70 mt-1">
-                        Please complete existing payment according to
-                        instructions below
-                      </p>
+                {order.payments?.some(p => p.method === 'manual-payment-bsi') ? (
+                  <div className="bg-karima-gold/10 border border-karima-gold/30 rounded-2xl p-6 flex flex-col items-start gap-4">
+                    <div className="flex items-center gap-3 w-full border-b border-karima-gold/20 pb-4 mb-2">
+                      <InformationCircleIcon className="w-8 h-8 text-karima-gold shrink-0" />
+                      <div>
+                        <p className="font-black text-karima-ink text-xl font-sans uppercase tracking-tight">Menunggu Pembayaran</p>
+                        <p className="text-sm text-karima-ink/70">Selesaikan pembayaran Anda via Transfer Bank BSI</p>
+                      </div>
                     </div>
-                    <div className="max-w-xl mx-auto">
-                      <PaymentInstructions
-                        paymentData={paymentMetadata}
-                        currencyCode={order.currencyCode}
-                      />
-                    </div>
-                  </section>
-                )}
 
-                {!paymentMetadata && midtransPayment && (
-                  <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 flex items-start gap-4">
-                    <InformationCircleIcon className="w-6 h-6 text-blue-500 mt-0.5" />
-                    <div>
-                      <p className="font-bold text-blue-900 mb-1">
-                        Processing Payment...
-                      </p>
-                      <p className="text-sm text-blue-700">
-                        We are retrieving your payment instructions. Using bank
-                        transfer? Your VA number will appear here shortly.
-                      </p>
+                    <div className="w-full bg-white rounded-xl p-5 shadow-sm border border-gray-100 space-y-4">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-4 border-b border-gray-50 gap-1">
+                        <span className="text-xs font-bold text-karima-ink/50 uppercase tracking-widest">Bank Tujuan</span>
+                        <span className="font-bold font-sans text-karima-ink">Bank Syariah Indonesia (BSI)</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-4 border-b border-gray-50 gap-1">
+                        <span className="text-xs font-bold text-karima-ink/50 uppercase tracking-widest">No. Rekening</span>
+                        <div className="flex items-center gap-3">
+                          <span className="font-black text-xl font-mono tracking-widest text-karima-brand">1234567890</span>
+                          <button
+                            onClick={() => navigator.clipboard.writeText('1234567890')}
+                            className="text-karima-gold hover:text-white hover:bg-karima-gold text-[10px] font-bold uppercase tracking-widest py-1.5 px-3 border border-karima-gold rounded-md transition-colors"
+                          >
+                            Salin
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-4 border-b border-gray-50 gap-1">
+                        <span className="text-xs font-bold text-karima-ink/50 uppercase tracking-widest">Atas Nama</span>
+                        <span className="font-bold font-sans text-karima-ink">Dummy Account Name</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center bg-gray-50 p-4 rounded-lg mt-2 gap-2">
+                        <span className="text-xs font-bold text-karima-ink/50 uppercase tracking-widest">Total Tagihan</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl font-black text-karima-brand">
+                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(order.totalWithTax)}
+                          </span>
+                          <button
+                            onClick={() => navigator.clipboard.writeText(order.totalWithTax.toString())}
+                            className="text-karima-gold hover:text-white hover:bg-karima-gold text-[10px] font-bold uppercase tracking-widest py-1.5 px-3 border border-karima-gold rounded-md transition-colors"
+                          >
+                            Salin
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full bg-blue-50/50 rounded-xl p-5 text-sm text-blue-900 border border-blue-100 mt-2">
+                      <p className="font-bold mb-3 uppercase tracking-widest text-xs border-b border-blue-200 pb-2">Informasi Penting</p>
+                      <ul className="list-disc pl-5 space-y-2 text-blue-800/80">
+                        <li>Pastikan nominal transfer sesuai hingga digit terakhir untuk kemudahan verifikasi.</li>
+                        <li>Silakan simpan bukti transfer Anda.</li>
+                        <li>Pesanan Anda akan diproses setelah pembayaran dikonfirmasi oleh tim kami.</li>
+                      </ul>
                     </div>
                   </div>
+                ) : (
+                  <>
+                    {paymentMetadata && (
+                      <section className="bg-gray-50/50 rounded-2xl p-6 border border-karima-brand/5 mt-8">
+                        <div className="mb-6 text-center">
+                          <h2 className="text-lg font-bold text-karima-brand">
+                            Payment Instructions
+                          </h2>
+                          <p className="text-sm text-karima-ink/70 mt-1">
+                            Please complete existing payment according to
+                            instructions below
+                          </p>
+                        </div>
+                        <div className="max-w-xl mx-auto">
+                          <PaymentInstructions
+                            paymentData={paymentMetadata}
+                            currencyCode={order.currencyCode}
+                          />
+                        </div>
+                      </section>
+                    )}
+
+                    {!paymentMetadata && midtransPayment && (
+                      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 flex items-start gap-4">
+                        <InformationCircleIcon className="w-6 h-6 text-blue-500 mt-0.5" />
+                        <div>
+                          <p className="font-bold text-blue-900 mb-1">
+                            Processing Payment...
+                          </p>
+                          <p className="text-sm text-blue-700">
+                            We are retrieving your payment instructions. Using bank
+                            transfer? Your VA number will appear here shortly.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}

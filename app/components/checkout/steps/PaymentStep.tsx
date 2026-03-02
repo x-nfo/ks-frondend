@@ -207,7 +207,7 @@ export function PaymentStep() {
                   className="w-full bg-karima-brand text-white py-4 px-8 rounded-none transition-all duration-300 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans disabled:opacity-50"
                 >
                   {isSubmitting &&
-                  fetcher.formData?.get("action") === "setOrderBillingAddress"
+                    fetcher.formData?.get("action") === "setOrderBillingAddress"
                     ? "Saving Address..."
                     : "Confirm Billing Address"}
                 </button>
@@ -242,25 +242,59 @@ export function PaymentStep() {
                   {eligiblePaymentMethods.some((p) =>
                     p.code.includes("midtrans"),
                   ) && (
-                    <MidtransPayments
-                      paymentMethodCode={
-                        eligiblePaymentMethods.find((p) =>
-                          p.code.includes("midtrans"),
-                        )?.code || "midtrans-payment"
-                      }
-                      currencyCode={activeOrder?.currencyCode ?? "IDR"}
-                      totalAmount={orderTotal}
-                      paymentError={fetcher.data?.error}
-                      onPaymentSelect={(code, metadata) => {
-                        setSelectedPaymentMethod(code);
-                        setPaymentMetadata(metadata);
-                      }}
-                      hideSubmitButton={true}
-                    />
-                  )}
+                      <MidtransPayments
+                        paymentMethodCode={
+                          eligiblePaymentMethods.find((p) =>
+                            p.code.includes("midtrans"),
+                          )?.code || "midtrans-payment"
+                        }
+                        currencyCode={activeOrder?.currencyCode ?? "IDR"}
+                        totalAmount={orderTotal}
+                        paymentError={fetcher.data?.error}
+                        onPaymentSelect={(code, metadata) => {
+                          setSelectedPaymentMethod(code);
+                          setPaymentMetadata(metadata);
+                        }}
+                        hideSubmitButton={true}
+                      />
+                    )}
 
                   {eligiblePaymentMethods
-                    .filter((p) => !p.code.includes("midtrans"))
+                    .filter((p) => p.code === "manual-payment-bsi")
+                    .map((paymentMethod) => (
+                      <div
+                        key={paymentMethod.id}
+                        className={clsx(
+                          "p-4 border-2 rounded-xl transition-all duration-300",
+                          selectedPaymentMethod === paymentMethod.code
+                            ? "border-karima-brand bg-karima-brand/5"
+                            : "border-gray-200 hover:border-gray-300 bg-white"
+                        )}
+                        onClick={() => setSelectedPaymentMethod(paymentMethod.code)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={clsx(
+                            "w-5 h-5 rounded-full border flex items-center justify-center shrink-0",
+                            selectedPaymentMethod === paymentMethod.code
+                              ? "border-karima-brand bg-karima-brand"
+                              : "border-gray-300"
+                          )}>
+                            {selectedPaymentMethod === paymentMethod.code && (
+                              <div className="w-2 h-2 bg-white rounded-full" />
+                            )}
+                          </div>
+                          <div>
+                            <span className="font-bold font-sans text-karima-ink">Transfer Bank Manual (BSI)</span>
+                            <p className="text-xs text-karima-ink/60 mt-1">
+                              Konfirmasi pembayaran manual via WhatsApp setelah pesanan dibuat.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                  {eligiblePaymentMethods
+                    .filter((p) => !p.code.includes("midtrans") && p.code !== "manual-payment-bsi")
                     .map((paymentMethod) => (
                       <div
                         key={paymentMethod.id}
@@ -310,7 +344,7 @@ export function PaymentStep() {
                     className="w-full bg-black hover:bg-karima-brand text-white py-4 px-8 rounded-none transition-all duration-300 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 font-sans disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
                     {isSubmitting &&
-                    fetcher.formData?.get("action") === "completeOrder"
+                      fetcher.formData?.get("action") === "completeOrder"
                       ? "Processing Order..."
                       : "Complete Order"}
                   </button>

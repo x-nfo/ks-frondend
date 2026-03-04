@@ -3,12 +3,15 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 export default [
     route("checkout", "routes/checkout.tsx", [
         index("routes/checkout._index.tsx"),
+        route("contact", "routes/checkout.contact.tsx"),
+        route("shipping", "routes/checkout.shipping.tsx"),
+        route("delivery", "routes/checkout.delivery.tsx"),
+        route("payment", "routes/checkout.payment.tsx"),
         route("confirmation/:orderCode", "routes/checkout.confirmation.$orderCode.tsx"),
         route("success/:orderCode", "routes/checkout.success.tsx"),
     ]),
     index("routes/home.tsx"),
     route("under-construction", "routes/under-construction.tsx"),
-
     route("products/:slug", "routes/product.tsx"),
     route("collections/:slug", "routes/collections.$slug.tsx"),
     route("cart", "routes/cart.tsx"),
@@ -28,7 +31,6 @@ export default [
     route("about", "routes/about.tsx"),
     route("contact", "routes/contact.tsx"),
     route("faq", "routes/faq.tsx"),
-    route("returns", "routes/returns.tsx"),
     route("shipping", "routes/shipping.tsx"),
     route("blog", "routes/blog._index.tsx"),
     route("blog/:slug", "routes/blog.$slug.tsx"),

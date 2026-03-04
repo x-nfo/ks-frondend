@@ -2,6 +2,7 @@ import { ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import type { MidtransPaymentData } from "./types";
 import { BANK_LABELS, STORE_LABELS, PAYMENT_TYPE_LABELS } from "./types";
+import { formatPrice } from "~/components/products/Price";
 
 interface PaymentInstructionsProps {
   paymentData: MidtransPaymentData;
@@ -16,20 +17,13 @@ export function PaymentInstructions({
 
   const formatCurrency = (amount: string | number | undefined | null) => {
     if (amount === undefined || amount === null) return "N/A";
-    try {
-      const numericAmount =
-        typeof amount === "string" ? parseFloat(amount) : amount;
-      if (isNaN(numericAmount)) return "N/A";
-      return new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: currencyCode || "IDR",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(numericAmount);
-    } catch (e) {
-      console.error("Error formatting currency:", e);
-      return String(amount);
-    }
+    const numericAmount =
+      typeof amount === "string" ? parseFloat(amount) : amount;
+    if (isNaN(numericAmount)) return "N/A";
+
+    // Midtrans returns the literal amount (e.g. 150000 for IDR).
+    // formatPrice now handles per-currency precision, so IDR values pass through directly.
+    return formatPrice(numericAmount, currencyCode || "IDR", "id-ID");
   };
 
   const formatExpiryTime = (expiryTime?: string) => {
@@ -169,7 +163,7 @@ export function PaymentInstructions({
         vaNumberDirect ||
         (Array.isArray(vaNumbers) && vaNumbers.length > 0
           ? getProp(vaNumbers[0], "vaNumber") ||
-            getProp(vaNumbers[0], "va_number")
+          getProp(vaNumbers[0], "va_number")
           : undefined);
 
       if (finalPermataVa) {
@@ -278,10 +272,10 @@ export function PaymentInstructions({
     const actions = getProp(paymentData, "actions");
     const qrAction = Array.isArray(actions)
       ? actions.find((a: any) =>
-          ["generate-qr-code", "generate-qr-code-v2"].includes(
-            getProp(a, "name"),
-          ),
-        )
+        ["generate-qr-code", "generate-qr-code-v2"].includes(
+          getProp(a, "name"),
+        ),
+      )
       : undefined;
     const deeplinkAction = Array.isArray(actions)
       ? actions.find((a: any) => getProp(a, "name") === "deeplink-redirect")

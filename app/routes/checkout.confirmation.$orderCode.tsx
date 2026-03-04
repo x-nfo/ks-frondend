@@ -15,6 +15,7 @@ import {
 import { useEffect, useState } from "react";
 import { PaymentInstructions } from "~/components/checkout/midtrans/PaymentInstructions";
 import type { MidtransPaymentData } from "~/components/checkout/midtrans/types";
+import { formatPrice, getCurrencyPrecision } from "~/components/products/Price";
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   // Do NOT pass kv here — orderByCode must always be fetched fresh (never cached)
@@ -411,10 +412,14 @@ export default function CheckoutConfirmation() {
                         <span className="text-xs font-bold text-karima-ink/50 uppercase tracking-widest">Total Tagihan</span>
                         <div className="flex items-center gap-3">
                           <span className="text-2xl font-black text-karima-brand">
-                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(order.totalWithTax)}
+                            {formatPrice(order.totalWithTax, order.currencyCode)}
                           </span>
                           <button
-                            onClick={() => navigator.clipboard.writeText(order.totalWithTax.toString())}
+                            onClick={() => {
+                              const precision = getCurrencyPrecision(order.currencyCode);
+                              const divisor = Math.pow(10, precision);
+                              navigator.clipboard.writeText((order.totalWithTax / divisor).toString());
+                            }}
                             className="text-karima-gold hover:text-white hover:bg-karima-gold text-[10px] font-bold uppercase tracking-widest py-1.5 px-3 border border-karima-gold rounded-md transition-colors"
                           >
                             Salin

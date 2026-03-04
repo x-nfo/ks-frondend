@@ -12,7 +12,6 @@ export default function Footer() {
 
   const supportLinks = [
     { label: "Shipping Policy", href: "/shipping" },
-    { label: "Returns & Exchanges", href: "/returns" },
     { label: "Size Guide", href: "/size-guide" },
     { label: "FAQ", href: "/faq" },
     { label: "Contact Us", href: "/contact" },

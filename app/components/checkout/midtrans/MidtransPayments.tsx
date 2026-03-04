@@ -9,6 +9,7 @@ import {
   BANK_LABELS,
   STORE_LABELS,
 } from "./types";
+import { formatPrice } from "~/components/products/Price";
 
 // Premium Logo URLs
 const LOGOS = {
@@ -85,12 +86,7 @@ export function MidtransPayments({
     useState<MidtransStoreType>("alfamart");
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: currencyCode || "IDR",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount / 100);
+    return formatPrice(amount, currencyCode);
   };
 
   const handleCategorySelect = (category: PaymentCategory) => {
@@ -151,10 +147,10 @@ export function MidtransPayments({
   const containerProps = hideSubmitButton
     ? { className: "space-y-6" }
     : {
-        method: "post" as const,
-        className: "space-y-6",
-        onSubmit: handleSubmit,
-      };
+      method: "post" as const,
+      className: "space-y-6",
+      onSubmit: handleSubmit,
+    };
 
   return (
     <div className="w-full max-w-lg mx-auto bg-white rounded-2xl border border-gray-100 shadow-sm p-6">

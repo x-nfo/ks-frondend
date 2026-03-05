@@ -290,15 +290,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       )}
 
       {/* 5. BRAND ATMOSPHERE & VIDEO */}
-      <div className="mt-52">
+      {/* <div className="mt-52">
         <VideoSection />
-      </div>
+      </div> */}
 
       {/* 6. ABOUT US */}
-      <AboutSection />
+      {/* <AboutSection /> */}
 
       {/* 6. NEWSLETTER */}
-      <section className="py-12 md:py-16 px-6 bg-white">
+      <section className="py-12 md:py-52 px-6 bg-white">
         <div className="container mx-auto flex flex-col items-center">
           <div className="w-full max-w-xl text-center">
             <div className="flex justify-center mb-6 md:mb-8 text-karima-brand">

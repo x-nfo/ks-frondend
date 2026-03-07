@@ -124,7 +124,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
     category: [],
     colors: [],
     minPrice: 0,
-    maxPrice: 100000000, // Set to a high default
+    maxPrice: 5000000,
   });
 
   // Sync filters with URL search params
@@ -191,18 +191,13 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
     }));
   }, [facets]);
 
+  // Use a static price range to ensure the slider is always functional and consistent
   const { minPriceLimit, maxPriceLimit } = useMemo(() => {
-    if (!initialProducts.length)
-      return { minPriceLimit: 0, maxPriceLimit: 100000000 };
-
-    const prices = initialProducts.map(
-      (p: any) => p.priceWithTax.min || p.priceWithTax.value,
-    );
     return {
-      minPriceLimit: Math.min(...prices),
-      maxPriceLimit: Math.max(...prices),
+      minPriceLimit: 0,
+      maxPriceLimit: 5000000,
     };
-  }, [initialProducts]);
+  }, []);
 
   const filteredProducts = useMemo(() => {
     let result = initialProducts.filter((p: any) => {

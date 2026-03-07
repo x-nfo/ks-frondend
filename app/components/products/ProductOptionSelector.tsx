@@ -23,8 +23,8 @@ export interface ProductOptionSelectorProps {
   hasSizeGuide?: boolean;
 }
 
-// Map color names to hex codes.
-// Ideally this would come from the backend, but for now we map manually.
+// Map color names to hex codes — used as FALLBACK only when the backend
+// does not provide a valid color code.
 const COLOR_MAP: Record<string, string> = {
   black: "#000000",
   white: "#FFFFFF",
@@ -48,6 +48,18 @@ const COLOR_MAP: Record<string, string> = {
   "jet black": "#0A0A0A",
   midnight: "#191970",
 };
+
+/**
+ * Returns true if `str` is a valid CSS color value (hex, rgb, hsl, or a
+ * recognised CSS named color that we DON'T want to override with COLOR_MAP).
+ * We treat any string that starts with '#' or contains 'rgb' / 'hsl' as a
+ * "real" color value coming from the backend.
+ */
+function isValidCssColor(str: string): boolean {
+  if (!str) return false;
+  const s = str.trim().toLowerCase();
+  return s.startsWith("#") || s.startsWith("rgb") || s.startsWith("hsl");
+}
 
 export function ProductOptionSelector({
   optionGroups,
@@ -87,15 +99,6 @@ export function ProductOptionSelector({
                 <h4 className="text-[10px] uppercase tracking-[0.3em] font-medium text-karima-ink/40">
                   Select {group.name}
                 </h4>
-                {selectedOptions[group.id] && (
-                  <span className="text-[10px] uppercase tracking-[0.1em] text-karima-ink/40">
-                    {
-                      group.options.find(
-                        (opt) => opt.id === selectedOptions[group.id],
-                      )?.name
-                    }
-                  </span>
-                )}
               </div>
               {group.name.toLowerCase() === "size" && hasSizeGuide && (
                 <button
@@ -138,18 +141,29 @@ export function ProductOptionSelector({
                   // Resolve color(s) from name or code
                   // Handles single color ("black") or bicolor ("black/beige" or "black-beige")
                   const getColors = (name: string, code: string): string[] => {
-                    // Try to find a separator in either name or code
+                    // Priority: if `code` is already a valid CSS color (e.g. #86a6cf from
+                    // the backend), use it directly and skip COLOR_MAP entirely.
+                    // For bicolor options the separator can appear in either name or code.
                     const searchStr = `${name}|${code}`;
                     const separator = searchStr.includes("/") ? "/" : searchStr.includes("-") ? "-" : null;
 
                     if (separator) {
-                      // Use the string that actually contains the separator
-                      const target = (name.includes(separator) ? name : code).split(separator);
+                      // Prefer the string that actually contains the separator.
+                      // If code contains valid hex values (e.g. "#86a6cf/#f0c04a"), use it;
+                      // otherwise fall back to splitting the name.
+                      const target = (code.includes(separator) ? code : name).split(separator);
                       return target.map(n => {
-                        const trimmed = n.trim().toLowerCase();
-                        return COLOR_MAP[trimmed] || trimmed;
+                        const trimmed = n.trim();
+                        // If the segment is already a valid CSS color, use as-is.
+                        if (isValidCssColor(trimmed)) return trimmed;
+                        // Otherwise look it up in COLOR_MAP (by lowercased name).
+                        return COLOR_MAP[trimmed.toLowerCase()] || trimmed;
                       });
                     }
+
+                    // Single color: backend code takes priority over COLOR_MAP.
+                    if (isValidCssColor(code)) return [code];
+                    // Fallback: look up by name in COLOR_MAP, then code, then raw name.
                     return [COLOR_MAP[name.toLowerCase()] || code || name];
                   };
 

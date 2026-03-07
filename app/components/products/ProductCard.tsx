@@ -176,7 +176,7 @@ export function ProductCard({
       prefetch="intent"
     >
       {/* Image Container with Aspect Ratio */}
-      <div className="relative w-full overflow-hidden bg-stone-100 aspect-[2/3] mb-3 md:mb-8 transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:shadow-2xl group-hover:shadow-karima-brand/5">
+      <div className="relative w-full overflow-hidden bg-stone-100 aspect-[2/3] mb-4 md:mb-8 transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:shadow-2xl group-hover:shadow-karima-brand/5">
         {/* Wishlist Button */}
         <div className="absolute top-3 right-3 z-30 opacity-100">
           <WishlistButton
@@ -222,17 +222,17 @@ export function ProductCard({
       {/* Product Info - Clean & Centered */}
       <div className="flex flex-col items-center text-center gap-1">
         {/* Category */}
-        <p className="text-[9px] uppercase tracking-widest text-karima-ink/40 mb-1">
+        <p className="text-[9px] sm:text-xxs uppercase tracking-widest text-karima-ink/40 mb-1">
           {category || "Collection"}
         </p>
 
         {/* Name */}
-        <h3 className="font-serif not-italic text-sm md:text-2xl text-karima-brand leading-none group-hover:text-karima-gold transition-colors duration-500">
+        <h3 className="font-serif not-italic text-base sm:text-lg md:text-2xl text-karima-brand leading-tight group-hover:text-karima-gold transition-colors duration-500">
           {productName}
         </h3>
 
         {/* Price */}
-        <div className="text-xs font-medium text-karima-ink/80 pt-1">
+        <div className="text-xs sm:text-sm font-medium text-karima-ink/80 pt-1">
           <Price priceWithTax={priceWithTax} currencyCode={currencyCode} />
         </div>
 

@@ -310,7 +310,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="bg-white min-h-screen pt-40 pb-40">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-3 sm:px-6">
         {/* Header Section */}
         <div className="flex flex-col items-center text-center mb-16 space-y-6">
           <h1 className="text-5xl md:text-7xl lg:text-9xl font-serif text-karima-brand italic font-thin leading-none tracking-tighter">
@@ -393,7 +393,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8 relative items-start">
+        <div className="flex flex-col lg:flex-row gap-8 relative lg:items-start">
           {/* Sidebar Filters (Desktop) */}
           <div className="hidden lg:block w-64 shrink-0 h-fit sticky top-40">
             <FilterSidebar
@@ -443,10 +443,10 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
           </div>
 
           {/* Product Grid */}
-          <div className="flex-1 min-h-[50vh]">
+          <div className="flex-1 min-h-[50vh] w-full">
             {filteredProducts.length > 0 ? (
               <div
-                className={`grid gap-x-4 gap-y-12 md:gap-x-12 md:gap-y-32 ${gridCols === 3 ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2"}`}
+                className={`grid gap-x-3 gap-y-10 sm:gap-x-6 md:gap-x-12 md:gap-y-32 ${gridCols === 3 ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2"}`}
               >
                 {filteredProducts.map((item: any, idx: number) => {
                   const productFacets =

@@ -131,16 +131,35 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
       const seen = new Set<string>();
       seen.add(product.id);
 
-      for (const collection of product.collections) {
-        if (relatedProducts.length >= 10) break;
+      // Collect all facet value IDs from the current product for similarity scoring
+      const productFacetIds = new Set<string>(
+        product.facetValues.map((fv: any) => fv.id),
+      );
 
+      const candidates: Array<any & { _score: number }> = [];
+
+      const mapSearchItem = (item: any, bonus = 0) => {
+        const sharedFacets = ((item.facetValueIds as string[]) || []).filter(
+          (id) => productFacetIds.has(id),
+        ).length;
+        return {
+          productId: item.productId,
+          productName: item.productName,
+          slug: item.slug,
+          productAsset: item.productAsset
+            ? { preview: item.productAsset.preview }
+            : undefined,
+          priceWithTax: item.priceWithTax,
+          currencyCode: item.currencyCode,
+          _score: sharedFacets + bonus,
+        };
+      };
+
+      // ── Pass 1: search within the product's own collections ──────────────
+      // Products here get a +0.5 bonus for being in the same collection.
+      for (const collection of product.collections) {
         const searchResult = await search(
-          {
-            input: {
-              collectionSlug: collection.slug,
-              take: 10,
-            },
-          },
+          { input: { collectionSlug: collection.slug, take: 20 } },
           publicOptions,
         );
 
@@ -150,21 +169,40 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
             seen.add(item.productId);
             return true;
           })
-          .map((item: any) => ({
-            productId: item.productId,
-            productName: item.productName,
-            slug: item.slug,
-            productAsset: item.productAsset
-              ? { preview: item.productAsset.preview }
-              : undefined,
-            priceWithTax: item.priceWithTax,
-            currencyCode: item.currencyCode,
-          }));
+          .map((item: any) => mapSearchItem(item, 0.5));
 
-        relatedProducts = [...relatedProducts, ...newItems];
+        candidates.push(...newItems);
       }
 
-      relatedProducts = relatedProducts.slice(0, 10);
+      // ── Pass 2: broad catalog search to surface cross-collection items ────
+      // e.g. "Abaya Denim" lives in a different collection but shares the
+      // "Abaya" facet, so it will still receive a high score.
+      if (productFacetIds.size > 0) {
+        const broadResult = await search(
+          { input: { take: 30 } },
+          publicOptions,
+        );
+
+        const newItems = broadResult.search.items
+          .filter((item: any) => {
+            if (seen.has(item.productId)) return false;
+            seen.add(item.productId);
+            return true;
+          })
+          .map((item: any) => mapSearchItem(item, 0));
+
+        candidates.push(...newItems);
+      }
+
+      // Sort by score descending; prefer items with at least 1 shared facet.
+      // Fall back to all candidates if nothing matches.
+      const sorted = candidates.sort((a, b) => b._score - a._score);
+      const relevant = sorted.filter((c) => c._score > 0);
+      const pool = relevant.length > 0 ? relevant : sorted;
+
+      relatedProducts = pool
+        .slice(0, 10)
+        .map(({ _score, ...item }) => item);
     } catch (e) {
       console.error("Failed to fetch related products:", e);
     }
@@ -405,17 +443,20 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
                 <span className="text-xxs uppercase tracking-[0.4em] text-karima-accent font-medium">
                   {categoryName || brandName}
                 </span>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-karima-brand italic leading-tight tracking-tight">
-                  {selectedVariant?.name || product.name}
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-karima-brand leading-tight tracking-tight">
+                  {product.name}
                 </h1>
-                <div className="flex items-center gap-6 pt-2">
-                  <div className="text-xl font-sans font-light tracking-widest text-karima-brand">
+
+                <div className="flex items-center">
+                  <div className="text-2xl font-serif font-medium tracking-widest text-karima-brand">
                     <Price
                       priceWithTax={selectedVariant?.priceWithTax}
                       currencyCode={selectedVariant?.currencyCode}
                     />
+
                   </div>
                 </div>
+
               </div>
 
               <div className="w-full h-[1px] bg-karima-brand/5"></div>
@@ -521,7 +562,7 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
                 )}
 
                 {materialFacet && (
-                  <div className="pt-2 space-y-1">
+                  <div className=" space-y-1">
 
                     <p className="text-micro text-karima-ink/40 uppercase tracking-[0.3em]">
                       Material Composition
@@ -530,6 +571,19 @@ export default function ProductSlug({ loaderData }: Route.ComponentProps) {
                       {materialFacet.name}
                     </p>
                   </div>
+                )}
+
+
+                {selectedVariant?.name && selectedVariant.name !== product.name && (
+                  <div className=" space-y-1">
+                    <p className="text-micro text-karima-ink/40 uppercase tracking-[0.3em]">
+                      SELECTED Variant
+                    </p>
+                    <p className="text-sm md:text-md font-serif text-karima-brand/50 italic">
+                      {selectedVariant.name}
+                    </p>
+                  </div>
+
                 )}
 
                 <div className="fixed bottom-0 left-0 right-0 z-50 bg-white px-4 lg:static lg:bg-transparent lg:shadow-none lg:border-none lg:px-0">

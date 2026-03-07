@@ -17,6 +17,7 @@ import {
   APP_META_TITLE,
   APP_META_TAGLINE,
   APP_META_DESCRIPTION,
+  COLOR_MAP,
 } from "../constants";
 import type { MetaFunction } from "react-router";
 
@@ -194,8 +195,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       </div> */}
 
       {/* 3. NEW ARRIVALS */}
-      <section className="py-16 px-6 bg-white lg:py-24 lg:px-24">
-        <div className="container mx-auto">
+      <section className="py-16 bg-white lg:py-24 lg:px-24">
+        <div className="w-full px-4 md:px-8 lg:px-12">
           <div className="flex flex-col items-center mb-16 lg:mb-28">
             <span className="text-[10px] text-karima-accent uppercase tracking-[0.4em] mb-4 block font-medium">
               New Arrivals
@@ -205,7 +206,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-16 md:gap-x-12 md:gap-y-28">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-2 gap-y-10 md:gap-x-12 md:gap-y-28">
             {featuredProducts.map((product: any, idx: number) => {
               const productFacets =
                 product.facetValueIds
@@ -223,19 +224,23 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   f.facet.name.toLowerCase() === "color",
               );
 
-              const colorValues = colorFacets
-                .map((f: any) => {
-                  const name = f.name.toLowerCase();
-                  if (name === "black") return "#000000";
-                  if (name === "navy") return "#1B243B";
-                  if (name === "maroon") return "#58181F";
-                  if (name === "sage") return "#9CAF88";
-                  if (name === "brown") return "#5D4037";
-                  if (name === "white") return "#FFFFFF";
-                  if (name === "gold") return "#D4AF37";
-                  return null;
-                })
-                .filter(Boolean) as string[];
+              const hexes = new Set<string>();
+              colorFacets.forEach((f: any) => {
+                const name = f.name.toLowerCase();
+                for (const [key, hex] of Object.entries(COLOR_MAP)) {
+                  if (name.includes(key)) hexes.add(hex);
+                }
+              });
+
+              // Also check product name as a fallback in case facets aren't properly configured or not catching everything
+              if (hexes.size === 0 && product.productName) {
+                const prodName = product.productName.toLowerCase();
+                for (const [key, hex] of Object.entries(COLOR_MAP)) {
+                  if (prodName.includes(key)) hexes.add(hex);
+                }
+              }
+
+              const colorValues = Array.from(hexes);
 
               return (
                 <div key={product.productId}>

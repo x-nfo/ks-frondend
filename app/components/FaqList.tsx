@@ -21,7 +21,7 @@ const faqs: FAQ[] = [
   {
     question: "What is your return policy?",
     answer:
-      "We accept returns within 14 days of delivery. Items must be unworn, unwashed, and in their original packaging with all tags attached. Please visit our Returns page to initiate a return request.",
+      "We apologize, but we do not accept returns or exchanges for purchased products. All sales are final.",
   },
   {
     question: "Can I cancel or modify my order?",

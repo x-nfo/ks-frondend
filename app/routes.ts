@@ -30,6 +30,7 @@ export default [
     route("faq", "routes/faq.tsx"),
     route("returns", "routes/returns.tsx"),
     route("shipping", "routes/shipping.tsx"),
+    route("search", "routes/search.tsx"),
     route("blog", "routes/blog._index.tsx"),
     route("blog/:slug", "routes/blog.$slug.tsx"),
     route("community", "routes/community.tsx"),

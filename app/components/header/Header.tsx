@@ -59,6 +59,20 @@ export function Header({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isProductPage]);
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSearchOpen(false);
+      }
+    };
+    if (searchOpen) {
+      window.addEventListener("keydown", handleEsc);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [searchOpen]);
+
   // Derived styles based on state
   // Dark text logic: const useDarkText = isScrolled || !isHome;
   const useDarkText = isScrolled || !isHome;
@@ -101,30 +115,32 @@ export function Header({
       {/* Main Nav */}
       <header
         className={classNames(
-          "fixed left-0 w-full z-[1000] border-b lg:top-0 top-0",
+          "fixed left-0 w-full z-[1000] border-b lg:top-0 top-0 px-6",
           "translate-y-0 opacity-100",
           isScrolled
             ? "bg-white/80 backdrop-blur-md border-karima-brand/1 py-2 shadow-sm"
             : "bg-white/5 backdrop-blur-sm border-white/10 py-6 lg:pt-12 lg:pb-8",
         )}
       >
-        <div className="container mx-auto px-6 md:px-12 max-w-7xl flex items-center justify-between">
+        <div className="container mx-auto max-w-7xl flex items-center justify-between">
           <div className="flex items-center">
             {/* Logo */}
             <Link
               to="/"
               className="flex-shrink-0 cursor-pointer group z-10 relative lg:mr-16"
             >
-              <h1
-                className={`font-quiche font-regular tracking-wider text-karima-accent opacity-80 ${logoColorClass} ${isScrolled ? "text-2xl lg:text-3xl" : "text-3xl lg:text-4xl"}`}
-              >
+              <h1 className="sr-only">
                 Karima
               </h1>
 
               {/* <span className={`text-[10px] ${accentColorClass} hidden lg:block mt-1 font-serif italic tracking-wider ${isScrolled ? "opacity-0 h-0 overflow-hidden" : "opacity-100 h-auto"}`}>
                                 Faithfully Beautiful
                             </span> */}
-              {/* <img src="/KARIMA-LOGO.png" alt="karima" className="w-24 h-auto" /> */}
+              <img
+                src={useDarkText ? "/images/logo/logo_karima_brown.svg" : "/images/logo/logo_karima_white.svg"}
+                className="max-w-32"
+                alt="Karima"
+              />
             </Link>
 
             {/* Desktop Nav */}
@@ -174,7 +190,7 @@ export function Header({
           <div className={`flex items-center gap-6 md:gap-8 ${textColorClass}`}>
             <button
               onClick={() => setSearchOpen(true)}
-              className="hover:opacity-60 transition-opacity hidden sm:block"
+              className="hover:opacity-60 transition-opacity"
               aria-label="Search"
             >
               <Search size={20} strokeWidth={2} />
@@ -394,7 +410,7 @@ export function Header({
 
       {/* Karima Search Overlay */}
       {searchOpen && (
-        <div className="fixed inset-0 z-[100] bg-white/98 backdrop-blur-2xl p-12 flex flex-col">
+        <div className="fixed inset-0 z-2000 bg-white/98 backdrop-blur-2xl p-12 flex flex-col">
           <div className="flex justify-end">
             <button
               onClick={() => setSearchOpen(false)}
@@ -403,10 +419,10 @@ export function Header({
               <X size={32} strokeWidth={1} />
             </button>
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center">
+          <div className="flex-1 flex flex-col items-center justify-start pt-[15vh]">
             <div className="w-full max-w-4xl relative">
-              <SearchBar onSelect={() => setSearchOpen(false)} />
-              <p className="mt-8 text-center text-[10px] uppercase tracking-[0.4em] text-karima-ink/30 font-medium">
+              <SearchBar onSelect={() => setSearchOpen(false)} facetCategories={facetCategories} />
+              <p className="mt-8 text-center text-[10px] uppercase tracking-[0.4em] text-karima-ink/30 font-medium pb-8 border-b border-karima-brand/5">
                 Press esc to close
               </p>
             </div>

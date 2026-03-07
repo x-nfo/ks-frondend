@@ -27,10 +27,10 @@ export default function Shipping() {
         </div>
 
         <div className="prose prose-stone max-w-none text-karima-ink/70 font-light leading-loose">
-          <p className="mb-12 text-lg text-center">
+          {/* <p className="mb-12 text-lg text-center">
             We are pleased to offer complimentary standard shipping on all
             domestic orders over Rp 3.000.000.
-          </p>
+          </p> */}
 
           <div className="space-y-12">
             <section>

@@ -4,6 +4,7 @@ import { Price } from "./Price";
 import { useMemo, useState } from "react";
 import { sdk } from "../../utils/graphqlWrapper";
 import { WishlistButton } from "../wishlist/WishlistButton";
+import { motion, AnimatePresence } from "motion/react";
 
 export type ProductCardProps = SearchQuery["search"]["items"][number] & {
   category?: string;
@@ -26,8 +27,10 @@ export function ProductCard({
 
   const [extraAssets, setExtraAssets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseEnter = async () => {
+    setIsHovered(true);
     if (extraAssets.length > 0 || isLoading) return;
 
     setIsLoading(true);
@@ -58,7 +61,7 @@ export function ProductCard({
         }),
       });
 
-      const result = await response.json();
+      const result = (await response.json()) as any;
       const assets = result.data?.product?.assets;
 
       if (assets && assets.length > 0) {
@@ -75,6 +78,10 @@ export function ProductCard({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
   };
 
   const secondaryAsset = useMemo(() => {
@@ -107,13 +114,14 @@ export function ProductCard({
 
   return (
     <Link
-      className="group relative cursor-pointer block h-full"
+      className="group relative cursor-pointer block h-full w-full"
       to={to}
       onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       prefetch="intent"
     >
       {/* Image Container with Aspect Ratio */}
-      <div className="relative w-full overflow-hidden bg-stone-100 aspect-[2/3] mb-8 transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:shadow-2xl group-hover:shadow-karima-brand/5">
+      <div className="relative w-full overflow-hidden bg-stone-100 aspect-[2/3] mb-3 md:mb-8 transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:shadow-2xl group-hover:shadow-karima-brand/5">
         {/* Wishlist Button */}
         <div className="absolute top-3 right-3 z-30 opacity-100">
           <WishlistButton
@@ -129,8 +137,8 @@ export function ProductCard({
           src={
             productAsset?.preview
               ? productAsset.preview +
-                (productAsset.preview.includes("?") ? "&" : "?") +
-                "w=600&h=800&fit=crop"
+              (productAsset.preview.includes("?") ? "&" : "?") +
+              "w=600&h=800&fit=crop"
               : "https://images.unsplash.com/photo-1596451190630-186aff535bf2?q=80&w=600&auto=format&fit=crop"
           }
           loading="lazy"
@@ -173,24 +181,48 @@ export function ProductCard({
           <Price priceWithTax={priceWithTax} currencyCode={currencyCode} />
         </div>
 
-        {/* Color swatches preview - Fade in on hover */}
-        {colors && colors.length > 0 && (
-          <div className="flex gap-2 pt-4 transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0">
-            {colors.slice(0, 4).map((color, idx) => (
-              <div
-                key={`${color}-${idx}`}
-                className="w-2 h-2 rounded-full border border-stone-200"
-                style={{ backgroundColor: color }}
-              ></div>
-            ))}
-            {colors.length > 4 && (
-              <span className="text-[8px] text-gray-400 mt-0.5">
-                +{colors.length - 4}
-              </span>
+        {/* Color swatches preview - Fade in on hover with Framer Motion */}
+        <div className="h-4 flex items-center justify-center mt-1">
+          <AnimatePresence>
+            {isHovered && colors && colors.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="flex gap-2 items-center"
+              >
+                {colors.slice(0, 4).map((color, idx) => (
+                  <motion.div
+                    key={`${color}-${idx}`}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{
+                      delay: idx * 0.05 + 0.1,
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 20,
+                    }}
+                    className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full border border-stone-200"
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+                {colors.length > 4 && (
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-[8px] text-gray-400 mt-0.5"
+                  >
+                    +{colors.length - 4}
+                  </motion.span>
+                )}
+              </motion.div>
             )}
-          </div>
-        )}
+          </AnimatePresence>
+        </div>
       </div>
     </Link>
   );
 }
+

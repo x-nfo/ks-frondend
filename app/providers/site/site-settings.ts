@@ -26,9 +26,17 @@ export async function getSiteSettings(
       siteSettings: { underConstruction: boolean; countdownDate?: string | null };
     }>(GET_SITE_SETTINGS);
     return data.siteSettings;
-  } catch (e) {
-    console.error("[getSiteSettings] error:", e);
-    // Fail open: if we can't reach the API, show real site
+  } catch (e: any) {
+    const isMissingQueryError =
+      e?.response?.errors?.[0]?.message?.includes(
+        'Cannot query field "siteSettings" on type "Query"',
+      );
+
+    if (!isMissingQueryError) {
+      console.error("[getSiteSettings] error:", e);
+    }
+
+    // Fail open: if we can't reach the API or the query isn't implemented, show real site
     return { underConstruction: false, countdownDate: null };
   }
 }

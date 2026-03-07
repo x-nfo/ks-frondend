@@ -100,7 +100,7 @@ export default function Privacy() {
           <p>
             If you have any questions or suggestions about our Privacy Policy,
             do not hesitate to contact us at{" "}
-            <a href="mailto:privacy@karima.com">privacy@karima.com</a>.
+            <a href="mailto:info@karimasyari.com">info@karimasyari.com</a>.
           </p>
         </div>
       </div>

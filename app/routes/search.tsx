@@ -1,7 +1,7 @@
 import { useLoaderData, Link } from "react-router";
 import { search } from "../providers/products/products";
 import { ProductCard } from "../components/products/ProductCard";
-import { APP_META_TITLE } from "../constants";
+import { APP_META_TITLE, COLOR_MAP } from "../constants";
 
 // Define LoaderArgs type locally if not available globally or import it if needed
 // Assuming standard Remix/React Router LoaderArgs
@@ -51,7 +51,7 @@ export default function SearchPage() {
   const { term, products, totalProducts } = useLoaderData<typeof loader>();
 
   return (
-    <div className="bg-white min-h-screen pt-32 pb-40">
+    <div className="bg-white min-h-screen pt-48 pb-40">
       <div className="container mx-auto px-6">
         {/* Header Section */}
         <div className="flex flex-col items-center text-center mb-16 space-y-6">
@@ -71,14 +71,30 @@ export default function SearchPage() {
 
         {products.length > 0 ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 md:gap-x-12 md:gap-y-16">
-            {products.map((item: any, idx: number) => (
-              <div key={item.productId}>
-                <ProductCard
-                  {...item}
-                  productVariantId={item.productVariantId}
-                />
-              </div>
-            ))}
+            {products.map((item: any, idx: number) => {
+              const productFacets = item.facetValueIds || [];
+              const hexes = new Set<string>();
+
+              // Check product name as a fallback in case facets aren't populated for quick search
+              if (item.productName) {
+                const prodName = item.productName.toLowerCase();
+                for (const [key, hex] of Object.entries(COLOR_MAP)) {
+                  if (prodName.includes(key)) hexes.add(hex);
+                }
+              }
+
+              const colorValues = Array.from(hexes);
+
+              return (
+                <div key={item.productId}>
+                  <ProductCard
+                    {...item}
+                    productVariantId={item.productVariantId}
+                    colors={colorValues}
+                  />
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="py-20 text-center flex flex-col items-center">

@@ -188,7 +188,7 @@ export function ProductCard({
 
         {/* Main Image */}
         <img
-          className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover object-top text-transparent opacity-100 scale-100 transition-all duration-[2000ms] ease-out group-hover:opacity-0 group-hover:scale-105"
           alt={productName}
           src={
             productAsset?.preview
@@ -203,7 +203,7 @@ export function ProductCard({
         {/* Hover Image (Secondary Asset) */}
         {secondarySrc && (
           <img
-            className="absolute inset-0 w-full h-full object-cover object-top opacity-0 transition-all duration-600 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:opacity-100 group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover object-top opacity-0 scale-110 transition-all duration-[2000ms] ease-out group-hover:opacity-100 group-hover:scale-105"
             alt={`${productName} - Alternate View`}
             src={secondarySrc}
             loading="lazy"
@@ -245,31 +245,25 @@ export function ProductCard({
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 5 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+                // transition={{ duration: 0.3, ease: "easeOut" }}
                 className="flex gap-2 items-center"
               >
-                {colors.slice(0, 4).map((color, idx) => (
+                {colors.slice(0, 6).map((color, idx) => (
                   <motion.div
                     key={`${color}-${idx}`}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      delay: idx * 0.05,
-                      duration: 0.3,
-                      ease: "easeOut",
-                    }}
-                    className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full border-none ring-1 ring-offset-2 ring-stone-300 shadow-sm transition-transform hover:scale-110 cursor-pointer"
+                    className="w-1 h-1 md:w-2 md:h-2 rounded-full border-none shadow-sm transition-transform hover:scale-110 cursor-pointer"
                     style={{ backgroundColor: color }}
                   />
                 ))}
-                {colors.length > 4 && (
+                {colors.length > 6 && (
                   <motion.span
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, duration: 0.3, ease: "easeOut" }}
                     className="text-xxs text-gray-500 font-medium ml-1"
                   >
-                    +{colors.length - 4}
+                    +{colors.length - 6}
                   </motion.span>
                 )}
               </motion.div>

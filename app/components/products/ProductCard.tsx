@@ -93,21 +93,25 @@ export function ProductCard({
           const nameLower = opt.name?.toLowerCase() || "";
           let foundHex = false;
 
-          if (COLOR_MAP[nameLower]) {
-            hexes.add(COLOR_MAP[nameLower]);
+          // 1. First prioritize if the option "code" is directly an explicit #HEX code
+          if (opt.code && opt.code.startsWith("#")) {
+            hexes.add(opt.code);
             foundHex = true;
-          } else {
-            for (const [key, hex] of Object.entries(COLOR_MAP)) {
-              if (nameLower.includes(key)) {
-                hexes.add(hex);
-                foundHex = true;
-              }
-            }
           }
 
-          // Fallback to option.code if it looks like a hex color
-          if (!foundHex && opt.code && opt.code.startsWith("#")) {
-            hexes.add(opt.code);
+          // 2. Fallback to mapping by name if code wasn't a hex format
+          if (!foundHex) {
+            if (COLOR_MAP[nameLower]) {
+              hexes.add(COLOR_MAP[nameLower]);
+              foundHex = true;
+            } else {
+              for (const [key, hex] of Object.entries(COLOR_MAP)) {
+                if (nameLower.includes(key)) {
+                  hexes.add(hex);
+                  foundHex = true;
+                }
+              }
+            }
           }
         });
 

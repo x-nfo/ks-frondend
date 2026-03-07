@@ -124,7 +124,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
     category: [],
     colors: [],
     minPrice: 0,
-    maxPrice: 5000000,
+    maxPrice: Infinity,  // Will be clamped by slider max; synced below
   });
 
   // Sync filters with URL search params
@@ -191,18 +191,36 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
     }));
   }, [facets]);
 
-  // Use a static price range to ensure the slider is always functional and consistent
+  // Dynamic Price Range to smoothly wrap around displayed products while preventing slider crashes
   const { minPriceLimit, maxPriceLimit } = useMemo(() => {
+    if (!initialProducts.length)
+      return { minPriceLimit: 0, maxPriceLimit: 5000000 };
+
+    const prices = initialProducts.map(
+      (p: any) => (p.priceWithTax.min || p.priceWithTax.value) / 100,
+    );
+
+    // Set a solid floor at 0 for visual consistency and a generous range
+    const minCalculated = 0;
+    let maxCalculated = Math.max(...prices);
+
+    // Provide a solid fallback and padding if there's no proper max price or if prices are bunched
+    if (maxCalculated <= 0 || isNaN(maxCalculated)) {
+      maxCalculated = 5000000;
+    } else {
+      maxCalculated = Math.ceil(maxCalculated * 1.05); // Pad top edge by 5%
+    }
+
     return {
-      minPriceLimit: 0,
-      maxPriceLimit: 5000000,
+      minPriceLimit: minCalculated,
+      maxPriceLimit: maxCalculated,
     };
-  }, []);
+  }, [initialProducts]);
 
   const filteredProducts = useMemo(() => {
     let result = initialProducts.filter((p: any) => {
       // Price (Client-side)
-      const price = p.priceWithTax.min || p.priceWithTax.value;
+      const price = (p.priceWithTax.min || p.priceWithTax.value) / 100;
       if (filters.minPrice > 0 && price < filters.minPrice) return false;
       if (filters.maxPrice > 0 && price > filters.maxPrice) return false;
 
@@ -355,8 +373,8 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
                 setFilters({
                   category: [],
                   colors: [],
-                  minPrice: minPriceLimit,
-                  maxPrice: maxPriceLimit,
+                  minPrice: 0,
+                  maxPrice: Infinity,
                 })
               }
               onClose={() => setIsFilterOpen(false)}
@@ -377,8 +395,8 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
                 setFilters({
                   category: [],
                   colors: [],
-                  minPrice: minPriceLimit,
-                  maxPrice: maxPriceLimit,
+                  minPrice: 0,
+                  maxPrice: Infinity,
                 })
               }
               onClose={() => setIsFilterOpen(false)}
@@ -435,8 +453,8 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
                     setFilters({
                       category: [],
                       colors: [],
-                      minPrice: minPriceLimit,
-                      maxPrice: maxPriceLimit,
+                      minPrice: 0,
+                      maxPrice: Infinity,
                     })
                   }
                   className="mt-8 inline-block text-micro uppercase tracking-[0.3em] font-bold text-karima-brand border-b border-karima-brand/20 pb-2"

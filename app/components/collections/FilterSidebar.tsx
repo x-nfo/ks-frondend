@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 export interface Filters {
   category: string[];
   colors: string[];
+  materials: string[];
   minPrice: number;
   maxPrice: number;
 }
@@ -12,6 +13,7 @@ interface FilterSidebarProps {
   filters: Filters;
   availableCategories: string[];
   availableColors: { name: string; hex: string }[];
+  availableMaterials: string[];
   minPriceLimit: number;
   maxPriceLimit: number;
   onUpdateFilters: (filters: Filters) => void;
@@ -24,6 +26,7 @@ export function FilterSidebar({
   filters,
   availableCategories,
   availableColors,
+  availableMaterials,
   minPriceLimit,
   maxPriceLimit,
   onUpdateFilters,
@@ -45,6 +48,15 @@ export function FilterSidebar({
       colors: filters.colors.includes(hex)
         ? filters.colors.filter((c) => c !== hex)
         : [...filters.colors, hex],
+    });
+  };
+
+  const toggleMaterial = (mat: string) => {
+    onUpdateFilters({
+      ...filters,
+      materials: filters.materials.includes(mat)
+        ? filters.materials.filter((m) => m !== mat)
+        : [...filters.materials, mat],
     });
   };
 
@@ -169,6 +181,48 @@ export function FilterSidebar({
                         </div>
                       )}
                     </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Materials */}
+            {availableMaterials.length > 0 && (
+              <div>
+                <h4 className="font-serif text-lg text-karima-brand mb-6 italic">
+                  Material
+                </h4>
+                <div className="space-y-4">
+                  {availableMaterials.map((mat: string) => (
+                    <label
+                      key={mat}
+                      className="flex items-center gap-3 cursor-pointer group"
+                    >
+                      <div
+                        className={`w-4 h-4 border border-karima-brand/30 flex items-center justify-center transition-all ${filters.materials.includes(mat)
+                            ? "bg-karima-brand border-karima-brand"
+                            : "group-hover:border-karima-brand"
+                          }`}
+                      >
+                        {filters.materials.includes(mat) && (
+                          <div className="w-2 h-2 bg-white" />
+                        )}
+                      </div>
+                      <span
+                        className={`text-micro uppercase tracking-widest transition-colors ${filters.materials.includes(mat)
+                            ? "text-karima-brand font-medium"
+                            : "text-karima-ink/60 group-hover:text-karima-brand"
+                          }`}
+                      >
+                        {mat}
+                      </span>
+                      <input
+                        type="checkbox"
+                        className="hidden"
+                        checked={filters.materials.includes(mat)}
+                        onChange={() => toggleMaterial(mat)}
+                      />
+                    </label>
                   ))}
                 </div>
               </div>

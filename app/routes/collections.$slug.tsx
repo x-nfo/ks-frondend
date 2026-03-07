@@ -123,6 +123,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
   const [filters, setFilters] = useState<Filters>({
     category: [],
     colors: [],
+    materials: [],
     minPrice: 0,
     maxPrice: Infinity,  // Will be clamped by slider max; synced below
   });
@@ -155,7 +156,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
     return map;
   }, [facets]);
 
-  const activeFiltersCount = filters.category.length + filters.colors.length;
+  const activeFiltersCount = filters.category.length + filters.colors.length + filters.materials.length;
 
   // Static category array to ensure it always renders consistently
   const availableCategories = useMemo(() => {
@@ -189,6 +190,24 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
       name,
       hex,
     }));
+  }, [facets]);
+
+  const availableMaterials = useMemo(() => {
+    const materialFacets =
+      facets?.filter(
+        (f: any) =>
+          ["material", "bahan", "fabric", "materials"].includes(
+            f.facetValue?.facet?.code?.toLowerCase(),
+          ) ||
+          ["material", "bahan", "fabric", "materials"].includes(
+            f.facetValue?.facet?.name?.toLowerCase(),
+          ),
+      ) || [];
+    const unique = new Set<string>();
+    materialFacets.forEach((f: any) => {
+      if (f.facetValue?.name) unique.add(f.facetValue.name);
+    });
+    return Array.from(unique).sort();
   }, [facets]);
 
   // Dynamic Price Range to smoothly wrap around displayed products while preventing slider crashes
@@ -247,10 +266,26 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
           )
           .map((f: any) => f.name);
 
-        // We check if the product has ANY of the selected categories
         if (
           !productCategories.some((c: string) => filters.category.includes(c))
         )
+          return false;
+      }
+
+      // Materials (Client-side)
+      if (filters.materials.length > 0) {
+        const productMaterials = productFacets
+          .filter(
+            (f: any) =>
+              ["material", "bahan", "fabric", "materials"].includes(
+                f.facetCode?.toLowerCase(),
+              ) ||
+              ["material", "bahan", "fabric", "materials"].includes(
+                f.facetName?.toLowerCase(),
+              ),
+          )
+          .map((f: any) => f.name);
+        if (!productMaterials.some((m: string) => filters.materials.includes(m)))
           return false;
       }
 
@@ -366,6 +401,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
               filters={filters}
               availableCategories={availableCategories}
               availableColors={availableColors}
+              availableMaterials={availableMaterials}
               minPriceLimit={minPriceLimit}
               maxPriceLimit={maxPriceLimit}
               onUpdateFilters={setFilters}
@@ -373,6 +409,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
                 setFilters({
                   category: [],
                   colors: [],
+                  materials: [],
                   minPrice: 0,
                   maxPrice: Infinity,
                 })
@@ -388,6 +425,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
               filters={filters}
               availableCategories={availableCategories}
               availableColors={availableColors}
+              availableMaterials={availableMaterials}
               minPriceLimit={minPriceLimit}
               maxPriceLimit={maxPriceLimit}
               onUpdateFilters={setFilters}
@@ -395,6 +433,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
                 setFilters({
                   category: [],
                   colors: [],
+                  materials: [],
                   minPrice: 0,
                   maxPrice: Infinity,
                 })
@@ -453,6 +492,7 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
                     setFilters({
                       category: [],
                       colors: [],
+                      materials: [],
                       minPrice: 0,
                       maxPrice: Infinity,
                     })

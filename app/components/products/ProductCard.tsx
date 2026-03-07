@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { sdk } from "../../utils/graphqlWrapper";
 import { WishlistButton } from "../wishlist/WishlistButton";
 import { motion, AnimatePresence } from "motion/react";
+import { COLOR_MAP } from "../../constants";
 
 export type ProductCardProps = SearchQuery["search"]["items"][number] & {
   category?: string;
@@ -20,14 +21,18 @@ export function ProductCard({
   priceWithTax,
   currencyCode,
   category,
-  colors,
+  colors: initialColors,
   productVariantId,
 }: ProductCardProps) {
   const to = `/products/${slug}`;
 
   const [extraAssets, setExtraAssets] = useState<any[]>([]);
+  const [fetchedColors, setFetchedColors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  // Use fetchedColors if available (from hover prefetch), else fall back to initialColors passed down
+  const colors = fetchedColors.length > 0 ? fetchedColors : initialColors;
 
   const handleMouseEnter = async () => {
     setIsHovered(true);
@@ -54,6 +59,14 @@ export function ProductCard({
                                     id
                                     preview
                                 }
+                                optionGroups {
+                                    code
+                                    name
+                                    options {
+                                        code
+                                        name
+                                    }
+                                }
                             }
                         }
                     `,
@@ -63,6 +76,45 @@ export function ProductCard({
 
       const result = (await response.json()) as any;
       const assets = result.data?.product?.assets;
+      const optionGroups = result.data?.product?.optionGroups || [];
+
+      // Extract colors from OptionGroups
+      const colorGroup = optionGroups.find(
+        (og: any) =>
+          og.code?.toLowerCase() === "color" ||
+          og.code?.toLowerCase() === "warna" ||
+          og.name?.toLowerCase() === "color" ||
+          og.name?.toLowerCase() === "warna"
+      );
+
+      if (colorGroup && colorGroup.options) {
+        const hexes = new Set<string>();
+        colorGroup.options.forEach((opt: any) => {
+          const nameLower = opt.name?.toLowerCase() || "";
+          let foundHex = false;
+
+          if (COLOR_MAP[nameLower]) {
+            hexes.add(COLOR_MAP[nameLower]);
+            foundHex = true;
+          } else {
+            for (const [key, hex] of Object.entries(COLOR_MAP)) {
+              if (nameLower.includes(key)) {
+                hexes.add(hex);
+                foundHex = true;
+              }
+            }
+          }
+
+          // Fallback to option.code if it looks like a hex color
+          if (!foundHex && opt.code && opt.code.startsWith("#")) {
+            hexes.add(opt.code);
+          }
+        });
+
+        if (hexes.size > 0) {
+          setFetchedColors(Array.from(hexes));
+        }
+      }
 
       if (assets && assets.length > 0) {
         console.log(

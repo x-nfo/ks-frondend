@@ -251,24 +251,23 @@ export function ProductCard({
                 {colors.slice(0, 4).map((color, idx) => (
                   <motion.div
                     key={`${color}-${idx}`}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{
-                      delay: idx * 0.05 + 0.1,
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 20,
+                      delay: idx * 0.05,
+                      duration: 0.3,
+                      ease: "easeOut",
                     }}
-                    className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full border border-stone-200"
+                    className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full border-none ring-1 ring-offset-2 ring-stone-300 shadow-sm transition-transform hover:scale-110 cursor-pointer"
                     style={{ backgroundColor: color }}
                   />
                 ))}
                 {colors.length > 4 && (
                   <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-[8px] text-gray-400 mt-0.5"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.3, ease: "easeOut" }}
+                    className="text-xxs text-gray-500 font-medium ml-1"
                   >
                     +{colors.length - 4}
                   </motion.span>

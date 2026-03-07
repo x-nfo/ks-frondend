@@ -4,7 +4,6 @@ import { Price } from "./Price";
 import { useMemo, useState } from "react";
 import { sdk } from "../../utils/graphqlWrapper";
 import { WishlistButton } from "../wishlist/WishlistButton";
-import { motion, AnimatePresence } from "motion/react";
 import { COLOR_MAP } from "../../constants";
 
 export type ProductCardProps = SearchQuery["search"]["items"][number] & {
@@ -237,39 +236,26 @@ export function ProductCard({
           <Price priceWithTax={priceWithTax} currencyCode={currencyCode} />
         </div>
 
-        {/* Color swatches preview - Fade in on hover with Framer Motion */}
-        <div className="h-4 flex items-center justify-center mt-1">
-          <AnimatePresence>
-            {isHovered && colors && colors.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 5 }}
-                // transition={{ duration: 0.3, ease: "easeOut" }}
-                className="flex gap-2 items-center"
-              >
-                {colors.slice(0, 6).map((color, idx) => (
-                  <motion.div
-                    key={`${color}-${idx}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="w-1 h-1 md:w-2 md:h-2 rounded-full border-none shadow-sm transition-transform hover:scale-110 cursor-pointer"
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-                {colors.length > 6 && (
-                  <motion.span
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-xxs text-gray-500 font-medium ml-1"
-                  >
-                    +{colors.length - 6}
-                  </motion.span>
-                )}
-              </motion.div>
+        {/* Color Preview Dots - Fade in on hover (like karima-example) */}
+        {colors && colors.length > 0 && (
+          <div
+            className={`h-4 mt-2 mb-1 flex gap-2 items-center justify-center transition-all duration-700 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+              }`}
+          >
+            {colors.slice(0, 6).map((color, idx) => (
+              <div
+                key={`${color}-${idx}`}
+                className="w-2 h-2 rounded-full border border-stone-300 shadow-sm transition-transform hover:scale-110 cursor-pointer"
+                style={{ backgroundColor: color }}
+              />
+            ))}
+            {colors.length > 6 && (
+              <span className="text-xxs text-gray-500 font-medium ml-1">
+                +{colors.length - 6}
+              </span>
             )}
-          </AnimatePresence>
-        </div>
+          </div>
+        )}
       </div>
     </Link>
   );

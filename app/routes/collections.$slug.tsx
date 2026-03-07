@@ -157,19 +157,10 @@ export default function CollectionSlug({ loaderData }: Route.ComponentProps) {
 
   const activeFiltersCount = filters.category.length + filters.colors.length;
 
-  // Derived dynamic filters from backend facets
+  // Static category array to ensure it always renders consistently
   const availableCategories = useMemo(() => {
-    const categories =
-      facets
-        ?.filter(
-          (f: any) =>
-            f.facetValue?.facet?.code?.toLowerCase() === "category" ||
-            f.facetValue?.facet?.name?.toLowerCase() === "category",
-        )
-        .map((f: any) => f.facetValue?.name)
-        .filter(Boolean) || [];
-    return Array.from(new Set(categories)).sort();
-  }, [facets]);
+    return ["Abaya", "Abaya Denim", "Khimar", "Khimar Bandana"];
+  }, []);
 
   const availableColors = useMemo(() => {
     const colorFacets =
